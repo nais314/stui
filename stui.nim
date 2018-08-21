@@ -1458,7 +1458,7 @@ proc initTerminal*(app:App)=
 
 
 
-
+# todo: make paralell:
 proc runTimers*(this:App)=
     var time = epochTime()
     if this.timers.len > 0:

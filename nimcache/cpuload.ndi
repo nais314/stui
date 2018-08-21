@@ -1,0 +1,7 @@
+advice	advice_uXlfLohkC9aBvpzhcIrG9amw	/usr/lib/nim/pure/concurrency/cpuload.nim	31	5
+result	result	/usr/lib/nim/pure/concurrency/cpuload.nim	31	0
+f	f	/usr/lib/nim/pure/concurrency/cpuload.nim	63	8
+b	b	/usr/lib/nim/pure/concurrency/cpuload.nim	65	10
+busy	busy	/usr/lib/nim/pure/concurrency/cpuload.nim	66	10
+total	total	/usr/lib/nim/pure/concurrency/cpuload.nim	66	16
+cpus	cpus	/usr/lib/nim/pure/concurrency/cpuload.nim	70	10

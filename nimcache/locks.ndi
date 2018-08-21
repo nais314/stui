@@ -1,0 +1,4 @@
+acquire	acquire_c9cbvs4ShkxrwmQmnY63PGA	/usr/lib/nim/core/locks.nim	36	5
+release	release_c9cbvs4ShkxrwmQmnY63PGA_2	/usr/lib/nim/core/locks.nim	40	5
+tryAcquire	tryAcquire_9bPySkj6HXfWNB4ampKcs9bg	/usr/lib/nim/core/locks.nim	32	5
+result	result	/usr/lib/nim/core/locks.nim	32	0

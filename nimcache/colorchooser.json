@@ -1,0 +1,32 @@
+{"compile":[
+["/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_system.c", "gcc -c  -w  -I/usr/lib/nim -o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_system.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_system.c"],
+["/home/user/Dropbox/projects/nim/stui/nimcache/colors256.c", "gcc -c  -w  -I/usr/lib/nim -o /home/user/Dropbox/projects/nim/stui/nimcache/colors256.o /home/user/Dropbox/projects/nim/stui/nimcache/colors256.c"],
+["/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_parseutils.c", "gcc -c  -w  -I/usr/lib/nim -o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_parseutils.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_parseutils.c"],
+["/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_strutils.c", "gcc -c  -w  -I/usr/lib/nim -o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_strutils.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_strutils.c"],
+["/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_posix.c", "gcc -c  -w  -I/usr/lib/nim -o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_posix.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_posix.c"],
+["/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_os.c", "gcc -c  -w  -I/usr/lib/nim -o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_os.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_os.c"],
+["/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_times.c", "gcc -c  -w  -I/usr/lib/nim -o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_times.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_times.c"]
+],
+"link":[
+"/home/user/Dropbox/projects/nim/stui/nimcache/colorchooser.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_system.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_terminal.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_colors.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/colors256.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_macros.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_strformat.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_parseutils.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_unicode.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_strutils.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_math.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_algorithm.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_tables.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_hashes.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_termios.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_posix.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_os.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_times.o",
+"/home/user/Dropbox/projects/nim/stui/nimcache/stdlib_ospaths.o"
+],
+"linkcmd": "gcc   -o /home/user/Dropbox/projects/nim/stui/colorchooser  /home/user/Dropbox/projects/nim/stui/nimcache/colorchooser.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_system.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_terminal.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_colors.o /home/user/Dropbox/projects/nim/stui/nimcache/colors256.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_macros.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_strformat.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_parseutils.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_unicode.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_strutils.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_math.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_algorithm.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_tables.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_hashes.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_termios.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_posix.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_os.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_times.o /home/user/Dropbox/projects/nim/stui/nimcache/stdlib_ospaths.o  -lm -lrt   -ldl"
+}

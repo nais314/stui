@@ -1,0 +1,7 @@
+WIFEXITED	WIFEXITED_jey9c9a5UxiJK7PlQ0lLtE0Q	/usr/lib/nim/posix/posix_linux_amd64.nim	613	5
+result	result	/usr/lib/nim/posix/posix_linux_amd64.nim	613	0
+WTERMSIG	WTERMSIG_9cr9a9bc3d9byCALaQhU9aObNDw	/usr/lib/nim/posix/posix_linux_amd64.nim	611	5
+s	s	/usr/lib/nim/posix/posix_linux_amd64.nim	611	15
+result	result	/usr/lib/nim/posix/posix_linux_amd64.nim	611	0
+WIFSIGNALED	WIFSIGNALED_jey9c9a5UxiJK7PlQ0lLtE0Q_2	/usr/lib/nim/posix/posix_linux_amd64.nim	614	5
+result	result	/usr/lib/nim/posix/posix_linux_amd64.nim	614	0

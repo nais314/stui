@@ -1,3 +1,0 @@
-init	init_JKeFCoMeAURymbhVJWrpNA	/usr/lib/nim/pure/collections/sharedlist.nim	76	5
-initLock	initLock_NyibMGWEvLI6dmuAjxN9brAsharedlist	/usr/lib/nim/core/locks.nim	24	5
-lock	lock	/usr/lib/nim/core/locks.nim	24	15

@@ -16,6 +16,7 @@ It can be themed with parseCfg compatible files (.TSS)
 
 Demo / test file is stui_test1.nim
 
+Dependency: like Deja-Vu TTF - a font with large unicode character set
 
 TODO:
 

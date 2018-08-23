@@ -110,6 +110,8 @@ block LOOP:
 
             kmloopFlowVar = spawn kmLoop() #KMEvent
 
+        sleep(0)
+
 
 app.closeTerminal()
 #............

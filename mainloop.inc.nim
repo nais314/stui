@@ -38,7 +38,6 @@ proc checkTerminalResized()=
         app.terminalWidth  = terminalWidth()
         app.recalc()
         app.draw()
-        # todo: trigger on resize app.listeners -> "resize"
 
 
 #.............

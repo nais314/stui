@@ -15,6 +15,10 @@
 ]#
 
 #[
+    Requires: Deja-Vu or other Font with good range of unicode character support
+]#
+
+#[
     TODO:
         main loop poll consumes cpu
         
@@ -1469,7 +1473,9 @@ proc runTimers*(this:App)=
 
 #-------------------------------------------------------------------------------
 #[
-    activate is written before check for prevStyle != nil was inserted into blur()
+    # activate is written before check for prevStyle != nil was inserted into blur()
+
+    activate is useful to pass focus to other controll like selectbox->chooser
 ]#
 proc activate*(app: App, controll:Controll)=
     if app.activeControll != nil:
@@ -1491,6 +1497,8 @@ proc `activePage`*(this:App): Page {.inline.} =
 
 
 proc parkCursor*(app:App){.inline.}=
+    ## move cursor to "parking" position
+    ## proc blur() uses it mostly
     withLock app.termlock:
         terminal.setCursorPos(app.activeWindow.x1 + 1, app.activeWindow.y1 + 2)
         app.cursorPos.x = app.activeWindow.x1 + 1
@@ -1504,7 +1512,7 @@ proc parkCursor*(app:App){.inline.}=
 
 
 proc getUIElementAtPos*(app:App, x,y:int, setActive: bool = false): Controll =
-    #echo x, y
+    ## gets Controll at mouse pos, make it activ if asked
     result = nil
     
     # todo: WIDGETS!!!!!

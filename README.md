@@ -16,16 +16,22 @@ It can be themed with parseCfg compatible files (.TSS)
 
 Demo / test file is stui_test1.nim
 
+Dependency: like Deja-Vu TTF - a font with large unicode character set
+
 TODO:
- todo: ColumnBreak test
- todo: app addeventlistener fnkey action trigger test
- todo: widgets: class, activearea
- todo: window menu, buttons
- todo: window onclick, rightclick
- todo: tss.nim
- todo: intro, doc
- todo: splash
- todo: filechooser (dir, fname, exists)
- todo: ListItem, ListBox - header, table columns, ???
- todo: setEnabled(this:Controll) ?: set style to what?
- todo: banner?
+
+main program skeleton / design pattern for better multithreading
+
+ColumnBreak test
+app addeventlistener fnkey action trigger test
+WS: switch ok, recalc ok
+widgets: class, activearea
+window menu, buttons
+window onclick, rightclick
+tss.nim
+intro, doc
+splash
+filechooser (dir, fname, exists)
+ListItem, ListBox - header, table columns, ???
+setEnabled(this:Controll) ?: set style to what?
+banner?

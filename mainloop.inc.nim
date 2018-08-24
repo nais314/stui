@@ -29,7 +29,7 @@ release(app.termlock)
 app.draw()
 
 
-#...........................................        
+#-------------------------------------------------------------------------------        
 import times
 
 proc checkTerminalResized()=
@@ -63,16 +63,24 @@ rT.action = checkTerminalResized
 #app.timers.add(tA)
 app.timers.add(rT)
 
-#..........................................
+proc th_runTimers(app:ptr App):int=
+    while true:
+        app[].runTimers()
+        sleep(100)
+
+discard spawn th_runTimers(addr app)
+
+
+#-------------------------------------------------------------------------------
 var kmloopFlowVar = spawn kmLoop() #KMEvent
 var kmEvent: KMEvent
 block LOOP:
     while true:
 
-        app.runTimers()
+        #app.runTimers()
         #......
 
-        if kmloopFlowVar.isReady(): #! it consumes LOT of cpu | req by: app.runTimers()
+        #if kmloopFlowVar.isReady(): #! it consumes LOT of cpu | req by: app.runTimers()
 
             kmEvent = KMEvent(^kmloopFlowVar) # it stops here anyway...
 
@@ -109,7 +117,7 @@ block LOOP:
 
             kmloopFlowVar = spawn kmLoop() #KMEvent
 
-        sleep(0)
+        #sleep(0)
 
 
 app.closeTerminal()

@@ -5,6 +5,11 @@ This is my first app in Nim.
 
 STUI is a drag&drop aware ANSI terminal UI.
 
+branches:
+  master: stable, but main loop is sequential
+  ptr: trying to solve things with "app: ptr App" but crashes
+  channels: add a Channel loop to master -> threads may launch main-threds procs etc
+
 
 It can Tile the screen vertically, Tiles can have relative "50%" or exact "100ch" width.
 

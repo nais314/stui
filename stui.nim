@@ -1715,12 +1715,40 @@ proc trigger*(controll:Controll, evtname:string )=
             for j in 0..controll.listeners[i].actions.high:
                 controll.listeners[i].actions[j](controll)
 
-
+#[ # should work but... ??? 
 proc trigger*[T](obj:T, evtname:string )=
     for i in 0..obj.listeners.high:
         if obj.listeners[i].name == evtname:
             for j in 0..obj.listeners[i].actions.high:
-                obj.listeners[i].actions[j](obj)
+                obj.listeners[i].actions[j](obj) ]#
+
+
+proc addEventListener*(app:App, evtname:string, fun:proc():void)=
+    var exists = false
+    var newListener: tuple[name:string, actions: seq[proc():void]]
+    for i in 0..app.listeners.high:
+        if app.listeners[i].name == evtname:
+            app.listeners[i].actions.add(fun)
+            exists = true
+    if not exists:
+        newListener.name = evtname
+        newListener.actions = @[]
+        newListener.actions.add(fun)
+        app.listeners.add(newListener)
+
+
+proc removeEventListener*(app:App, evtname:string, fun:proc():void)=
+    for i in 0..app.listeners.high:
+        if app.listeners[i].name == evtname:
+            for j in 0..app.listeners[i].actions.high:
+                if app.listeners[i].actions[j] == fun:
+                    app.listeners[i].actions.del(j)
+                
+proc trigger*(app:App, evtname:string )=
+    for i in 0..app.listeners.high:
+        if app.listeners[i].name == evtname:
+            for j in 0..app.listeners[i].actions.high:
+                app.listeners[i].actions[j]()
 
 
 

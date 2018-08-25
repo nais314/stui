@@ -70,6 +70,30 @@ app.timers.add(rT)
 
 discard spawn th_runTimers(addr app) ]#
 
+#-------------------------------------------------------------------------------
+
+var channelMain : Channel[string]
+channelMain.open()
+
+proc runChannels()=
+    while true:
+        var msg = channelMain.tryRecv() #tuple[dataAvailable: bool, msg: TMsg]
+        if msg.dataAvailable:
+            app.trigger(msg.msg)
+        else: break
+
+proc channeltest():int=
+    while true:
+        channelMain.send("test1")
+        sleep(2000)
+
+proc channelTest1()=
+    app.workSpaces[0].tiles[0].windows[0].title = $epochTime()
+    app.workSpaces[0].tiles[0].windows[0].drawTitle()
+
+app.addEventListener("test1",channelTest1)
+
+discard spawn channeltest()
 
 #-------------------------------------------------------------------------------
 var kmloopFlowVar = spawn kmLoop() #KMEvent
@@ -78,6 +102,9 @@ block LOOP:
     while true:
 
         app.runTimers()
+        #......
+
+        runChannels()
         #......
 
         if kmloopFlowVar.isReady(): #! it consumes LOT of cpu | req by: app.runTimers()

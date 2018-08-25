@@ -3,7 +3,7 @@
 
 This is my first app in Nim.
 
-** STUI is a drag&drop aware ANSI terminal UI.**
+** STUI is a drag&drop aware, responsive layout ANSI terminal UI.**
 
 branches:
 * master: stable, but main loop is sequential

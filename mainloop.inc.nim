@@ -72,27 +72,39 @@ discard spawn th_runTimers(addr app) ]#
 
 #-------------------------------------------------------------------------------
 
-var channelMain : Channel[string]
-channelMain.open()
+var mainChannel : Channel[string]
+mainChannel.open()
+
+app.itc = addr mainChannel
 
 proc runChannels()=
-    while true:
-        var msg = channelMain.tryRecv() #tuple[dataAvailable: bool, msg: TMsg]
+    for iMsg in 0..2: # anti flood
+        var msg = tryRecv( (app.itc[]) ) #tuple[dataAvailable: bool, msg: TMsg]
         if msg.dataAvailable:
             app.trigger(msg.msg)
         else: break
-
-proc channeltest():int=
-    while true:
-        channelMain.send("test1")
-        sleep(2000)
+#.......................
 
 proc channelTest1()=
     app.workSpaces[0].tiles[0].windows[0].title = $epochTime()
     app.workSpaces[0].tiles[0].windows[0].drawTitle()
 
-app.addEventListener("test1",channelTest1)
+proc channelTest2()=
+    app.workSpaces[0].tiles[0].windows[0].title = "Finished"
+    app.workSpaces[0].tiles[0].windows[0].drawTitle()
 
+proc channelTest3()=
+    app.workSpaces[0].tiles[0].windows[0].title = "--test---" & $epochTime()
+    app.workSpaces[0].tiles[0].windows[0].drawTitle() 
+
+app.addEventListener("test1",channelTest1)
+app.addEventListener("test2",channelTest2)
+app.addEventListener("test3",channelTest3)
+
+proc channeltest():int=
+    while true:
+        mainChannel.send("test3")
+        sleep(750)
 discard spawn channeltest()
 
 #-------------------------------------------------------------------------------

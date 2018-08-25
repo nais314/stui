@@ -173,8 +173,6 @@ proc onDrop(this: Controll, event: KMEvent):void=
     
 
 proc onDrag(this: Controll, event: KMEvent)=
-    #[ if this.app.activeControll != this:
-        this.app.activate(this) ]#
     if not this.disabled:
         this.activeStyle = this.styles["input:drag"]
         TextArea(this).draw()

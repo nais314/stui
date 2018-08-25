@@ -221,6 +221,7 @@ type
         #name*:string
 
 
+    #App:------------------------------
     TimedAction* = tuple[name:string,interval:float,action:proc():void,lastrun:float] # epochTime:float
     App* = ref object of RootObj
         colorMode*:int
@@ -253,6 +254,8 @@ type
 
         listeners*: seq[tuple[name:string, actions: seq[proc():void]]]
         timers*: seq[TimedAction] #seq[tuple[name:string,interval:float,action:proc()]]
+
+        itc*: ptr Channel[string] # TODO inter thread comm to app
 
 
 
@@ -555,6 +558,33 @@ proc setDisabled*(this: Controll)=
     this.activeStyle = this.styles["input:disabled"] #? change-all to disabled???
     this.drawit(this, true)
 
+
+#------------------------
+
+
+proc setControllsVisibility*(this: Window, visibility: bool)=
+    # enable/disable draw for controlls
+    for iC in 0..this.controlls.high :
+        this.controlls[iC].visible = visibility
+    this.currentPage = 0
+
+proc setControllsVisibility*(this:Tile, visibility: bool)=
+    # enable/disable draw for controlls
+    for iW in 0..this.windows.high:
+        setControllsVisibility(this.windows[iW], visibility)
+
+proc setControllsVisibility*(this:App, visibility: bool)=
+    # enable/disable draw for controlls
+    for i_ws in 0..this.workSpaces.high :
+        for iT in 0..this.workSpaces[i_ws].tiles.high:
+            for iW in 0..this.workSpaces[i_ws].tiles[iT].windows.high:
+                setControllsVisibility(this.workSpaces[i_ws].tiles[iT].windows[iW], visibility)
+
+    
+
+
+
+
 #________________________________________________________________
 
 
@@ -618,26 +648,10 @@ proc showCursor*()=
 proc draw*(this: Window)
 proc draw*(this: App)
 
-   
-proc setControllsVisibility*(this: Window, visibility: bool)=
-    # enable/disable draw for controlls
-    for iC in 0..this.controlls.high :
-        this.controlls[iC].visible = visibility
-    this.currentPage = 0
-
-proc setControllsVisibility*(this:Tile, visibility: bool)=
-    # enable/disable draw for controlls
-    for iW in 0..this.windows.high:
-        setControllsVisibility(this.windows[iW], visibility)
-
-proc setControllsVisibility*(this:App, visibility: bool)=
-    # enable/disable draw for controlls
-    for i_ws in 0..this.workSpaces.high :
-        for iT in 0..this.workSpaces[i_ws].tiles.high:
-            for iW in 0..this.workSpaces[i_ws].tiles[iT].windows.high:
-                setControllsVisibility(this.workSpaces[i_ws].tiles[iT].windows[iW], visibility)
-
-
+proc isVisible(this:Window):bool=
+    result = false
+    for t in this.app.activeWorkspace.tiles:
+        if this in t.windows: return true
 
 proc pgUp*(this: Window)=
     if this.currentPage > 0:
@@ -806,7 +820,9 @@ proc newWindow*(tile: Tile): Window =
     result.drawit = windowDrawit
 
     tile.windows.add(result)
-
+proc newWindow*(tile: Tile, title:string): Window =
+    result = newWindow(tile)
+    result.title = title
 
 
 proc newTile*(ws: WorkSpace, width: string) : Tile =
@@ -1307,29 +1323,30 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
 #    [≡]═[Unnamed Document 1]════════════════════════════════════════════════════
 # ▲
 
-method drawTitle*(this: Window) {.base.} =
-    acquire(this.app.termlock)
-    setColors(this.app, this.activeStyle[])
-    terminal.setCursorPos(this.x1, this.y1)
-    stdout.write("[≡]") # ▪ ≡ ✽  ☰
-    var used = 3
-    if this.pages.len > 1 and this.width > 7:
-        if this.currentPage + 1 > 9 :
-            stdout.write("▲" & $(this.currentPage + 1) & "▼")
-        else:
-            stdout.write("▲ " & $(this.currentPage + 1) & "▼")
-        used = used + 4
+proc drawTitle*(this: Window) =
+    if this.isVisible():
+        acquire(this.app.termlock)
+        setColors(this.app, this.activeStyle[])
+        terminal.setCursorPos(this.x1, this.y1)
+        stdout.write("[≡]") # ▪ ≡ ✽  ☰
+        var used = 3
+        if this.pages.len > 1 and this.width > 7:
+            if this.currentPage + 1 > 9 :
+                stdout.write("▲" & $(this.currentPage + 1) & "▼")
+            else:
+                stdout.write("▲ " & $(this.currentPage + 1) & "▼")
+            used = used + 4
 
-    if this.width - used >= this.title.runeLen + 2:
-        stdout.write("═⟅") # ┨ ╡ ┤ | ▌  ▐
-        stdout.write(this.title)
-        stdout.write("⟆") # ╞
-        stdout.write("═" * (this.width - used - this.title.runeLen - 2 - 1))
-    elif this.width - used > 0 :
-        stdout.write("⟅") #
-        stdout.write(this.title.runeSubstr(0,   (this.width - used - 2) ))
-        stdout.write("⟆")
-    release(this.app.termlock)
+        if this.width - used >= this.title.runeLen + 2:
+            stdout.write("═⟅") # ┨ ╡ ┤ | ▌  ▐
+            stdout.write(this.title)
+            stdout.write("⟆") # ╞
+            stdout.write("═" * (this.width - used - this.title.runeLen - 2 - 1))
+        elif this.width - used > 0 :
+            stdout.write("⟅") #
+            stdout.write(this.title.runeSubstr(0,   (this.width - used - 2) ))
+            stdout.write("⟆")
+        release(this.app.termlock)
 
 
 method draw*(this: Controll) {.base.} =
@@ -1505,7 +1522,9 @@ proc parkCursor*(app:App){.inline.}=
         app.cursorPos.y = app.activeWindow.y1
 
 
-    
+proc redraw*(app:App)=
+    app.recalc()
+    app.draw()    
 
 ###############################################################################
 ###############################################################################

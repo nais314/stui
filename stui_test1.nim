@@ -11,6 +11,7 @@
 # todo: ListItem, ListBox - header, table columns, ???
 # todo: setEnabled(this:Controll) ?: set style to what?
 # todo: banner?
+# todo: CTRL+C, CTRL+V
 
 import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
 

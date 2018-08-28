@@ -1,9 +1,9 @@
 # stui
 ### Simplified Terminal UI (Nim lang, ANSI) 
 
-This is my first app in Nim.
+This is my first app in Nim - it covers pretty much anything i need to learn.
 
-**STUI is a drag&drop aware, responsive layout ANSI terminal UI.
+**STUI is a drag&drop aware, responsive layout ANSI terminal UI.**
 
 branches:
 * master: stable, but main loop is sequential

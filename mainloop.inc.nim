@@ -92,7 +92,7 @@ proc runChannels()=
 #-------------------------------------------------------------------------------
 
 
-
+#[ 
 proc channelTest1()=
     app.workSpaces[0].tiles[0].windows[0].title = $app.workSpaces[0].tiles[0].windows[0].currentPage#$epochTime()
     app.workSpaces[0].tiles[0].windows[0].drawTitle()
@@ -116,7 +116,7 @@ proc channeltest()=
 var th : Thread[void]
 #createThread(th, channeltest)
 
-
+ ]#
 
 #-------------------------------------------------------------------------------
 var kmloopFlowVar = spawn kmLoop() #KMEvent

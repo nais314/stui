@@ -1,14 +1,15 @@
+# todo: ListItem, ListBox - header, table columns, ???
+# todo: window menu, buttons
+# todo: widgets: class, activearea
 # todo: ColumnBreak test
 # todo: app addeventlistener fnkey action trigger test
 # done: WS: switch ok, recalc ok
-# todo: widgets: class, activearea
-# todo: window menu, buttons
 # todo: window onclick, rightclick
 # todo: tss.nim
+# todo: setDragdata()
 # todo: intro, doc
 # todo: splash
 # todo: filechooser (dir, fname, exists)
-# todo: ListItem, ListBox - header, table columns, ???
 # todo: setEnabled(this:Controll) ?: set style to what?
 # todo: banner?
 # todo: CTRL+C, CTRL+V

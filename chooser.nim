@@ -14,7 +14,7 @@ type
 method draw*(this: Chooser, updateOnly:bool=false){.base.}=
     var 
         firstSelected:int= 0
-        cursor:int
+        drawCursor:int
         writeY:int
 
     proc writeOptionName(id:int)=
@@ -24,18 +24,19 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
         else:
             stdout.write("☐")  
 
-    if this.cursor == -1:
+#[     if this.cursor == -1: # cursor not yet set
         for i in 0..this.options[].high:
             if this.options[i].selected:
                 firstSelected = i
                 this.cursor = i
     else:
-        firstSelected = this.cursor
+        firstSelected = this.cursor ]#
+    firstSelected = this.cursor
 
-    var middleY = this.y1 + int((this.y2 - this.y1) / 2) - 1 #!
+    var winMiddleY = this.y1 + int((this.y2 - this.y1) / 2) - 1 #!
     var writeX = this.x1 + int((this.width - this.options[firstSelected].name.len) / 2)
     setColors(this.app, this.win.activeStyle[])
-    terminal.setCursorPos(writeX - 4, middleY)
+    terminal.setCursorPos(writeX - 4, winMiddleY)
     stdout.write("░▒▓█")
     terminal.setStyle(stdout, {terminal.styleReverse})
     #[ stdout.write(this.options[firstSelected].name)
@@ -48,34 +49,34 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
     setColors(this.app, this.win.activeStyle[])
     stdout.write("█▓▒░")
 
-    cursor = firstSelected
-    if firstSelected < this.options[].high:
-        writeY = middleY + 1
-        cursor = cursor + 1
-        while writeY <= this.y2 and cursor <= this.options[].high:
-            writeX = this.x1 + int((this.width - this.options[cursor].name.len) / 2)
+    drawCursor = firstSelected # back to beginner pos
+    if firstSelected <= this.options[].high: # we are not on the end
+        writeY = winMiddleY + 1
+        drawCursor = drawCursor + 1
+        while writeY <= this.y2 and drawCursor <= this.options[].high: # write till end or win botom
+            writeX = this.x1 + int((this.width - this.options[drawCursor].name.len) / 2)
             terminal.setCursorPos(writeX, writeY)
-            stdout.write(this.options[cursor].name)
-            if this.options[cursor].selected: # ☐☑☒☓⟦⟧⟰⦗⦘
+            stdout.write(this.options[drawCursor].name)
+            if this.options[drawCursor].selected: # ☐☑☒☓⟦⟧⟰⦗⦘
                 stdout.write("☒")
             else:
                 stdout.write("☐")
-            cursor = cursor + 1
+            drawCursor = drawCursor + 1
             writeY = writeY + 1
 
-    cursor = firstSelected
-    if firstSelected > 0:
-        writeY = middleY - 1
-        cursor = cursor - 1
-        while writeY >= this.y1 and cursor >= 0:
-            writeX = this.x1 + int((this.width - this.options[cursor].name.len) / 2)
+    drawCursor = firstSelected # back to beginner pos
+    if firstSelected > 0: # if we need to print above winMiddleY
+        writeY = winMiddleY - 1
+        drawCursor = drawCursor - 1
+        while writeY >= this.y1 and drawCursor >= 0:
+            writeX = this.x1 + int((this.width - this.options[drawCursor].name.len) / 2)
             terminal.setCursorPos(writeX, writeY)
-            stdout.write(this.options[cursor].name)
-            if this.options[cursor].selected: # ☐☑☒☓⟦⟧⟰⦗⦘
+            stdout.write(this.options[drawCursor].name)
+            if this.options[drawCursor].selected: # ☐☑☒☓⟦⟧⟰⦗⦘
                 stdout.write("☒")
             else:
                 stdout.write("☐")            
-            cursor = cursor - 1
+            drawCursor = drawCursor - 1
             writeY = writeY - 1
 
 ### MANDATORY ###
@@ -167,11 +168,11 @@ proc onClick(this:Controll, event:KMEvent)=
     case event.btn:
         of 0:
 
-            var middleY = this.y1 + int((this.y2 - this.y1) / 2) - 1 #!
+            var winMiddleY = this.y1 + int((this.y2 - this.y1) / 2) - 1 #!
 
-            if event.y > middleY:
-                if chooser.cursor + (event.y - middleY) <= chooser.options[].high:
-                    chooser.cursor = chooser.cursor + (event.y - middleY)
+            if event.y > winMiddleY:
+                if chooser.cursor + (event.y - winMiddleY) <= chooser.options[].high:
+                    chooser.cursor = chooser.cursor + (event.y - winMiddleY)
 
                     if chooser.multiSelect == false or chooser.cursor == 0:
                         for i in 0..chooser.options[].high:
@@ -191,9 +192,9 @@ proc onClick(this:Controll, event:KMEvent)=
                     cancel(this)
 
 
-            elif event.y < middleY:
-                if chooser.cursor - (middleY - event.y) >= 0:
-                    chooser.cursor = chooser.cursor - (middleY - event.y)
+            elif event.y < winMiddleY:
+                if chooser.cursor - (winMiddleY - event.y) >= 0:
+                    chooser.cursor = chooser.cursor - (winMiddleY - event.y)
 
                     if chooser.multiSelect == false or chooser.cursor == 0:
                         for i in 0..chooser.options[].high:
@@ -213,7 +214,7 @@ proc onClick(this:Controll, event:KMEvent)=
                 else:
                     cancel(this)
 
-            elif event.y == middleY:
+            elif event.y == winMiddleY:
                 if chooser.multiSelect == false or chooser.cursor == 0:
                     for i in 0..chooser.options[].high:
                         chooser.options[i].selected = false

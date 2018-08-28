@@ -6,19 +6,19 @@ type TextArea* = ref object of Controll
     val*:string
     preval*:string # undo
 
-    #width*:int # of input
+    #width*:int   # of Controll
     #heigth*:int  # of Controll
     
-    offset*:int
-    cursor_pos*:int
+    offset*:int # num-lines scrolled down
+    cursor_pos*:int # current Rune pos
     lineMetadata*:LineMetadata
     currentLine*:int
 
-#TODO:
-#    scroll/pgUp
+
 
 proc buildLineMetadata(this: TextArea)= #? seq?
-    # count lines formed from VISIBLE characters...Runes
+    ## count lines, line.len, formed from VISIBLE characters...Runes
+    ## for cursor move calculations
     var 
         lineMetadata: LineMetadata = @[]#= this.lineMetadata
         lineCount, width:int=0
@@ -34,13 +34,11 @@ proc buildLineMetadata(this: TextArea)= #? seq?
     this.lineMetadata = lineMetadata
 
 
-proc writeFromCursorPos(this: TextArea)=
-    # in edit mode, write wrapped until window or string end
-    # uses app.cursorPos.x|y
-    discard
+
 
 proc writeFromOffset(this: TextArea)=
-    # draw from x1,y1 to x2,y2
+    ## draw textarea content from scroll offset (linenum)
+    ## from "x1,y1+label to x2,y2"
 
     block PRINT:
         var 
@@ -120,11 +118,8 @@ proc draw*(this: TextArea, updateOnly: bool = false) =
                 )
             #...
 
-            # echo input area
-
+        # clear / background
         setColors(this.app, this.activeStyle[])
-        #[ terminal.setCursorPos(leftX(this), 
-                              bottomY(this)) ]#
         drawRect(this.leftX(), this.topY() + 1 , this.rightX(), this.bottomY())
 
         writeFromOffset(this)
@@ -413,7 +408,9 @@ proc onKeyPress(this: Controll, event: KMEvent)=
                     ta.cursor_pos = ta.val.runeLen()
                     ta.currentLine = ta.lineMetadata.high
                     this.app.cursorPos.x = ta.leftX() + ta.lineMetadata[ta.lineMetadata.high].width
-                    this.app.cursorPos.y = ta.bottomY()
+                    this.app.cursorPos.y = if ta.lineMetadata.high > (ta.heigth - 1) : # if val < textarea
+                        ta.bottomY() else : ta.topY() + ta.lineMetadata.high + 1 #+1 label
+
                     ta.draw(true)
 
 

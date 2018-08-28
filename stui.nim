@@ -562,23 +562,29 @@ proc setDisabled*(this: Controll)=
 #------------------------
 
 
-proc setControllsVisibility*(this: Window, visibility: bool)=
-    # enable/disable draw for controlls
-    for iC in 0..this.controlls.high :
-        this.controlls[iC].visible = visibility
-    this.currentPage = 0
+proc setControllsVisibility*(this: Window, setVisible: bool)=
+    ## enable/disable draw for controlls
+    ## if setVisible, the current pages controlls made visible again, not all
+    ## else hide all of the windows controlls - currentpage or not
+    if setVisible:
+        for iC in 0..this.pages[this.currentPage].controlls.high :
+            this.controlls[iC].visible = setVisible
+    else:
+        for iC in 0..this.controlls.high :
+            this.controlls[iC].visible = setVisible
+    #this.currentPage = 0 # disabled as it seems to cause more trouble than benefit
 
-proc setControllsVisibility*(this:Tile, visibility: bool)=
-    # enable/disable draw for controlls
+proc hideControlls*(this:Tile)=
+    ## disable draw for controlls
     for iW in 0..this.windows.high:
-        setControllsVisibility(this.windows[iW], visibility)
+        setControllsVisibility(this.windows[iW], false)
 
-proc setControllsVisibility*(this:App, visibility: bool)=
-    # enable/disable draw for controlls
+proc hideControlls*(this:App)=
+    ## disable draw for controlls
     for i_ws in 0..this.workSpaces.high :
         for iT in 0..this.workSpaces[i_ws].tiles.high:
             for iW in 0..this.workSpaces[i_ws].tiles[iT].windows.high:
-                setControllsVisibility(this.workSpaces[i_ws].tiles[iT].windows[iW], visibility)
+                setControllsVisibility(this.workSpaces[i_ws].tiles[iT].windows[iW], false)
 
     
 
@@ -647,6 +653,11 @@ proc showCursor*()=
 
 proc draw*(this: Window)
 proc draw*(this: App)
+proc drawTitle*(this: Window)
+
+proc setTitle*(this:Window,title:string)=
+    this.title = title
+    this.drawTitle()
 
 proc isVisible(this:Window):bool=
     result = false
@@ -708,7 +719,7 @@ proc windowDrawit(this: Controll, updateOnly: bool = false)=
 proc swapWindows*(this:Tile, newWindows: seq[Window]): seq[Window] =
     # swap tiles window, returns old windows for store/swap back
     result = this.windows
-    setControllsVisibility(this, false)
+    hideControlls(this)
     this.windows = newWindows
 
 
@@ -1162,7 +1173,7 @@ proc recalc*(this: App) =
     # todo: availrect widgets!!!
     this.availRect.x2 = terminalWidth()
     this.availRect.y2 = terminalHeight()
-    this.setControllsVisibility(false)
+    this.hideControlls()
     if this.workSpaces.len > 0:
         for i_ws in 0..this.workSpaces.high :
             this.workSpaces[i_ws].recalc(this.availRect)

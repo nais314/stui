@@ -79,14 +79,22 @@ app.itc = addr mainChannel
 
 proc runChannels()=
     for iMsg in 0..2: # anti flood
-        var msg = tryRecv( (app.itc[]) ) #tuple[dataAvailable: bool, msg: TMsg]
-        if msg.dataAvailable:
-            app.trigger(msg.msg)
+        var inbox = tryRecv( (mainChannel) ) #tuple[dataAvailable: bool, msg: TMsg]
+        if inbox.dataAvailable:
+            case inbox.msg:
+                of "redraw":
+                    app.redraw()
+                of "quit":
+                    quit()
+                else:
+                    app.trigger(inbox.msg)
         else: break
-#.......................
+#-------------------------------------------------------------------------------
+
+
 
 proc channelTest1()=
-    app.workSpaces[0].tiles[0].windows[0].title = $epochTime()
+    app.workSpaces[0].tiles[0].windows[0].title = $app.workSpaces[0].tiles[0].windows[0].currentPage#$epochTime()
     app.workSpaces[0].tiles[0].windows[0].drawTitle()
 
 proc channelTest2()=
@@ -94,18 +102,21 @@ proc channelTest2()=
     app.workSpaces[0].tiles[0].windows[0].drawTitle()
 
 proc channelTest3()=
-    app.workSpaces[0].tiles[0].windows[0].title = "--test---" & $epochTime()
+    app.workSpaces[0].tiles[0].windows[0].title = "--test--" & $epochTime()
     app.workSpaces[0].tiles[0].windows[0].drawTitle() 
 
 app.addEventListener("test1",channelTest1)
 app.addEventListener("test2",channelTest2)
 app.addEventListener("test3",channelTest3)
 
-proc channeltest():int=
+proc channeltest()=
     while true:
-        mainChannel.send("test3")
-        sleep(750)
-discard spawn channeltest()
+        mainChannel.send("test1")
+        sleep(1500)
+var th : Thread[void]
+#createThread(th, channeltest)
+
+
 
 #-------------------------------------------------------------------------------
 var kmloopFlowVar = spawn kmLoop() #KMEvent

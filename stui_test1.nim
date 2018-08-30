@@ -442,7 +442,7 @@ wsSwitch2.onClick = alt_wsSwitch2_Click
 
 #...............................................................................
 
-var relTA = ws2T1W1.newTextArea("Relative W+H test", "100", "90")
+var relTA = ws2T1W1.newTextArea("Relative W+H test", "75", "75")
 relTA.value="""
 The quick brown fox jumped over the lazy dog.
 Árvíztűrő tükörfúrógép.

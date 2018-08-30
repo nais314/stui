@@ -954,10 +954,24 @@ proc newApp*(): App =
 
 
 proc outerHeigth(this: Controll): int {.inline.} =
-    if this.activeStyle.border != "none" and this.activeStyle.border != nil:
-        return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
+    if this.heigth_value > 0:
+        
+        if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
+            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
+                this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2
+            #return int((this.win.heigth.float / 100.0) * this.heigth_value.float)
+
+        else: # no border
+            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
+                this.activeStyle.margin.top - this.activeStyle.margin.bottom
+
+        return int((this.win.heigth.float / 100.0) * this.heigth_value.float)
+        
     else:
-        return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom
+        if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
+            return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
+        else: # no border
+            return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom
 
 proc borderWidth*(this: Controll): int {.inline.} =
     return if this.activeStyle.border == "none" or this.activeStyle.border == nil or this.activeStyle.border == "": 0 else: 1
@@ -1048,7 +1062,9 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                             this.controlls[iC].activeStyle.margin.right + 
                             this.controlls[iC].borderWidth() * 2)
 
+
                 ###### heigth and width should be calculated at this point #####
+
 
                 # if no room on bottom / and on side: ------------------------
                 #   x2 precalc to know if controll fits on page

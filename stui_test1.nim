@@ -1,4 +1,5 @@
 # todo: ListItem, ListBox - header, table columns, ???
+# todo: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
 # todo: window menu, buttons
 # todo: widgets: class, activearea
 # todo: ColumnBreak test
@@ -16,7 +17,7 @@
 
 import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
 
-import textbox, button, textarea
+import textbox, button, textarea, stringlistbox
 
 import strformat, unicode
 
@@ -262,11 +263,8 @@ tb33.setBorder("bold")
 #tb.setDisabled()
 
 
+
 #------------------------------------------------------------
-
-
-
-
 
 
 
@@ -291,8 +289,21 @@ for i in 2..20:
 
 
 
-
 #------------------------------------------------------------
+
+
+
+let slb1 = app.activeWindow.newStringListBox("String ListBox", 20, 5)
+
+for i in 0..4:
+    slb1.options.add((genId(10), nil)) # tuple[name:string, action:proc():void]
+
+slb1.setMargin("left",1)
+slb1.setBorder("solid")
+    
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 for i in 2..20:
     var tb2 = ws1_W2.newTextBox("Teszt" & $i,20,20)
@@ -309,8 +320,9 @@ for i in 2..20:
     if i == 6: discard ws1_W2.newPageBreak()
 
 
-   
- 
+#------------------------------------------------------------------------------  
+#------------------------------------------------------------------------------
+
 
 
 #===============================================================================

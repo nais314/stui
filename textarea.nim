@@ -555,12 +555,12 @@ proc newTextArea*(win:Window, label: string, width:int=20, heigth:int=20): TextA
     win.controlls.add(result)
     
 
-proc newTextArea*(win:Window, label: string, width:string): TextArea =
+#[ proc newTextArea*(win:Window, label: string, width:string): TextArea =
     result = newTextArea(win, label, width=0)
     #(result.width_unit, result.width_value) = parseSizeStr(width)
-    discard width.parseInt(result.width_value)
+    discard width.parseInt(result.width_value) ]#
 
 proc newTextArea*(win:Window, label: string, width:string, heigth:string): TextArea =
-    result = newTextArea(win, label, width=0)
+    result = newTextArea(win, label)
     discard width.parseInt(result.width_value)
     discard heigth.parseInt(result.heigth_value)

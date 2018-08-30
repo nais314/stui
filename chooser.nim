@@ -31,24 +31,24 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
                 this.cursor = i
     else:
         firstSelected = this.cursor ]#
-    firstSelected = this.cursor
 
+    # draw selected or first option with spec style, on win. middle:------------
+    firstSelected = this.cursor
     var winMiddleY = this.y1 + int((this.y2 - this.y1) / 2) - 1 #!
     var writeX = this.x1 + int((this.width - this.options[firstSelected].name.len) / 2)
     setColors(this.app, this.win.activeStyle[])
     terminal.setCursorPos(writeX - 4, winMiddleY)
     stdout.write("░▒▓█")
     terminal.setStyle(stdout, {terminal.styleReverse})
-    #[ stdout.write(this.options[firstSelected].name)
-    if this.options[firstSelected].selected: # ☐☑☒☓⟦⟧⟰⦗⦘
-        stdout.write("☒")
-    else:
-        stdout.write("☐")  ]#
+
     writeOptionName(firstSelected)  
+
     terminal.resetAttributes()
     setColors(this.app, this.win.activeStyle[])
     stdout.write("█▓▒░")
 
+
+    # draw items below selected: -----------------------------------------------
     drawCursor = firstSelected # back to beginner pos
     if firstSelected <= this.options[].high: # we are not on the end
         writeY = winMiddleY + 1
@@ -64,6 +64,8 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
             drawCursor = drawCursor + 1
             writeY = writeY + 1
 
+    
+    # draw items above selected: -----------------------------------------------
     drawCursor = firstSelected # back to beginner pos
     if firstSelected > 0: # if we need to print above winMiddleY
         writeY = winMiddleY - 1
@@ -226,7 +228,8 @@ proc onClick(this:Controll, event:KMEvent)=
                 chooser.app.activeWindow.draw()  
         
         else:
-            cancel(this)
+            #cancel(this)
+            commit(this)
 
 
 proc newChooser*(win:Window, options:OptionListRef, multiSelect:bool=false):Chooser=

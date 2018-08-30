@@ -143,9 +143,9 @@ type
         btn*, x*, y* :int
         c*:char
         source*, target*:  Controll
-        evType*: string
+        evType*: string # FnKey, CtrlKey, Char - Custom
 
-        key*: string
+        key*: string # esc sequence or Rune - or Custom
         ctrlKey*: int
 
 
@@ -419,8 +419,9 @@ proc setCursorStyle*(Ps: int)=
 
 
 
-
-
+proc newStyleSheets*(): StyleSheets = 
+    ## init controlls stylesheets
+    newTable[string, StyleSheetRef](8)
 
 
 proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
@@ -779,7 +780,6 @@ proc parseSizeStr*(width:string): tuple[width_unit:string,width_value:int]=
 
 
 
-proc newStyleSheets*(): StyleSheets = newTable[string, StyleSheetRef](8)
 
 proc newColumnBreak*(win: Window): ColumnBreak =
     result = new ColumnBreak
@@ -925,6 +925,9 @@ proc newApp*(): App =
 
         result.styles.add("input:drag",styleSheetRef_fromConfig(dict,"input-drag"))
 
+        result.styles.add("input:even",styleSheetRef_fromConfig(dict,"input-even"))
+
+        result.styles.add("input:odd",styleSheetRef_fromConfig(dict,"input-odd"))
         #............
 
 
@@ -1045,7 +1048,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                             this.controlls[iC].activeStyle.margin.right + 
                             this.controlls[iC].borderWidth() * 2)
 
-                # heigth and width should be calculated at this point
+                ###### heigth and width should be calculated at this point #####
 
                 # if no room on bottom / and on side: ------------------------
                 #   x2 precalc to know if controll fits on page

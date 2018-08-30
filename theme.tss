@@ -67,3 +67,21 @@ fgColor16 = 37
 fgColor256 = 90
 fgColorRGB = "222,222,222"
 border = "none"
+
+[input-even]
+bgColor16 = 40
+bgColor256 = 237
+bgColorRGB = "gainsboro"
+fgColor16 = 30
+fgColor256 = 0
+fgColorRGB = "black"
+border = "none"
+
+[input-odd]
+bgColor16 = 40
+bgColor256 = 235
+bgColorRGB = "ghostwhite"
+fgColor16 = 30
+fgColor256 = 0
+fgColorRGB = "black"
+border = "none"

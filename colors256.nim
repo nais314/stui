@@ -1,6 +1,5 @@
 #[
     based on: https://jonasjacek.github.io/colors/
-    CSS color names used
 ]#
 type Color256* = enum
     Black = 0,      #000000	rgb(0,0,0)	

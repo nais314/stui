@@ -143,9 +143,9 @@ type
         btn*, x*, y* :int
         c*:char
         source*, target*:  Controll
-        evType*: string
+        evType*: string # FnKey, CtrlKey, Char - Custom
 
-        key*: string
+        key*: string # esc sequence or Rune - or Custom
         ctrlKey*: int
 
 
@@ -221,6 +221,7 @@ type
         #name*:string
 
 
+    #App:------------------------------
     TimedAction* = tuple[name:string,interval:float,action:proc():void,lastrun:float] # epochTime:float
     App* = ref object of RootObj
         colorMode*:int
@@ -253,6 +254,8 @@ type
 
         listeners*: seq[tuple[name:string, actions: seq[proc():void]]]
         timers*: seq[TimedAction] #seq[tuple[name:string,interval:float,action:proc()]]
+
+        itc*: ptr Channel[string] # TODO inter thread comm to app
 
 
 
@@ -416,8 +419,9 @@ proc setCursorStyle*(Ps: int)=
 
 
 
-
-
+proc newStyleSheets*(): StyleSheets = 
+    ## init controlls stylesheets
+    newTable[string, StyleSheetRef](8)
 
 
 proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
@@ -555,6 +559,39 @@ proc setDisabled*(this: Controll)=
     this.activeStyle = this.styles["input:disabled"] #? change-all to disabled???
     this.drawit(this, true)
 
+
+#------------------------
+
+
+proc setControllsVisibility*(this: Window, setVisible: bool)=
+    ## enable/disable draw for controlls
+    ## if setVisible, the current pages controlls made visible again, not all
+    ## else hide all of the windows controlls - currentpage or not
+    if setVisible:
+        for iC in 0..this.pages[this.currentPage].controlls.high :
+            this.controlls[iC].visible = setVisible
+    else:
+        for iC in 0..this.controlls.high :
+            this.controlls[iC].visible = setVisible
+    #this.currentPage = 0 # disabled as it seems to cause more trouble than benefit
+
+proc hideControlls*(this:Tile)=
+    ## disable draw for controlls
+    for iW in 0..this.windows.high:
+        setControllsVisibility(this.windows[iW], false)
+
+proc hideControlls*(this:App)=
+    ## disable draw for controlls
+    for i_ws in 0..this.workSpaces.high :
+        for iT in 0..this.workSpaces[i_ws].tiles.high:
+            for iW in 0..this.workSpaces[i_ws].tiles[iT].windows.high:
+                setControllsVisibility(this.workSpaces[i_ws].tiles[iT].windows[iW], false)
+
+    
+
+
+
+
 #________________________________________________________________
 
 
@@ -617,27 +654,16 @@ proc showCursor*()=
 
 proc draw*(this: Window)
 proc draw*(this: App)
+proc drawTitle*(this: Window)
 
-   
-proc setControllsVisibility*(this: Window, visibility: bool)=
-    # enable/disable draw for controlls
-    for iC in 0..this.controlls.high :
-        this.controlls[iC].visible = visibility
-    this.currentPage = 0
+proc setTitle*(this:Window,title:string)=
+    this.title = title
+    this.drawTitle()
 
-proc setControllsVisibility*(this:Tile, visibility: bool)=
-    # enable/disable draw for controlls
-    for iW in 0..this.windows.high:
-        setControllsVisibility(this.windows[iW], visibility)
-
-proc setControllsVisibility*(this:App, visibility: bool)=
-    # enable/disable draw for controlls
-    for i_ws in 0..this.workSpaces.high :
-        for iT in 0..this.workSpaces[i_ws].tiles.high:
-            for iW in 0..this.workSpaces[i_ws].tiles[iT].windows.high:
-                setControllsVisibility(this.workSpaces[i_ws].tiles[iT].windows[iW], visibility)
-
-
+proc isVisible(this:Window):bool=
+    result = false
+    for t in this.app.activeWorkspace.tiles:
+        if this in t.windows: return true
 
 proc pgUp*(this: Window)=
     if this.currentPage > 0:
@@ -694,7 +720,7 @@ proc windowDrawit(this: Controll, updateOnly: bool = false)=
 proc swapWindows*(this:Tile, newWindows: seq[Window]): seq[Window] =
     # swap tiles window, returns old windows for store/swap back
     result = this.windows
-    setControllsVisibility(this, false)
+    hideControlls(this)
     this.windows = newWindows
 
 
@@ -754,7 +780,6 @@ proc parseSizeStr*(width:string): tuple[width_unit:string,width_value:int]=
 
 
 
-proc newStyleSheets*(): StyleSheets = newTable[string, StyleSheetRef](8)
 
 proc newColumnBreak*(win: Window): ColumnBreak =
     result = new ColumnBreak
@@ -806,7 +831,9 @@ proc newWindow*(tile: Tile): Window =
     result.drawit = windowDrawit
 
     tile.windows.add(result)
-
+proc newWindow*(tile: Tile, title:string): Window =
+    result = newWindow(tile)
+    result.title = title
 
 
 proc newTile*(ws: WorkSpace, width: string) : Tile =
@@ -898,6 +925,9 @@ proc newApp*(): App =
 
         result.styles.add("input:drag",styleSheetRef_fromConfig(dict,"input-drag"))
 
+        result.styles.add("input:even",styleSheetRef_fromConfig(dict,"input-even"))
+
+        result.styles.add("input:odd",styleSheetRef_fromConfig(dict,"input-odd"))
         #............
 
 
@@ -924,10 +954,24 @@ proc newApp*(): App =
 
 
 proc outerHeigth(this: Controll): int {.inline.} =
-    if this.activeStyle.border != "none" and this.activeStyle.border != nil:
-        return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
+    if this.heigth_value > 0:
+        
+        if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
+            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
+                this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2
+            #return int((this.win.heigth.float / 100.0) * this.heigth_value.float)
+
+        else: # no border
+            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
+                this.activeStyle.margin.top - this.activeStyle.margin.bottom
+
+        return int((this.win.heigth.float / 100.0) * this.heigth_value.float)
+        
     else:
-        return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom
+        if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
+            return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
+        else: # no border
+            return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom
 
 proc borderWidth*(this: Controll): int {.inline.} =
     return if this.activeStyle.border == "none" or this.activeStyle.border == nil or this.activeStyle.border == "": 0 else: 1
@@ -1018,7 +1062,9 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                             this.controlls[iC].activeStyle.margin.right + 
                             this.controlls[iC].borderWidth() * 2)
 
-                # heigth and width should be calculated at this point
+
+                ###### heigth and width should be calculated at this point #####
+
 
                 # if no room on bottom / and on side: ------------------------
                 #   x2 precalc to know if controll fits on page
@@ -1146,7 +1192,7 @@ proc recalc*(this: App) =
     # todo: availrect widgets!!!
     this.availRect.x2 = terminalWidth()
     this.availRect.y2 = terminalHeight()
-    this.setControllsVisibility(false)
+    this.hideControlls()
     if this.workSpaces.len > 0:
         for i_ws in 0..this.workSpaces.high :
             this.workSpaces[i_ws].recalc(this.availRect)
@@ -1307,29 +1353,30 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
 #    [≡]═[Unnamed Document 1]════════════════════════════════════════════════════
 # ▲
 
-method drawTitle*(this: Window) {.base.} =
-    acquire(this.app.termlock)
-    setColors(this.app, this.activeStyle[])
-    terminal.setCursorPos(this.x1, this.y1)
-    stdout.write("[≡]") # ▪ ≡ ✽  ☰
-    var used = 3
-    if this.pages.len > 1 and this.width > 7:
-        if this.currentPage + 1 > 9 :
-            stdout.write("▲" & $(this.currentPage + 1) & "▼")
-        else:
-            stdout.write("▲ " & $(this.currentPage + 1) & "▼")
-        used = used + 4
+proc drawTitle*(this: Window) =
+    if this.isVisible():
+        acquire(this.app.termlock)
+        setColors(this.app, this.activeStyle[])
+        terminal.setCursorPos(this.x1, this.y1)
+        stdout.write("[≡]") # ▪ ≡ ✽  ☰
+        var used = 3
+        if this.pages.len > 1 and this.width > 7:
+            if this.currentPage + 1 > 9 :
+                stdout.write("▲" & $(this.currentPage + 1) & "▼")
+            else:
+                stdout.write("▲ " & $(this.currentPage + 1) & "▼")
+            used = used + 4
 
-    if this.width - used >= this.title.runeLen + 2:
-        stdout.write("═⟅") # ┨ ╡ ┤ | ▌  ▐
-        stdout.write(this.title)
-        stdout.write("⟆") # ╞
-        stdout.write("═" * (this.width - used - this.title.runeLen - 2 - 1))
-    elif this.width - used > 0 :
-        stdout.write("⟅") #
-        stdout.write(this.title.runeSubstr(0,   (this.width - used - 2) ))
-        stdout.write("⟆")
-    release(this.app.termlock)
+        if this.width - used >= this.title.runeLen + 2:
+            stdout.write("═⟅") # ┨ ╡ ┤ | ▌  ▐
+            stdout.write(this.title)
+            stdout.write("⟆") # ╞
+            stdout.write("═" * (this.width - used - this.title.runeLen - 2 - 1))
+        elif this.width - used > 0 :
+            stdout.write("⟅") #
+            stdout.write(this.title.runeSubstr(0,   (this.width - used - 2) ))
+            stdout.write("⟆")
+        release(this.app.termlock)
 
 
 method draw*(this: Controll) {.base.} =
@@ -1505,7 +1552,9 @@ proc parkCursor*(app:App){.inline.}=
         app.cursorPos.y = app.activeWindow.y1
 
 
-    
+proc redraw*(app:App)=
+    app.recalc()
+    app.draw()    
 
 ###############################################################################
 ###############################################################################
@@ -1715,12 +1764,40 @@ proc trigger*(controll:Controll, evtname:string )=
             for j in 0..controll.listeners[i].actions.high:
                 controll.listeners[i].actions[j](controll)
 
-
+#[ # should work but... ??? 
 proc trigger*[T](obj:T, evtname:string )=
     for i in 0..obj.listeners.high:
         if obj.listeners[i].name == evtname:
             for j in 0..obj.listeners[i].actions.high:
-                obj.listeners[i].actions[j](obj)
+                obj.listeners[i].actions[j](obj) ]#
+
+
+proc addEventListener*(app:App, evtname:string, fun:proc():void)=
+    var exists = false
+    var newListener: tuple[name:string, actions: seq[proc():void]]
+    for i in 0..app.listeners.high:
+        if app.listeners[i].name == evtname:
+            app.listeners[i].actions.add(fun)
+            exists = true
+    if not exists:
+        newListener.name = evtname
+        newListener.actions = @[]
+        newListener.actions.add(fun)
+        app.listeners.add(newListener)
+
+
+proc removeEventListener*(app:App, evtname:string, fun:proc():void)=
+    for i in 0..app.listeners.high:
+        if app.listeners[i].name == evtname:
+            for j in 0..app.listeners[i].actions.high:
+                if app.listeners[i].actions[j] == fun:
+                    app.listeners[i].actions.del(j)
+                
+proc trigger*(app:App, evtname:string )=
+    for i in 0..app.listeners.high:
+        if app.listeners[i].name == evtname:
+            for j in 0..app.listeners[i].actions.high:
+                app.listeners[i].actions[j]()
 
 
 

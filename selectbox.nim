@@ -16,7 +16,7 @@ type
         size*:int # of input
         
         offset_h*:int
-        cursor_pos*:int
+        #cursor_pos*:int
 
         
         chooser*: Chooser
@@ -203,7 +203,7 @@ proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, size:int=2
     result.multiSelect = multiSelect
     result.size=size
     result.offset_h = 0
-    result.cursor_pos = 0
+    #result.cursor_pos = 0
     result.visible = false
     result.disabled = false
     result.width = size

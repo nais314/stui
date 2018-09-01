@@ -217,6 +217,15 @@ proc onKeypress(this:Controll, event:KMEvent)=
                             slistbox.app.cursorPos.y -= 1
 
                         slistbox.draw(true) ]#
+                else: discard
+
+        elif event.evType == "CtrlKey":
+            case event.ctrlKey:
+                of 13: # ENTER, ctrl+M
+                    if slistbox.options[slistbox.cursor].action != nil:
+                        slistbox.options[slistbox.cursor].action()
+
+                else: discard
 
 
 proc onScroll(this:Controll, event:KMEvent)=

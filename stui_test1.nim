@@ -1,11 +1,13 @@
 # todo: ListItem, ListBox - header, table columns, ???
 # todo: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
 # todo: window menu, buttons
+# todo: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
 # todo: widgets: class, activearea
 # todo: ColumnBreak test
 # todo: app addeventlistener fnkey action trigger test
 # done: WS: switch ok, recalc ok
 # todo: window onclick, rightclick
+# todo: controll.header.inc.nim
 # todo: tss.nim
 # todo: setDragdata()
 # todo: intro, doc
@@ -45,7 +47,7 @@ app.workSpaces[0].tiles[0].windows[0].title = "Unnamed Document 1"
 
 
 
-discard app.workSpaces[0].newTile("24ch")
+discard app.workSpaces[0].newTile("24ch") # 24 char wide tile
 var ws1_W2 = app.workSpaces[0].tiles[1].newWindow()
 #ws1_W2.styles["panel"].bgColor[2] = 25
 #ws1_W2.styles["panel"].bgColor[3] = int(packRGB(51, 102, 153))
@@ -90,6 +92,8 @@ tb2.activeStyle.bgColor = app.styles["panel"].bgColor
 tb2.setMargin("bottom", 1)
 tb2.setMargin("left", 1)
 tb2.setBorder("solid")
+
+# test threads:
 
 proc tb2test(pbPtr: ptr, app: ptr)=
     while true:
@@ -159,26 +163,23 @@ for i in 1..5:
     opt = (name:"name-" & $i, value: $i, selected:false)
     sb2.options[].add(opt)
 
-#------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
-var btn = app.activeWindow.newButton("12345")
+var btn = app.activeWindow.newButton("12345", 1,1)
 
 btn.setMargin("left", 1)
 btn.setMargin("bottom", 1)
 
-btn.setBorder("block")
+#btn.setBorder("block")
 
 proc btnClick(this:Controll)=
-    #var event = new KMEvent
-    #[ this.app.activeControll = sb2
-    sb2.focus(sb2) ]#
     this.app.activate(sb2)
     sb2.onClick(sb2, new KMEvent)
-    this.toggleBlink()
+    #this.toggleBlink()
 
 addEventListener(Controll(btn), "click", btnClick)
 
-#------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 import progressbar
 
@@ -292,14 +293,17 @@ for i in 2..20:
 #------------------------------------------------------------
 
 
+    
+
 
 let slb1 = app.activeWindow.newStringListBox("String ListBox", 20, 5)
 
-for i in 0..4:
+for i in 0..10:
     slb1.options.add((genId(10), nil)) # tuple[name:string, action:proc():void]
+    slb1.options[i].action = proc() = app.setActiveWorkSpace("secondWS")
 
 slb1.setMargin("left",1)
-slb1.setBorder("solid")
+slb1.setBorder("block")
     
 
 #------------------------------------------------------------------------------
@@ -399,7 +403,7 @@ spawn statusTss_test(addr ws1_W2, addr app, addr status_styles)
 
 
 
-var ws2 = app.newWorkSpace()
+var ws2 = app.newWorkSpace("secondWS")
 var ws2T1 = ws2.newTile("auto")
 
 var ws2T1W1 = ws2T1.newWindow()
@@ -436,7 +440,7 @@ addEventListener(Controll(wsSwitch2), "click", wsSwitch2_Click) ]#
 proc alt_wsSwitch2_Click(this:Controll, event:KMEvent)=
     button.onClick(this, event)
     app.setActiveWorkSpace("firstWS")
-    app.draw()
+    #app.draw()
 
 wsSwitch2.onClick = alt_wsSwitch2_Click
 

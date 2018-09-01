@@ -638,6 +638,7 @@ proc setCursorStyle*(Ps: int){.inline.}=
 proc showCursor*()=
     stdout.write "\e[?25l" ]#
 
+
 #*******************************************************************************
 #*******************************************************************************
 #*******************************************************************************
@@ -1224,16 +1225,20 @@ proc recalc*(this: App) =
 ┗━┛
  ]#
 
-proc leftX*(this: Controll) : int {.inline.} = 
+proc leftX*(this: Controll) : int {.inline.} =
+    ## Controlls first column to draw - wo border + margin
     this.x1 + this.activeStyle.margin.left + this.borderWidth()
 
 proc rightX*(this: Controll) : int {.inline.} =
+    ## Controlls last column - wo border + margin
     this.x2 - this.activeStyle.margin.right - this.borderWidth()
 
 proc bottomY*(this: Controll) : int {.inline.} =
+    ## Controlls last row available for drawing - wo border + margin
     this.y2 - this.activeStyle.margin.bottom - this.borderWidth()
 
 proc topY*(this: Controll) : int {.inline.} =
+    ## Controlls first row available for drawing - wo border + margin
     this.y1 + this.activeStyle.margin.top + this.borderWidth()
 
 
@@ -1249,18 +1254,18 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
         of "block":
             #top
             setCursorPos(x1,y1)
-            stdout.write(" " * (x2 - x1 + 1) )
+            stdout.write("█" * (x2 - x1 + 1) )
             #bottom
             setCursorPos(x1,y2)
-            stdout.write(" " * (x2 - x1 + 1) )
+            stdout.write("█" * (x2 - x1 + 1) )
             #left
             for i in y1..y2:
                 setCursorPos(x1,i)
-                stdout.write(" ")
+                stdout.write("█")
             #right
             for i in y1..y2:
                 setCursorPos(x2,i)
-                stdout.write(" ")
+                stdout.write("█")
 
         of "bold":
             #top
@@ -1588,7 +1593,7 @@ proc getUIElementAtPos*(app:App, x,y:int, setActive: bool = false): Controll =
                         page.controlls[iE].visible :
                         #echo "FOUNDIT"
 
-                        if setActive :
+                        if setActive and app.activeControll != page.controlls[iE]: #! changed
                             #var currentControll = page.controlls[iE]
                             # blur active controll:
                             if app.activeControll != nil #[ and app.activeControll != page.controlls[iE] ]# :
@@ -1602,7 +1607,8 @@ proc getUIElementAtPos*(app:App, x,y:int, setActive: bool = false): Controll =
 
                             # set active controll
                             app.activeControll = page.controlls[iE]
-                            if app.activeControll.focus != nil: app.activeControll.focus(app.activeControll)
+                            if app.activeControll.focus != nil: 
+                                app.activeControll.focus(app.activeControll)
 
                         return page.controlls[iE]
 
@@ -1801,6 +1807,13 @@ proc trigger*(app:App, evtname:string )=
 
 
 
+proc clickedInside*(this:Controll, event:KMEvent): bool =
+    result = false
+    if this.topY + 1 <= event.y and # +1 label
+        this.bottomY >= event.y and
+        this.leftX <= event.x and
+        this.rightX >= event.x:
+            result = true
 ##############################################################
 #[
 Notes:

@@ -2,14 +2,9 @@ import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, loc
 
 type Button* = ref object of Controll
     label*:string
+    paddingH*, paddingV*: int
 
 
-#[ proc leftX(this: Controll) : int = 
-    this.x1 + this.activeStyle.margin.left + this.borderWidth()
-
-proc bottomY(this: Controll) : int =
-    #this.y2 - this.activeStyle.margin.bottom - this.borderWidth()
-    this.y1 + this.activeStyle.margin.top + this.borderWidth() ]#
 
 
 proc draw*(this: Button, updateOnly: bool = false)=
@@ -18,19 +13,28 @@ proc draw*(this: Button, updateOnly: bool = false)=
 
         setColors(this.app, this.activeStyle[])
 
-        # draw border
-        drawBorder(this.activeStyle.border, 
-            this.x1 + this.activeStyle.margin.left,
-            this.y1 + this.activeStyle.margin.top,
-            this.x2 - this.activeStyle.margin.right,
-            this.y2 - this.activeStyle.margin.bottom
-            )
+        #if this.activeStyle.border != "" and this.activeStyle.border != "none":
+        drawRect(this.x1 + this.activeStyle.margin.left,
+                this.y1 + this.activeStyle.margin.top,
+                this.x2 - this.activeStyle.margin.right,
+                this.y2 - this.activeStyle.margin.bottom)
         #...
+        var cLine = this.topY
+        for iP in 1..this.paddingV:
+            terminal.setCursorPos(this.leftX, cLine )
+            stdout.write(" " * this.width)
+            cLine += 1
 
-        terminal.setCursorPos(this.leftX(), this.bottomY() )
-        stdout.write(" " * this.activeStyle.padding.left)
+        terminal.setCursorPos(this.leftX, cLine )
+        stdout.write(" " * this.paddingV)
         stdout.write(this.label)
-        stdout.write(" " * this.activeStyle.padding.right)
+        stdout.write(" " * this.paddingV)
+
+        cLine += 1
+        for iP in 1..this.paddingV:
+            terminal.setCursorPos(this.leftX, cLine )
+            stdout.write(" " * this.width)
+            cLine += 1        
 
         #this.app.parkCursor()
         this.app.setCursorPos()
@@ -61,6 +65,7 @@ proc onClick*(this: Controll, event:KMEvent) =
     if event.evType != "CtrlKey": # mouseClick flush Release event
         while c != 'm':
             c = getch()
+    # visual feedback:
     sleep(100)
     this.blur(this)
     drawit(this)
@@ -79,16 +84,15 @@ proc onKeyPress(this: Controll, event:KMEvent)=
                 discard
 
 
-#[ proc `heigth`(this: Controll):int=
-    2 + this.activeStyle.padding.top + this.activeStyle.padding.bottom ]#
-
-proc newButton*(win:Window, label: string, size:int=0): Button =
+proc newButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 0 ): Button =
     result = new Button
     result.label=label
-    result.heigth = 1 # todo: padding
-    result.width = label.runeLen()
+    result.heigth = 1 + (paddingV * 2) 
+    result.width = label.runeLen() + (paddingH * 2) # padding
     result.visible = false
     result.disabled = false
+    result.paddingH = paddingH
+    result.paddingV = paddingV
 
     result.app = win.app
     result.win = win
@@ -96,30 +100,22 @@ proc newButton*(win:Window, label: string, size:int=0): Button =
 
     result.styles = newStyleSheets()
 
-    #result.styles.add("input", win.app.styles["input"])
     var styleNormal: StyleSheetRef = new StyleSheetRef
     styleNormal.deepcopy win.app.styles["input"]
-    styleNormal.border="none"
     result.styles.add("input",styleNormal)    
     result.activeStyle = result.styles["input"]
-
-    #result.heigth = 1 #+ result.activeStyle.padding.top + result.activeStyle.padding.bottom
-
+   
     var styleFocused: StyleSheetRef = new StyleSheetRef
-    styleFocused.deepcopy result.styles["input"]
-    styleFocused.bgColor[2]=222
-    styleFocused.bgColor[3] = int(packRGB(255,215,95))
-    styleFocused.textStyle.incl(styleUnknown)
-    styleFocused.border="none"
+    styleFocused.deepcopy win.app.styles["input:focus"]
     result.styles.add("input:focus",styleFocused)
 
     var styleDragged: StyleSheetRef = new StyleSheetRef
-    styleDragged.deepCopy result.styles["input"]
-    styleDragged.bgColor[2]=128
-    styleDragged.bgColor[3] = int(packRGB(175,0,215))
-    styleDragged.textStyle.incl(styleBlink)
-    styleDragged.border="none"
+    styleDragged.deepCopy win.app.styles["input:drag"]
     result.styles.add("input:drag",styleDragged)
+
+    var styleDisabled: StyleSheetRef = new StyleSheetRef
+    styleDisabled.deepcopy win.app.styles["input:disabled"]
+    result.styles.add("input:disabled", styleDisabled)
 
     result.drawit = drawit
     result.blur = blur

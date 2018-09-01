@@ -1,10 +1,7 @@
 include "controll.inc.nim"
 
 #[
-    func plan:
-        - action menu
-        // - multiselect box: use selectbox ?
-        // - custom color per line: use even-odd ?
+
 ]#
 
 type
@@ -14,7 +11,8 @@ type
         options*: seq[ tuple[name:string, action:proc():void]  ]
         #win*:Window
         cursor:int
-        #prevActiveControll*: Controll
+
+        prevActiveControll*: Controll
         #multiSelect*:bool
 
 
@@ -27,12 +25,14 @@ proc writeFromOffset(this: StringListBox)=
     currentLine = this.offset
     currentY = this.topY() + 1 # +1 label
 
+
     block PRINT:
  
         while currentY <= this.bottomY() and currentLine <= this.options.high:
             # todo: style: even,odd,highlight
-            if this.cursor == currentLine:
+            if this.cursor == currentLine and this.app.activeControll == this: #! todo
                 setColors(this.app, this.styles["input:focus"])
+                this.app.cursorPos.y = currentY # patch for scroll issues
             elif currentLine mod 2 == 0:
                 setColors(this.app, this.styles["input:even"])
             else:
@@ -67,20 +67,14 @@ method draw*(this: StringListBox, updateOnly:bool=false){.base.}=
             # draw border
             drawBorder(this.activeStyle.border,
                 this.x1 + this.activeStyle.margin.left,
-                this.y1 + this.activeStyle.margin.top + 1 #[label]#,
+                this.y1 + this.activeStyle.margin.top + 1,
                 this.x2 - this.activeStyle.margin.right,
                 this.y2 - this.activeStyle.margin.bottom
                 )
             #...
 
-        # clear / background
-        #setColors(this.app, this.activeStyle[]) #?
-        #drawRect(this.leftX(), this.topY() + 1 , this.rightX(), this.bottomY()) #[ + 1 label]#
-
-
         this.writeFromOffset()
-
-        this.app.setCursorPos()
+        #this.app.setCursorPos()
         release(this.app.termlock)
 
 ### MANDATORY ###
@@ -89,17 +83,18 @@ proc drawit(this: Controll, updateOnly:bool=false) =
 
 
 
+
 proc focus(this: Controll)=
     this.prevStyle = this.activeStyle
     this.activeStyle = this.styles["input:focus"]
 
-    #var slistbox = StringListBox(this)
+    this.app.cursorPos.y = this.topY + 1
+    this.app.cursorPos.x = this.leftX
+    this.app.setCursorPos()
 
-    #this.app.setCursorPos(this.leftX(), this.topY() + 1 )
+    hideCursor()
 
-    #setCursorStyle(CursorStyle.steadyBlock)
 
-    #showCursor()
 
 
 
@@ -107,10 +102,13 @@ proc blur(this: Controll)=
     if this.prevStyle != nil: # prevstyle may not initialized
         this.activeStyle = this.prevStyle
 
-    setCursorStyle(CursorStyle.steadyUnderline)
-    hideCursor()
-    trigger(this, "change")
+    this.app.activeControll = this.win #! patch for draw if this == activecontroll
+
+    StringListBox(this).draw()
     this.app.parkCursor()
+
+    if this.prevActiveControll != nil:
+        this.app.activate(this.prevActiveControll)
 
 
 
@@ -127,32 +125,105 @@ proc cancel(this:Controll)=
 
 
 proc onClick(this:Controll, event:KMEvent)=
-    var slistbox = StringListBox(this)
+    StringListBox(this).draw()
 
-    # flush Release event:
-    var c: char
-    if event.evType != "CtrlKey": # mouseClick flush Release event
-        while c != 'm':
-            c = getch()
+    if not this.disabled:
+        var slistbox = StringListBox(this)
 
-    case event.btn:
-        of 0:
-            let selected = (event.y - (slistbox.topY + 1)) + slistbox.offset
+        case event.btn:
+            of 0:
+                if clickedInside(this,event):
+                    let selected = (event.y - (slistbox.topY + 1)) + slistbox.offset
 
-            # visuals:
-            slistbox.cursor = selected
-            slistbox.draw()
-            sleep(100)
+                    # visuals:
+                    slistbox.cursor = selected
+                    slistbox.draw()
+                    sleep(100)
 
-            if slistbox.options[selected].action != nil:
-                slistbox.options[selected].action()
-        else: 
-            discard
+                    if slistbox.options[selected].action != nil:
+                        slistbox.options[selected].action()
+            else: 
+                #slistbox.draw()
+                discard
+
+
+proc onKeyUp(this: StringListBox) =
+    #echo "keyuppppp"
+    if this.cursor > 0:
+        this.cursor -= 1
+        if this.app.cursorPos.y == this.topY + 1:
+            this.offset -= 1
+        else:
+            this.app.cursorPos.y -= 1
+
+        #this.app.setCursorPos()
+        this.draw(true)
+
+proc onKeyDown(this: StringListBox) =
+    #echo "keydooooown"
+    if this.cursor < this.options.high:
+        this.cursor += 1
+        if this.app.cursorPos.y == this.bottomY:
+            this.offset += 1
+        else:
+            this.app.cursorPos.y += 1
+        
+        #this.app.setCursorPos()
+        this.draw()
+
+proc onPgUp(this: StringListBox) =
+    block LOOP:
+        for i in 0..(this.heigth - 1):
+            if this.offset > 0:
+                this.offset -= 1
+                this.cursor -= 1
+                this.draw(true)
+            else: break LOOP
+
+proc onPgDown(this: StringListBox) =
+    block LOOP:
+        for i in 0..(this.heigth - 1): 
+            if this.offset < this.options.len - (this.heigth - 1): # label
+                this.offset += 1
+                this.cursor += 1
+                this.draw(true)
+            else: break LOOP
 
 
 proc onKeypress(this:Controll, event:KMEvent)=
-    var slistbox = StringListBox(this)
+    if not this.disabled:
+        let slistbox = StringListBox(this)
 
+        if event.evType == "FnKey": #.....FnKey.....FnKey.....FnKey.....FnKey...
+            case event.key:
+                of KeyDown:
+                    onKeyDown(slistbox)
+                    #[ if slistbox.cursor < slistbox.options.high:
+                        slistbox.cursor += 1
+                        if slistbox.app.cursorPos.y == slistbox.bottomY:
+                            slistbox.offset += 1
+                        else:
+                            slistbox.app.cursorPos.y += 1
+
+                        slistbox.draw(true) ]#
+
+                of KeyUP:
+                    onKeyUp(StringListBox(this))
+                    #[ if slistbox.cursor > 0:
+                        slistbox.cursor -= 1
+                        if slistbox.app.cursorPos.y == this.topY + 1:
+                            slistbox.offset -= 1
+                        else:
+                            slistbox.app.cursorPos.y -= 1
+
+                        slistbox.draw(true) ]#
+
+
+proc onScroll(this:Controll, event:KMEvent)=
+    case event.evType:
+        of "ScrollUp": StringListBox(this).onPgUp()
+        of "ScrollDown": StringListBox(this).onPgDown()
+        else: discard
 
 
 
@@ -166,6 +237,9 @@ proc onKeypress(this:Controll, event:KMEvent)=
 
 proc newStringListBox*(win:Window, label: string, width:int=20, heigth:int=20): StringListBox =
     result = new StringListBox
+    result.disabled = false
+
+    result.label = label
 
     result.width = width
     result.heigth = heigth
@@ -177,7 +251,7 @@ proc newStringListBox*(win:Window, label: string, width:int=20, heigth:int=20): 
     var styleNormal: StyleSheetRef = new StyleSheetRef
     styleNormal.deepcopy win.app.styles["input"]
     styleNormal.border="none"
-    styleNormal.setTextStyle("styleUnderline") #!
+    #styleNormal.setTextStyle("styleUnderline") #! disabled because border draw
     result.styles.add("input",styleNormal)
     result.activeStyle = result.styles["input"]
 
@@ -194,7 +268,7 @@ proc newStringListBox*(win:Window, label: string, width:int=20, heigth:int=20): 
 
     var styleFocused: StyleSheetRef = new StyleSheetRef
     styleFocused.deepcopy win.app.styles["input:focus"]
-    styleFocused.setTextStyle("styleUnderline") #!
+    #styleFocused.setTextStyle("styleUnderline") #! disabled because border draw
     result.styles.add("input:focus",styleFocused)
 
     var styleDragged: StyleSheetRef = new StyleSheetRef
@@ -216,7 +290,7 @@ proc newStringListBox*(win:Window, label: string, width:int=20, heigth:int=20): 
     #result.onDrop = onDrop
     result.cancel = cancel
     result.onKeypress = onKeyPress
-    #result.onScroll = onScroll
+    result.onScroll = onScroll
 
     result.app = win.app
     result.win = win

@@ -7,8 +7,7 @@ This is my first app in Nim - it covers pretty much anything i need to learn.
 
 branches:
 * master: stable, but main loop is sequential
-* ptr: trying to solve things with "app: ptr App" but crashes
-* channels: add a Channel loop to master -> threads may launch main-threds procs etc
+* no dev branches now
 
 
 It can Tile the screen vertically, Tiles can have relative "50%" or exact "100ch" width.

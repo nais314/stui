@@ -64,7 +64,7 @@ proc draw*(this: TextBox, updateOnly: bool = false) =
 
 ### MANDATORY ###
 proc drawit(this: Controll, updateOnly: bool = false) =
-    textbox.draw(TextBox(this), updateOnly)
+    TextBox(this).draw(updateOnly)
 
 
 
@@ -344,7 +344,7 @@ proc newTextBox*(win:Window, label: string, width:int=20, maxlength:int=20): Tex
 
     result.drawit = drawit
     result.blur = blur
-    result.focus = textbox.focus
+    result.focus = focus
     result.onClick = onClick
     result.onDrag = onDrag
     result.onDrop = onDrop

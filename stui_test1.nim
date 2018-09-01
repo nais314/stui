@@ -19,7 +19,7 @@
 
 import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
 
-import textbox, button, textarea, stringlistbox
+import ui_textbox, ui_button, ui_textarea, ui_stringlistbox
 
 import strformat, unicode
 
@@ -137,7 +137,7 @@ END"""
 
 #-------------------------------------------------------------------------------
 
-import selectbox
+import ui_selectbox
 
 echo "selectbox"
 echo "A"
@@ -181,7 +181,7 @@ addEventListener(Controll(btn), "click", btnClick)
 
 #-------------------------------------------------------------------------------
 
-import progressbar
+import ui_progressbar
 
 #-----------------
 
@@ -193,7 +193,7 @@ proc prog1test(pbPtr: ptr, app: ptr)=
     while true:
         (pbPTR[]).val += 5
         if (pbPTR[]).val > 100: (pbPTR[]).val = 0
-        progressbar.draw(pbPTR[], true)
+        ui_progressbar.draw(pbPTR[], true)
         #withLock app[].termlock : app[].setCursorPos()
         sleep(rand(750))
 
@@ -210,7 +210,7 @@ proc prog2test(pbPtr: ptr, app: ptr)=
     while true:
         (pbPTR[]).val += 10
         if (pbPTR[]).val > 100: (pbPTR[]).val = 0
-        progressbar.draw(pbPTR[], true)
+        ui_progressbar.draw(pbPTR[], true)
         #withLock app[].termlock : app[].setCursorPos()
         sleep(rand(2500))
 
@@ -222,7 +222,7 @@ spawn prog2test(addr prog2, addr app)
 
 
 #------------------------------------------------------------
-import fineprogressbar
+import ui_fineprogressbar
 
 var fineprog = app.activeWindow.newFineProgressBar("fine progbar1")
 
@@ -232,7 +232,7 @@ proc fineprogtest(pbPtr: ptr, app: ptr)=
     while true:
         (pbPTR[]).val += 2
         if (pbPTR[]).val > 100: (pbPTR[]).val = 0
-        fineprogressbar.draw(pbPTR[], true)
+        ui_fineprogressbar.draw(pbPTR[], true)
         sleep(rand(500))
 
 spawn fineprogtest(addr fineprog, addr app)
@@ -438,7 +438,7 @@ addEventListener(Controll(wsSwitch2), "click", wsSwitch2_Click) ]#
 
 #alternate method:
 proc alt_wsSwitch2_Click(this:Controll, event:KMEvent)=
-    button.onClick(this, event)
+    ui_button.onClick(this, event)
     app.setActiveWorkSpace("firstWS")
     #app.draw()
 

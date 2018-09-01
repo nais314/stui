@@ -659,6 +659,7 @@ proc draw*(this: App)
 proc drawTitle*(this: Window)
 
 proc setTitle*(this:Window,label:string)=
+    ## set Window title and redraw title
     this.label = label
     this.drawTitle()
 
@@ -700,6 +701,9 @@ proc window_onClick(this:Controll, event:KMEvent)=
     if event.y == win.y1: # header
         if event.x == win.x1 + 1: # menu
             discard
+            #[
+                swapWindows
+            ]#
 
         elif win.pages.len > 1 :
             if event.x == win.x1 + 3: # pageUp

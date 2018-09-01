@@ -1,6 +1,6 @@
 import stui, terminal, colors, colors_extra, unicode, tables, locks
 import strutils
-import chooser
+import ui_chooser
 
 type 
     
@@ -237,7 +237,7 @@ proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, size:int=2
     styleDragged.textStyle.incl(styleBlink)
     result.styles.add("input:drag",styleDragged)
 
-    result.drawit = selectbox.drawit
+    result.drawit = drawit
 
     result.options = new OptionListRef
     result.options[] = @[]

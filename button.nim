@@ -1,7 +1,7 @@
 import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, locks
 
 type Button* = ref object of Controll
-    label*:string
+    #label*:string
     paddingH*, paddingV*: int
 
 

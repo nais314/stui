@@ -94,15 +94,15 @@ proc runChannels()=
 
 #[ 
 proc channelTest1()=
-    app.workSpaces[0].tiles[0].windows[0].title = $app.workSpaces[0].tiles[0].windows[0].currentPage#$epochTime()
+    app.workSpaces[0].tiles[0].windows[0].label = $app.workSpaces[0].tiles[0].windows[0].currentPage#$epochTime()
     app.workSpaces[0].tiles[0].windows[0].drawTitle()
 
 proc channelTest2()=
-    app.workSpaces[0].tiles[0].windows[0].title = "Finished"
+    app.workSpaces[0].tiles[0].windows[0].label = "Finished"
     app.workSpaces[0].tiles[0].windows[0].drawTitle()
 
 proc channelTest3()=
-    app.workSpaces[0].tiles[0].windows[0].title = "--test--" & $epochTime()
+    app.workSpaces[0].tiles[0].windows[0].label = "--test--" & $epochTime()
     app.workSpaces[0].tiles[0].windows[0].drawTitle() 
 
 app.addEventListener("test1",channelTest1)

@@ -15,7 +15,7 @@ proc main*(app:App)=
     
     discard trySend(app.itc[], "test1")
 
-    app.activeWindow.setTitle("set title")
+    app.activeWindow.setTitle("set label")
 
     #[ for i in 0..15:
         discard trySend(app.itc[], "test1")

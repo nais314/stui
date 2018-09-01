@@ -6,7 +6,7 @@ include "controll.inc.nim"
 
 type
     StringListBox* = ref object of Controll
-        label*:string
+        #label*:string
         offset*:int # num-lines scrolled down
         options*: seq[ tuple[name:string, action:proc():void]  ]
         #win*:Window
@@ -107,8 +107,8 @@ proc blur(this: Controll)=
     StringListBox(this).draw()
     this.app.parkCursor()
 
-    if this.prevActiveControll != nil:
-        this.app.activate(this.prevActiveControll)
+    if StringListBox(this).prevActiveControll != nil:
+        this.app.activate(StringListBox(this).prevActiveControll)
 
 
 

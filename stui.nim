@@ -159,6 +159,7 @@ type
     ListenerList = seq[Listener]
 
     Controll* = ref object of TTUI
+        label*:string
         x1*,y1*,x2*,y2*, width*,heigth*:int
         
         width_unit*: string # used (by Tile) to store width unit: %, auto, ch(aracter)
@@ -207,7 +208,7 @@ type
         controlls*: seq[Controll]
         currentPage*: int #ptr Page
 
-        title*: string
+        #label*: string
 
         #backgroundColor
 
@@ -657,8 +658,8 @@ proc draw*(this: Window)
 proc draw*(this: App)
 proc drawTitle*(this: Window)
 
-proc setTitle*(this:Window,title:string)=
-    this.title = title
+proc setTitle*(this:Window,label:string)=
+    this.label = label
     this.drawTitle()
 
 proc isVisible(this:Window):bool=
@@ -832,9 +833,9 @@ proc newWindow*(tile: Tile): Window =
     result.drawit = windowDrawit
 
     tile.windows.add(result)
-proc newWindow*(tile: Tile, title:string): Window =
+proc newWindow*(tile: Tile, label:string): Window =
     result = newWindow(tile)
-    result.title = title
+    result.label = label
 
 
 proc newTile*(ws: WorkSpace, width: string) : Tile =
@@ -1372,14 +1373,14 @@ proc drawTitle*(this: Window) =
                 stdout.write("▲ " & $(this.currentPage + 1) & "▼")
             used = used + 4
 
-        if this.width - used >= this.title.runeLen + 2:
+        if this.width - used >= this.label.runeLen + 2:
             stdout.write("═⟅") # ┨ ╡ ┤ | ▌  ▐
-            stdout.write(this.title)
+            stdout.write(this.label)
             stdout.write("⟆") # ╞
-            stdout.write("═" * (this.width - used - this.title.runeLen - 2 - 1))
+            stdout.write("═" * (this.width - used - this.label.runeLen - 2 - 1))
         elif this.width - used > 0 :
             stdout.write("⟅") #
-            stdout.write(this.title.runeSubstr(0,   (this.width - used - 2) ))
+            stdout.write(this.label.runeSubstr(0,   (this.width - used - 2) ))
             stdout.write("⟆")
         release(this.app.termlock)
 

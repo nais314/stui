@@ -43,7 +43,7 @@ app.workSpaces[0].tiles[0].id = "TILE ID" # == app.activeTile.id = "TILE ID"
 discard app.workSpaces[0].tiles[0].newWindow()
 app.workSpaces[0].tiles[0].windows[0].styles["panel"].padding.left = 1
 app.workSpaces[0].tiles[0].windows[0].styles["panel"].padding.top = 1
-app.workSpaces[0].tiles[0].windows[0].title = "Unnamed Document 1"
+app.workSpaces[0].tiles[0].windows[0].label = "Unnamed Document 1"
 
 
 
@@ -53,7 +53,7 @@ var ws1_W2 = app.workSpaces[0].tiles[1].newWindow()
 #ws1_W2.styles["panel"].bgColor[3] = int(packRGB(51, 102, 153))
 ws1_W2.styles.add("dock", app.styles["dock"])
 ws1_W2.activeStyle = ws1_W2.styles["dock"]
-ws1_W2.title = "öüóőúéá1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi"
+ws1_W2.label = "öüóőúéá1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi"
 
 
 #-------------------------------------------------------------------------------
@@ -409,7 +409,7 @@ var ws2T1 = ws2.newTile("auto")
 var ws2T1W1 = ws2T1.newWindow()
 ws2T1W1.styles["panel"].padding.left = 1
 ws2T1W1.styles["panel"].padding.top = 1
-ws2T1W1.title = "ws2T1W1"
+ws2T1W1.label = "ws2T1W1"
 
 #...............................................................................
 

@@ -1,7 +1,7 @@
 import stui, terminal, colors, colors_extra, unicode, tables, parseutils, locks
 
 type ProgressBar* = ref object of Controll
-    label*:string
+    #label*:string
     val*:int
     preval*:int # undo
 

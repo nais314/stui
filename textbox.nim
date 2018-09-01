@@ -1,7 +1,7 @@
 import stui, terminal, colors, colors_extra, unicode, tables, locks
 
 type TextBox* = ref object of Controll
-    label*:string
+    #label*:string
     val*:string
     preval*:string # undo
 

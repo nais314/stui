@@ -5,7 +5,7 @@ import chooser
 type 
     
     SelectBox* = ref object of Controll
-        label*:string
+        #label*:string
         val*:string # for store
         text*:string # for display
         options*: OptionListRef # seq[ tuple[name, value:string, selected:bool]  ]
@@ -142,7 +142,7 @@ proc selectBoxOnClick(this:Controll, event:KMEvent)=
     win.heigth = win.y2 - win.y1
     win.styles["panel"].bgColor[2]=235
     win.styles["panel"].bgColor[3] = int(packRGB(38,38,38))
-    win.title = sb.label
+    win.label = sb.label
 
     sb.chooser.win = win
     sb.chooser.x1 = win.x1

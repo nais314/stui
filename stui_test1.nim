@@ -1,5 +1,6 @@
 # todo: ListItem, ListBox - header, table columns, ???
 # todo: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
+# todo: currentWindow ?
 # todo: window menu, buttons
 # todo: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
 # todo: widgets: class, activearea
@@ -178,6 +179,36 @@ proc btnClick(this:Controll)=
     #this.toggleBlink()
 
 addEventListener(Controll(btn), "click", btnClick)
+
+#-------------------------------------------------------------------------------
+
+import ui_menu
+
+var menu1 = app.newMenu()
+menu1.setPadding("all",1)
+
+proc dummy():void=discard
+
+for iM in 0..10:
+    menu1.currentNode.addChild("test-" & $iM, dummy)
+
+
+
+
+
+#...
+
+var btn2 = app.activeWindow.newButton("Menu", 1,1)
+
+btn2.setMargin("left", 1)
+btn2.setMargin("bottom", 1)
+
+
+proc btn2Click(this:Controll)=
+    menu1.show()
+
+addEventListener(Controll(btn2), "click", btn2Click)
+
 
 #-------------------------------------------------------------------------------
 

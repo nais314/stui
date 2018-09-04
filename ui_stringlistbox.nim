@@ -5,10 +5,11 @@ include "controll.inc.nim"
 ]#
 
 type
+    StringListBox_Options* = seq[ tuple[name:string, action:proc():void]  ]
     StringListBox* = ref object of Controll
         #label*:string
         offset*:int # num-lines scrolled down
-        options*: seq[ tuple[name:string, action:proc():void]  ]
+        options*: StringListBox_Options #seq[ tuple[name:string, action:proc():void]  ]
         #win*:Window
         cursor:int
 
@@ -198,25 +199,10 @@ proc onKeypress(this:Controll, event:KMEvent)=
             case event.key:
                 of KeyDown:
                     onKeyDown(slistbox)
-                    #[ if slistbox.cursor < slistbox.options.high:
-                        slistbox.cursor += 1
-                        if slistbox.app.cursorPos.y == slistbox.bottomY:
-                            slistbox.offset += 1
-                        else:
-                            slistbox.app.cursorPos.y += 1
-
-                        slistbox.draw(true) ]#
 
                 of KeyUP:
                     onKeyUp(StringListBox(this))
-                    #[ if slistbox.cursor > 0:
-                        slistbox.cursor -= 1
-                        if slistbox.app.cursorPos.y == this.topY + 1:
-                            slistbox.offset -= 1
-                        else:
-                            slistbox.app.cursorPos.y -= 1
 
-                        slistbox.draw(true) ]#
                 else: discard
 
         elif event.evType == "CtrlKey":
@@ -266,12 +252,12 @@ proc newStringListBox*(win:Window, label: string, width:int=20, heigth:int=20): 
 
     var styleEven: StyleSheetRef = new StyleSheetRef
     styleEven.deepcopy win.app.styles["input:even"]
-    styleEven.setTextStyle("styleUnderline") #!
+    #styleEven.setTextStyle("styleUnderline") #!
     result.styles.add("input:even",styleEven)
 
     var styleOdd: StyleSheetRef = new StyleSheetRef
     styleOdd.deepcopy win.app.styles["input:odd"]
-    styleOdd.setTextStyle("styleUnderline") #!
+    #styleOdd.setTextStyle("styleUnderline") #!
     result.styles.add("input:odd",styleOdd)
 
 

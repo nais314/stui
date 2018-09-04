@@ -47,7 +47,7 @@ const
     KeyRight* = "[C"
     KeyLeft* = "[D"
     KeyEnd* = "[F"
-    KeyPos1* = "[H"
+    KeyHome* = "[H"
     KeyIns* = "[2~"
     KeyDel* = "[3~"
     KeyPgUp* = "[5~"
@@ -206,7 +206,7 @@ type
 
         pages*: seq[Page]
         controlls*: seq[Controll]
-        currentPage*: int #ptr Page
+        currentPage*: int
 
         #label*: string
 
@@ -817,7 +817,7 @@ proc newPage*(win: Window): Page =
     result.currentPage = 0
     result.onClick = window_onClick ]#
 
-proc newWindow*(tile: Tile): Window =
+proc newWindow*(tile: Tile, label:string="Window"): Window =
     #result = newWindow()
     result = new Window
     result.pages = @[]
@@ -825,6 +825,7 @@ proc newWindow*(tile: Tile): Window =
     result.currentPage = 0
     result.tile = tile
     result.app = tile.app
+    result.label = label
 
     result.onClick = window_onClick
     result.onScroll = window_onScroll
@@ -837,9 +838,9 @@ proc newWindow*(tile: Tile): Window =
     result.drawit = windowDrawit
 
     tile.windows.add(result)
-proc newWindow*(tile: Tile, label:string): Window =
+#[ proc newWindow*(tile: Tile, label:string): Window =
     result = newWindow(tile)
-    result.label = label
+    result.label = label ]#
 
 
 proc newTile*(ws: WorkSpace, width: string) : Tile =
@@ -1050,7 +1051,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
             # if the Controll calculates for self, then do it:
                 # so the whole layout is up for the user to handle!
             if this.controlls[iC].recalc != nil:
-                this.controlls[iC].recalc(this)
+                this.controlls[iC].recalc(this.controlls[iC])
             else: # if values for width, heigth added - by int or percentage:
                 # if relative width used:
                 if this.controlls[iC].width_value != 0: # 0 by default == look for heigth prop
@@ -1081,7 +1082,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                     this.controlls[iC].activeStyle.margin.left + 
                     this.controlls[iC].activeStyle.margin.right #!X2
 
-                if this.controlls[iC].outerHeigth() >= availH + 1 or this.controlls[iC].x2 > this.x2: 
+                if this.controlls[iC].outerHeigth() >= availH  or this.controlls[iC].x2 > this.x2: 
                     # if room on the right: new column
                     if maxX + 1 + this.controlls[iC].width + 
                         this.controlls[iC].activeStyle.margin.left + 
@@ -1423,12 +1424,12 @@ proc draw*(this: App) =
     #todo draw app widgets
     #...
     #this.setColors( this.activeStyle[])
-    hideCursor()
+    #hideCursor()
     for i_tiles in 0..this.activeWorkSpace.tiles.len - 1 :
         this.activeWorkSpace.tiles[i_tiles].draw()
 
     #this.setColors (this.activeStyle[])
-    showCursor()
+    #showCursor()
 
 #------------------------------------
 
@@ -1564,7 +1565,9 @@ proc parkCursor*(app:App){.inline.}=
 
 proc redraw*(app:App)=
     app.recalc()
-    app.draw()    
+    app.draw()
+    
+
 
 ###############################################################################
 ###############################################################################

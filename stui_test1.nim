@@ -185,12 +185,31 @@ addEventListener(Controll(btn), "click", btnClick)
 import ui_menu
 
 var menu1 = app.newMenu()
-menu1.setPadding("all",1)
+menu1.setMargin("all",2)
 
-proc dummy():void=discard
+proc dummy(): void = echo "discard"
 
-for iM in 0..10:
-    menu1.currentNode.addChild("test-" & $iM, dummy)
+proc genNewChilds(nMN: MenuNode, level:int = 0)=
+    if level < 3:
+        for iM in 0..3:
+            var child = nMN.addChild("test-" & $iM, nil)
+            genNewChilds(child, level + 1)  
+            #[ if rand(1) > 0:
+                var a = nMN.addChild("test-" & $iM, nil)
+                a.action = dummy
+            else:
+                var child = nMN.addChild("test-" & $iM, nil)
+                genNewChilds(child, level + 1)  ]#               
+
+genNewChilds(menu1.currentNode, 0)
+
+#[ for iM in 0..10:
+    if rand(1) > 0:
+        discard menu1.currentNode.addChild("test-" & $iM, dummy)
+    else:
+        let nMN = menu1.currentNode.addChild("test-" & $iM, nil)
+        genNewChilds(nMN) ]#
+
 
 
 

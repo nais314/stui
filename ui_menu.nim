@@ -11,12 +11,12 @@ type
         offset*:int # num-lines scrolled down
 
     Menu* = ref object of Controll
-        #windows*:seq[Window]
         workSpace* : WorkSpace
         prevWorkSpace* : WorkSpace
         rootNode*, currentNode* : MenuNode
         prevActiveControll*:Controll
-        prevCursorPos*: tuple[x,y:int] 
+        prevCursorPos*: tuple[x,y:int]
+        childLoader*:proc(menuNode: MenuNode) # use for loadnig childs on demand
         #app*:App
         #label*:string
         
@@ -26,12 +26,31 @@ type
 
 
 proc recalc(this:Controll)=
-    this.x1 = this.app.availRect.x1 + this.activeStyle.padding.left
-    this.y1 = this.app.availRect.y1 + 1 + this.activeStyle.padding.top
-    this.x2 = this.app.availRect.x2 - this.activeStyle.padding.right
-    this.y2 = this.app.availRect.y2 - this.activeStyle.padding.bottom
-    this.width = this.x2 - this.x1 + 1
-    this.heigth = this.y2 - this.y1 + 1
+    #[ this.x1 = this.app.availRect.x1 + this.activeStyle.padding.left + this.activeStyle.margin.left + this.borderWidth()
+
+    this.y1 = this.app.availRect.y1 + 1 + this.activeStyle.padding.top + this.activeStyle.margin.top + this.borderWidth()
+
+    this.x2 = this.app.availRect.x2 - this.activeStyle.padding.right - this.activeStyle.margin.right - this.borderWidth()
+
+    this.y2 = this.app.availRect.y2 - this.activeStyle.padding.bottom - this.activeStyle.margin.bottom - this.borderWidth() ]#
+
+    this.x1 = this.app.availRect.x1
+
+    this.y1 = this.app.availRect.y1 #+ 1
+
+    this.x2 = this.app.availRect.x2
+
+    this.y2 = this.app.availRect.y2
+
+    #[ this.width = this.x2 - this.x1 #+ 1
+    this.heigth = this.y2 - this.y1 #+ 1 ]#
+
+    this.width = this.rightX - this.leftX - 
+        this.activeStyle.padding.left - this.activeStyle.padding.right + 1
+
+    this.heigth = this.bottomY - this.topY -
+        this.activeStyle.padding.top - this.activeStyle.padding.bottom + 1
+
 
 
 
@@ -45,21 +64,6 @@ proc draw*(this: Menu, updateOnly:bool=false)=
     currentLine = this.currentNode.offset
     currentY = this.topY()
 
-    #[ echo " DRAWW ", currentY, " - ", this.bottomY, "\n",
-        currentLine, " / ", this.currentNode.childs.high
-
-    echo this.currentNode.childs.len ]#
-    #discard stdin.readLine()
-
-    #[ echo this.app.availRect.x1, " x1\n ",
-        this.app.availRect.y1, " y1\n ",
-        this.app.availRect.x2, " x2\n ",
-        this.app.availRect.y2, " y2\n "
-
-    echo this.x1, " x1\n ",
-        this.y1 + 1," y1\n ",
-        this.x2, " x2\n ",
-        this.y2, " y2\n " ]#
 
     block PRINT:
  
@@ -87,8 +91,14 @@ proc draw*(this: Menu, updateOnly:bool=false)=
             currentLine += 1
             currentY += 1
 
+            #debug:
+            #this.win.setTitle(this.currentNode.childs[this.currentNode.currentChild].name)
+            #[ if this.currentNode.parent != nil:
+                this.win.setTitle(this.currentNode.parent.name) ]#
+            this.win.setTitle(this.currentNode.name)
 
-proc drawit*(this: Controll, updateOnly:bool=false)=
+
+proc drawit(this: Controll, updateOnly:bool=false)=
     Menu(this).draw()
 
 #...............................................................................
@@ -102,28 +112,17 @@ proc drawit*(this: Controll, updateOnly:bool=false)=
 #...............................................................................
 
 proc show*(this: Menu)=
+    this.visible = true
     # SAVE STATE - maybe should create proc saveState(app) ?
     this.prevActiveControll = this.app.activeControll
     this.prevWorkSpace = this.app.activeWorkSpace
     this.prevCursorPos = this.app.cursorPos
 
-    # create new WS for menu ...
-    this.workSpace = this.app.newWorkSpace()
-    this.app.activeWorkSpace = this.workSpace
-    discard this.workSpace.newTile("100%")
-    
-    discard this.workSpace.tiles[0].newWindow(this.label)
-    this.workSpace.tiles[0].windows[0].setMargin("all",1)
-    this.workSpace.tiles[0].windows[0].controlls.add(this)
-    discard this.workSpace.tiles[0].windows[0].newPage()
-    this.workSpace.tiles[0].windows[0].pages[0].controlls.add(this)
-    # ...
+    this.app.setActiveWorkSpace(this.workSpace)
+    #this.app.activeTile = this.app.activeWorkSpace.tiles[0]
 
-    #this.app.activeControll = this
-
-    hideCursor()
-
-    this.app.redraw()
+    this.app.recalc()
+    #this.app.redraw()
     this.app.activate(this)
 
 
@@ -142,10 +141,11 @@ proc hide*(this: Menu)=
 proc cancel(this:Controll) = Menu(this).hide()
 
 
-proc focus(this: Controll) = discard
-    #Menu(this).show()
+proc focus(this: Controll) =
+    discard
 
-proc blur(this: Controll) = discard
+proc blur(this: Controll) = 
+    discard
     #Menu(this).hide()
 
 #...............................................................................
@@ -208,11 +208,39 @@ proc onKeypress(this:Controll, event:KMEvent)=
         elif event.evType == "CtrlKey":
             case event.ctrlKey:
                 of 13: # ENTER, ctrl+M
-                    discard
+                    # if NO action and NO childs: load childs via childLoader()
+                    if menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
+                        menu.currentNode.childs[menu.currentNode.currentChild].childs.len == 0:
+                            if menu.childLoader != nil:
+                                # todo: use id to load childs
+                                menu.childLoader(menu.currentNode.childs[menu.currentNode.currentChild])
+                    
+                    # if action and no childs: run action()
+                    elif menu.currentNode.childs[menu.currentNode.currentChild].action != nil :
+                        # and menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0
+                        menu.currentNode.childs[menu.currentNode.currentChild].action()
+
+                    # if NO action and childs LOADED: 
+                    elif menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
+                        menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0:
+                            #[ var newTitle : string
+                            var cursor = menu.currentNode.childs[menu.currentNode.currentChild]
+                            tryit:
+                                while cursor != menu.rootNode:
+                                    newTitle = cursor.name & newTitle
+                                    cursor = cursor.parent ]#
+
+                            menu.win.setTitle(menu.currentNode.childs[menu.currentNode.currentChild].parent.name)
+                            
+                            menu.currentNode = menu.currentNode.childs[menu.currentNode.currentChild]
+
+                            menu.app.draw()
+
 
                 else: discard
     
-proc onScroll(this:Controll, event:KMEvent)= discard
+proc onScroll(this:Controll, event:KMEvent)= 
+    discard
     #[ case event.evType:
         of "ScrollUp": TextArea(this).onPgUp()
         of "ScrollDown": TextArea(this).onPgDown()
@@ -223,16 +251,23 @@ proc onScroll(this:Controll, event:KMEvent)= discard
 
 proc addChild*(parent: MenuNode, 
         name: string,
-        action: proc():void) =
+        action: proc():void): MenuNode =
     
-    #var newNode: MenuNode
+    var newNode = new MenuNode
+    newNode.action = action
+    newNode.name = name
+    newNode.parent = parent
+    newNode.childs = @[]
+    parent.childs.add(newNode)
+    return newNode
     #newNode = MenuNode(name: name, action: action, childs: @[], parent: parent)
-    parent.childs.add( MenuNode(name: name, action: action, childs: @[], parent: parent) )
+    #parent.childs.add( MenuNode(name: name, action: action, childs: @[], parent: parent) )
 
 
 
 proc newMenuNode*(name: string = "menu item"): MenuNode =
     result = new MenuNode
+    result.name = name
     result.childs = @[]
 
 
@@ -244,6 +279,16 @@ proc newMenu*(app:App, label:string="Menu"): Menu =
     result.rootNode = newMenuNode("ROOT") #MenuNode(name : "ROOT")
     result.currentNode = result.rootNode
     result.prevWorkSpace = nil #...
+    result.visible = true
+    #result.width = 10
+    #result.heigth = 10
+
+    result.workSpace = result.app.newWorkSpace(result.label)
+    discard result.workSpace.newTile("100%")
+    result.win = result.workSpace.tiles[0].newWindow(result.label)
+    discard result.workSpace.tiles[0].windows[0].newPage()
+    result.workSpace.tiles[0].windows[0].controlls.add(result)
+    result.workSpace.tiles[0].windows[0].pages[0].controlls.add(result)
 
 
     result.styles = newStyleSheets()

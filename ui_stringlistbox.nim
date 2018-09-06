@@ -1,7 +1,9 @@
 include "controll.inc.nim"
 
 #[
-
+    it is a "listview".
+    the items are strings.
+    onclick triggers the items.action:proc():void
 ]#
 
 type

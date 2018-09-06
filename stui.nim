@@ -656,6 +656,8 @@ proc showCursor*()=
 
 proc draw*(this: Window)
 proc draw*(this: App)
+proc redraw*(app:App)
+proc recalc*(this: App)
 proc drawTitle*(this: Window)
 
 proc setTitle*(this:Window,label:string)=
@@ -702,7 +704,7 @@ proc window_onClick(this:Controll, event:KMEvent)=
         if event.x == win.x1 + 1: # menu
             discard
             #[
-                swapWindows
+                UI_MENU
             ]#
 
         elif win.pages.len > 1 :
@@ -741,6 +743,7 @@ proc setActiveWorkSpace*(app:App, ws:WorkSpace)=
                 iC.visible = false
     app.activeWorkSpace = ws
     app.activeTile = if ws.tiles.len > 0 : ws.tiles[0] else: nil
+    app.recalc()
     app.draw()
     app.parkCursor()
 
@@ -1052,6 +1055,9 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                 # so the whole layout is up for the user to handle!
             if this.controlls[iC].recalc != nil:
                 this.controlls[iC].recalc(this.controlls[iC])
+                this.controlls[iC].tabStop = tabStop
+                page.controlls.add(this.controlls[iC])
+                tabStop += 1
             else: # if values for width, heigth added - by int or percentage:
                 # if relative width used:
                 if this.controlls[iC].width_value != 0: # 0 by default == look for heigth prop
@@ -1403,21 +1409,20 @@ proc draw*(this: Window) =
     this.drawTitle()
 
     if this.pages.len > 0 :
+        #echo "draw W: DEB: " , this.currentPage , ", " , this.pages[0].controlls.len
         if this.pages[this.currentPage].controlls.len > 0:
             for iC in 0..this.pages[this.currentPage].controlls.high :
                 this.pages[this.currentPage].controlls[iC].visible = true
                 if this.pages[this.currentPage].controlls[iC].drawit != nil:
                     this.pages[this.currentPage].controlls[iC].drawit(this.pages[this.currentPage].controlls[iC], false)
-            #acquire(this.app.termlock)
-            #setCursorPos(this.x1 + 1, this.y1) #? todo?
+
             parkCursor(this.app)
-            #release(this.app.termlock)
 
 
 
 method draw*(this: Tile) =
     if this.windows.len > 0 :
-        this.windows[this.windows.len - 1].draw()
+        this.windows[this.windows.high].draw()
 
 
 proc draw*(this: App) =
@@ -1425,7 +1430,7 @@ proc draw*(this: App) =
     #...
     #this.setColors( this.activeStyle[])
     #hideCursor()
-    for i_tiles in 0..this.activeWorkSpace.tiles.len - 1 :
+    for i_tiles in 0..this.activeWorkSpace.tiles.high :
         this.activeWorkSpace.tiles[i_tiles].draw()
 
     #this.setColors (this.activeStyle[])

@@ -95,7 +95,7 @@ proc draw*(this: Menu, updateOnly:bool=false)=
             #this.win.setTitle(this.currentNode.childs[this.currentNode.currentChild].name)
             #[ if this.currentNode.parent != nil:
                 this.win.setTitle(this.currentNode.parent.name) ]#
-            this.win.setTitle(this.currentNode.name)
+            #this.win.setTitle(this.currentNode.name)
 
 
 proc drawit(this: Controll, updateOnly:bool=false)=
@@ -156,12 +156,113 @@ proc onClick(this:Controll, event:KMEvent)=
 
 
 
+proc onPgUp(menu:Menu)=
+    if menu.currentNode.offset > 0:
+        if menu.currentNode.offset > menu.heigth:
+            menu.currentNode.offset -= menu.heigth
+            menu.currentNode.currentChild = menu.currentNode.offset #-= menu.heigth
+        else:
+            menu.currentNode.offset = 0
+            menu.currentNode.currentChild = 0
+        menu.draw(true)
+
+proc onPgDown(menu:Menu)=
+    if menu.currentNode.offset < menu.currentNode.childs.high - menu.heigth + 1:
+        if menu.currentNode.offset + menu.heigth < menu.currentNode.childs.high - menu.heigth  + 1:
+            menu.currentNode.offset += menu.heigth
+            menu.currentNode.currentChild = menu.currentNode.offset #+= menu.heigth
+        else:
+            menu.currentNode.offset = menu.currentNode.childs.high - menu.heigth + 1
+            menu.currentNode.currentChild = menu.currentNode.childs.high - menu.heigth + 1
+    else: 
+        menu.currentNode.offset = menu.currentNode.childs.high - menu.heigth + 1
+        menu.currentNode.currentChild = menu.currentNode.childs.high
+
+    menu.draw(true)
+
+proc onScroll(this:Controll, event:KMEvent)= 
+
+    case event.evType:
+        of "ScrollUp":
+            onPgUp(Menu(this))
+
+        of "ScrollDown":
+            onPgDown(Menu(this))
+
+        else: discard
+        
+
 proc onKeypress(this:Controll, event:KMEvent)=
+
+    let menu = Menu(this)
+
+    proc onEnter()=
+        # if NO action and NO childs: load childs via childLoader()
+        if menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
+            menu.currentNode.childs[menu.currentNode.currentChild].childs.len == 0:
+                if menu.childLoader != nil:
+                    # todo: use id to load childs
+                    menu.childLoader(menu.currentNode.childs[menu.currentNode.currentChild])
+    
+        # if action and no childs: run action()
+        elif menu.currentNode.childs[menu.currentNode.currentChild].action != nil :
+            # and menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0
+            menu.currentNode.childs[menu.currentNode.currentChild].action()
+
+        # if NO action and childs LOADED: 
+        elif menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
+            menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0:
+                var newTitle : string = ""
+                var cursor = menu.currentNode.childs[menu.currentNode.currentChild]
+                while cursor != menu.rootNode:
+                    newTitle = cursor.name & "\\" & newTitle
+                    cursor = cursor.parent
+
+                if newTitle.runeLen <= this.width - 6:
+                    menu.win.setTitle(newTitle)
+                else:
+                    menu.win.setTitle("…" & newTitle.
+                        runeSubStr(newTitle.runeLen - (this.width - 7)) )
+                
+                menu.currentNode = menu.currentNode.childs[menu.currentNode.currentChild]
+
+                menu.app.draw()
+
+                #[ tryit:
+                    while cursor != nil: #menu.rootNode:
+                        echo cursor.name 
+                        cursor = cursor.parent ]#
+  
+
+
     if not this.disabled:
-        let menu = Menu(this)
+        #let menu = Menu(this)
 
         if event.evType == "FnKey": #.....FnKey.....FnKey.....FnKey.....FnKey...
             case event.key:
+
+                of KeyLeft:
+                    if menu.currentNode.parent != nil:
+                        menu.currentNode = menu.currentNode.parent
+
+                        var newTitle : string = ""
+                        var cursor = menu.currentNode #!.childs[menu.currentNode.currentChild]
+                        while cursor != menu.rootNode:
+                            newTitle = cursor.name & "\\" & newTitle
+                            cursor = cursor.parent
+        
+                        if newTitle.runeLen <= this.width - 6:
+                            menu.win.setTitle(newTitle)
+                        else:
+                            menu.win.setTitle("…" & newTitle.
+                                runeSubStr(newTitle.runeLen - (this.width - 7)) )
+
+
+                        menu.draw(true)
+
+                of KeyRight: onEnter()
+
+
                 of KeyDown:
                     if menu.currentNode.currentChild < menu.currentNode.childs.high:
                         menu.currentNode.currentChild += 1
@@ -203,49 +304,22 @@ proc onKeypress(this:Controll, event:KMEvent)=
                     menu.app.cursorPos.y = this.topY
                     menu.draw(true)
 
+                of KeyPgUp:
+                    onPgUp(Menu(this))
+
+                of KeyPgDown:
+                    onPgDown(Menu(this))
+
                 else: discard
 
         elif event.evType == "CtrlKey":
             case event.ctrlKey:
                 of 13: # ENTER, ctrl+M
-                    # if NO action and NO childs: load childs via childLoader()
-                    if menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
-                        menu.currentNode.childs[menu.currentNode.currentChild].childs.len == 0:
-                            if menu.childLoader != nil:
-                                # todo: use id to load childs
-                                menu.childLoader(menu.currentNode.childs[menu.currentNode.currentChild])
-                    
-                    # if action and no childs: run action()
-                    elif menu.currentNode.childs[menu.currentNode.currentChild].action != nil :
-                        # and menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0
-                        menu.currentNode.childs[menu.currentNode.currentChild].action()
-
-                    # if NO action and childs LOADED: 
-                    elif menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
-                        menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0:
-                            #[ var newTitle : string
-                            var cursor = menu.currentNode.childs[menu.currentNode.currentChild]
-                            tryit:
-                                while cursor != menu.rootNode:
-                                    newTitle = cursor.name & newTitle
-                                    cursor = cursor.parent ]#
-
-                            menu.win.setTitle(menu.currentNode.childs[menu.currentNode.currentChild].parent.name)
-                            
-                            menu.currentNode = menu.currentNode.childs[menu.currentNode.currentChild]
-
-                            menu.app.draw()
-
+                    onEnter()
 
                 else: discard
     
-proc onScroll(this:Controll, event:KMEvent)= 
-    discard
-    #[ case event.evType:
-        of "ScrollUp": TextArea(this).onPgUp()
-        of "ScrollDown": TextArea(this).onPgDown()
-        else: discard ]#
-        
+
 #...............................................................................
 
 
@@ -285,7 +359,14 @@ proc newMenu*(app:App, label:string="Menu"): Menu =
 
     result.workSpace = result.app.newWorkSpace(result.label)
     discard result.workSpace.newTile("100%")
+
     result.win = result.workSpace.tiles[0].newWindow(result.label)
+    var styleDock: StyleSheetRef = new StyleSheetRef
+    styleDock.deepcopy app.styles["dock"]
+    result.win.styles.add("dock", styleDock)
+    result.win.activeStyle = result.win.styles["dock"]
+    result.win.onClick = proc(c:Controll, e:KMEvent)= Menu(Window(c).controlls[0]).hide()
+    
     discard result.workSpace.tiles[0].windows[0].newPage()
     result.workSpace.tiles[0].windows[0].controlls.add(result)
     result.workSpace.tiles[0].windows[0].pages[0].controlls.add(result)
@@ -301,12 +382,12 @@ proc newMenu*(app:App, label:string="Menu"): Menu =
     result.activeStyle = result.styles["input"]
 
     var styleEven: StyleSheetRef = new StyleSheetRef
-    styleEven.deepcopy app.styles["input:even"]
+    styleEven.deepcopy app.styles["input:even_dark"]
     #styleEven.setTextStyle("styleUnderline") #!
     result.styles.add("input:even",styleEven)
 
     var styleOdd: StyleSheetRef = new StyleSheetRef
-    styleOdd.deepcopy app.styles["input:odd"]
+    styleOdd.deepcopy app.styles["input:odd_dark"]
     #styleOdd.setTextStyle("styleUnderline") #!
     result.styles.add("input:odd",styleOdd)
 

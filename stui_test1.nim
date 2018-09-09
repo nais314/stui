@@ -1,11 +1,10 @@
 # todo: ListItem, ListBox - header, table columns, ???
-# todo: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
-# todo: currentWindow ?
 # todo: window menu, buttons
+# done: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
 # todo: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
 # todo: widgets: class, activearea
 # todo: ColumnBreak test
-# todo: app addeventlistener fnkey action trigger test
+# done: app addeventlistener fnkey action trigger test
 # done: WS: switch ok, recalc ok
 # todo: window onclick, rightclick
 # todo: controll.header.inc.nim
@@ -191,7 +190,7 @@ proc dummy(): void = echo "discard"
 
 proc genNewChilds(nMN: MenuNode, level:int = 0)=
     if level < 3:
-        for iM in 0..3:
+        for iM in 0..60:
             var child = nMN.addChild("test-" & $iM, nil)
             genNewChilds(child, level + 1)  
             #[ if rand(1) > 0:

@@ -139,6 +139,10 @@ proc onClick(this:Controll, event:KMEvent)=
                     let selected = (event.y - (slistbox.topY + 1)) + slistbox.offset
 
                     # visuals:
+                        # flush Release:
+                    var c = getch()
+                    while c != 'm': c = getch()
+
                     slistbox.cursor = selected
                     slistbox.draw()
                     sleep(100)

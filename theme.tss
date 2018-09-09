@@ -85,3 +85,21 @@ fgColor16 = 30
 fgColor256 = 0
 fgColorRGB = "black"
 border = "none"
+
+[input-even_dark]
+bgColor16 = 37
+bgColor256 = 237
+bgColorRGB = "0,0,0"
+fgColor16 = 30
+fgColor256 = "white"
+fgColorRGB = "white"
+border = "none"
+
+[input-odd_dark]
+bgColor16 = 37
+bgColor256 = 235
+bgColorRGB = "25,25,25"
+fgColor16 = 30
+fgColor256 = "white"
+fgColorRGB = "white"
+border = "none"

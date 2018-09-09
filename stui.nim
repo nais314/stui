@@ -936,8 +936,10 @@ proc newApp*(): App =
         result.styles.add("input:drag",styleSheetRef_fromConfig(dict,"input-drag"))
 
         result.styles.add("input:even",styleSheetRef_fromConfig(dict,"input-even"))
-
         result.styles.add("input:odd",styleSheetRef_fromConfig(dict,"input-odd"))
+
+        result.styles.add("input:even_dark",styleSheetRef_fromConfig(dict,"input-even_dark"))
+        result.styles.add("input:odd_dark",styleSheetRef_fromConfig(dict,"input-odd_dark"))
         #............
 
 

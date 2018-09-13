@@ -29,28 +29,30 @@ proc writeFromOffset(this: StringListBox)=
     currentY = this.topY() + 1 # +1 label
 
 
-    while currentY <= this.bottomY() and currentLine <= this.options.high:
-        # todo: style: even,odd,highlight
-        if this.cursor == currentLine and this.app.activeControll == this: #! todo
-            setColors(this.app, this.styles["input:focus"])
-            this.app.cursorPos.y = currentY #! patch for scroll issues
-        elif currentLine mod 2 == 0:
-            setColors(this.app, this.styles["input:even"])
-        else:
-            setColors(this.app, this.styles["input:odd"])
+    block PRINT:
+ 
+        while currentY <= this.bottomY() and currentLine <= this.options.high:
+            # todo: style: even,odd,highlight
+            if this.cursor == currentLine and this.app.activeControll == this: #! todo
+                setColors(this.app, this.styles["input:focus"])
+                this.app.cursorPos.y = currentY # patch for scroll issues
+            elif currentLine mod 2 == 0:
+                setColors(this.app, this.styles["input:even"])
+            else:
+                setColors(this.app, this.styles["input:odd"])
 
-        setCursorPos(this.leftX, currentY )
+            setCursorPos(this.leftX, currentY )
 
-        if this.options[currentLine].name.runeLen() == this.width:
-            stdout.write(this.options[currentLine].name)
-        elif this.options[currentLine].name.runeLen() <= this.width:
-            stdout.write(this.options[currentLine].name)
-            stdout.write " " * (this.width - this.options[currentLine].name.runeLen())
-        else:
-            stdout.write this.options[currentLine].name.runeSubStr(0,this.width)
+            if this.options[currentLine].name.runeLen() == this.width:
+                stdout.write(this.options[currentLine].name)
+            elif this.options[currentLine].name.runeLen() <= this.width:
+                stdout.write(this.options[currentLine].name)
+                stdout.write " " * (this.width - this.options[currentLine].name.runeLen())
+            else:
+                stdout.write this.options[currentLine].name.runeSubStr(0,this.width)
 
-        currentLine += 1
-        currentY += 1
+            currentLine += 1
+            currentY += 1
 
 
 
@@ -73,8 +75,7 @@ method draw*(this: StringListBox, updateOnly:bool=false){.base.}=
                 this.y2 - this.activeStyle.margin.bottom
                 )
             #...
-        setColors(this.app, this.styles["input"])
-        drawRect(this.leftX, this.topY, this.rightX, this.bottomY)
+
         this.writeFromOffset()
         #this.app.setCursorPos()
         release(this.app.termlock)
@@ -138,6 +139,10 @@ proc onClick(this:Controll, event:KMEvent)=
                     let selected = (event.y - (slistbox.topY + 1)) + slistbox.offset
 
                     # visuals:
+                        # flush Release:
+                    var c = getch()
+                    while c != 'm': c = getch()
+
                     slistbox.cursor = selected
                     slistbox.draw()
                     sleep(100)
@@ -174,39 +179,22 @@ proc onKeyDown(this: StringListBox) =
         this.draw()
 
 proc onPgUp(this: StringListBox) =
-    if this.offset > this.heigth - 1:
-        this.offset -= (this.heigth - 1)
-        this.cursor -= (this.heigth - 1)
-    else:
-        this.offset = 0
-        this.cursor = 0
-    this.draw(true)
-
+    block LOOP:
+        for i in 0..(this.heigth - 1):
+            if this.offset > 0:
+                this.offset -= 1
+                this.cursor -= 1
+                this.draw(true)
+            else: break LOOP
 
 proc onPgDown(this: StringListBox) =
-    if this.offset + (this.heigth - 1) < this.options.len - (this.heigth - 1):
-        # jump a page down
-        this.offset += (this.heigth - 1)
-        this.cursor = this.offset
-    else:
-        if this.offset == this.options.len - (this.heigth - 1):
-            this.cursor = this.options.high
-            this.app.cursorPos.y = this.bottomY
-        else:
-            this.offset = this.options.len - (this.heigth - 1)
-            this.cursor = this.offset
-    this.draw(true)
-
-
-proc onHome(this: StringListBox)=
-    this.offset = 0
-    this.cursor = 0
-    this.draw(true)
-
-proc onEnd(this: StringListBox)=
-    this.offset = this.options.len - (this.heigth - 1)
-    this.cursor = this.options.high
-    this.draw(true)  
+    block LOOP:
+        for i in 0..(this.heigth - 1): 
+            if this.offset < this.options.len - (this.heigth - 1): # label
+                this.offset += 1
+                this.cursor += 1
+                this.draw(true)
+            else: break LOOP
 
 
 proc onKeypress(this:Controll, event:KMEvent)=
@@ -220,12 +208,6 @@ proc onKeypress(this:Controll, event:KMEvent)=
 
                 of KeyUP:
                     onKeyUp(StringListBox(this))
-
-                of KeyPgDown: onPgDown(StringListBox(this))
-                of KeyPgUp: onPgUp(StringListBox(this))
-
-                of KeyHome: onHome(StringListBox(this))
-                of KeyEnd: onEnd(StringListBox(this))
 
                 else: discard
 

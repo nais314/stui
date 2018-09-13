@@ -36,7 +36,7 @@ proc recalc(this:Controll)=
 
     this.x1 = this.app.availRect.x1
 
-    this.y1 = this.app.availRect.y1 #+ 1
+    this.y1 = this.app.availRect.y1 #?+ 1
 
     this.x2 = this.app.availRect.x2
 
@@ -72,7 +72,7 @@ proc draw*(this: Menu, updateOnly:bool=false)=
             # todo: style: even,odd,highlight
             if this.currentNode.currentChild == currentLine and this.app.activeControll == this: #! todo
                 setColors(this.app, this.styles["input:focus"])
-                this.app.cursorPos.y = currentY # patch for scroll issues
+                this.app.cursorPos.y = currentY #! patch for scroll issues
             elif currentLine mod 2 == 0:
                 setColors(this.app, this.styles["input:even"])
             else:
@@ -119,9 +119,8 @@ proc show*(this: Menu)=
     this.prevCursorPos = this.app.cursorPos
 
     this.app.setActiveWorkSpace(this.workSpace)
-    #this.app.activeTile = this.app.activeWorkSpace.tiles[0]
 
-    this.app.recalc()
+    #this.app.recalc()
     #this.app.redraw()
     this.app.activate(this)
 
@@ -149,12 +148,6 @@ proc blur(this: Controll) =
     #Menu(this).hide()
 
 #...............................................................................
-
-proc onClick(this:Controll, event:KMEvent)=
-    let menu = Menu(this)
-    echo "CLICK"
-
-
 
 proc onPgUp(menu:Menu)=
     if menu.currentNode.offset > 0:
@@ -192,48 +185,63 @@ proc onScroll(this:Controll, event:KMEvent)=
         else: discard
         
 
+proc onKeyLeft(menu:Menu)=
+    if menu.currentNode.parent != nil:
+        menu.currentNode = menu.currentNode.parent
+
+        var newTitle : string = ""
+        var cursor = menu.currentNode #!.childs[menu.currentNode.currentChild]
+        while cursor != menu.rootNode:
+            newTitle = cursor.name & "\\" & newTitle
+            cursor = cursor.parent
+
+        if newTitle.runeLen <= menu.width - 6:
+            menu.win.setTitle(newTitle)
+        else:
+            menu.win.setTitle("…" & newTitle.
+                runeSubStr(newTitle.runeLen - (menu.width - 7)) )
+
+
+        menu.draw(true)
+
+
+proc onEnter(menu:Menu)=
+    # if NO action and NO childs: load childs via childLoader()
+    if menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
+        menu.currentNode.childs[menu.currentNode.currentChild].childs.len == 0:
+            if menu.childLoader != nil:
+                # todo: use id to load childs
+                menu.childLoader(menu.currentNode.childs[menu.currentNode.currentChild])
+
+    # if action and no childs: run action()
+    elif menu.currentNode.childs[menu.currentNode.currentChild].action != nil :
+        # and menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0
+        menu.hide()
+        menu.currentNode.childs[menu.currentNode.currentChild].action()
+
+    # if NO action and childs LOADED: 
+    elif menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
+        menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0:
+            var newTitle : string = ""
+            var cursor = menu.currentNode.childs[menu.currentNode.currentChild]
+            while cursor != menu.rootNode:
+                newTitle = cursor.name & "\\" & newTitle
+                cursor = cursor.parent
+
+            if newTitle.runeLen <= menu.width - 6:
+                menu.win.setTitle(newTitle)
+            else:
+                menu.win.setTitle("…" & newTitle.
+                    runeSubStr(newTitle.runeLen - (menu.width - 7)) )
+            
+            menu.currentNode = menu.currentNode.childs[menu.currentNode.currentChild]
+
+            menu.app.draw()
+
+    
 proc onKeypress(this:Controll, event:KMEvent)=
 
     let menu = Menu(this)
-
-    proc onEnter()=
-        # if NO action and NO childs: load childs via childLoader()
-        if menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
-            menu.currentNode.childs[menu.currentNode.currentChild].childs.len == 0:
-                if menu.childLoader != nil:
-                    # todo: use id to load childs
-                    menu.childLoader(menu.currentNode.childs[menu.currentNode.currentChild])
-    
-        # if action and no childs: run action()
-        elif menu.currentNode.childs[menu.currentNode.currentChild].action != nil :
-            # and menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0
-            menu.currentNode.childs[menu.currentNode.currentChild].action()
-
-        # if NO action and childs LOADED: 
-        elif menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
-            menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0:
-                var newTitle : string = ""
-                var cursor = menu.currentNode.childs[menu.currentNode.currentChild]
-                while cursor != menu.rootNode:
-                    newTitle = cursor.name & "\\" & newTitle
-                    cursor = cursor.parent
-
-                if newTitle.runeLen <= this.width - 6:
-                    menu.win.setTitle(newTitle)
-                else:
-                    menu.win.setTitle("…" & newTitle.
-                        runeSubStr(newTitle.runeLen - (this.width - 7)) )
-                
-                menu.currentNode = menu.currentNode.childs[menu.currentNode.currentChild]
-
-                menu.app.draw()
-
-                #[ tryit:
-                    while cursor != nil: #menu.rootNode:
-                        echo cursor.name 
-                        cursor = cursor.parent ]#
-  
-
 
     if not this.disabled:
         #let menu = Menu(this)
@@ -242,7 +250,8 @@ proc onKeypress(this:Controll, event:KMEvent)=
             case event.key:
 
                 of KeyLeft:
-                    if menu.currentNode.parent != nil:
+                    onKeyLeft(menu)
+                    #[ if menu.currentNode.parent != nil:
                         menu.currentNode = menu.currentNode.parent
 
                         var newTitle : string = ""
@@ -258,9 +267,9 @@ proc onKeypress(this:Controll, event:KMEvent)=
                                 runeSubStr(newTitle.runeLen - (this.width - 7)) )
 
 
-                        menu.draw(true)
+                        menu.draw(true) ]#
 
-                of KeyRight: onEnter()
+                of KeyRight: onEnter(menu)
 
 
                 of KeyDown:
@@ -315,11 +324,29 @@ proc onKeypress(this:Controll, event:KMEvent)=
         elif event.evType == "CtrlKey":
             case event.ctrlKey:
                 of 13: # ENTER, ctrl+M
-                    onEnter()
+                    onEnter(menu)
 
                 else: discard
     
 
+
+
+proc onClick(this:Controll, event:KMEvent)=
+    let menu = Menu(this)
+    if event.btn == 0:
+        # get selected:
+        if event.y <= menu.bottomY and event.y >= menu.topY and event.x <= menu.rightX and event.x >= menu.leftX:
+            menu.currentNode.currentChild = menu.currentNode.offset + (event.y - menu.topY)
+            menu.onEnter()
+            #menu.draw(true)
+    else:
+        if menu.currentNode.parent != nil:
+            onKeyLeft(menu)
+        else:
+            menu.hide()
+                
+                
+                
 #...............................................................................
 
 

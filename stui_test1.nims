@@ -5,4 +5,3 @@
 #--threadanalysis:off
 --debuginfo
 --linedir:on
-#--out:build/stui_test1

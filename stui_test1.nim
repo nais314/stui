@@ -183,6 +183,19 @@ addEventListener(Controll(btn), "click", btnClick)
 
 import ui_menu
 
+
+# MENU -------------------------------------------------------------------------
+var menuW = app.newMenu()
+menuW.setMargin("all",2)
+discard menuW.currentNode.addChild("Quit",proc() = quit())
+app.workSpaces[0].tiles[0].windows[0].addEventListener("menu", proc(c:Controll) = menuW.show())
+app.workSpaces[0].tiles[1].windows[0].addEventListener("menu", proc(c:Controll) = menuW.show())
+
+
+
+#-------------------------------------
+
+
 var menu1 = app.newMenu()
 menu1.setMargin("all",2)
 
@@ -202,19 +215,7 @@ proc genNewChilds(nMN: MenuNode, level:int = 0)=
 
 genNewChilds(menu1.currentNode, 0)
 
-#[ for iM in 0..10:
-    if rand(1) > 0:
-        discard menu1.currentNode.addChild("test-" & $iM, dummy)
-    else:
-        let nMN = menu1.currentNode.addChild("test-" & $iM, nil)
-        genNewChilds(nMN) ]#
-
-
-
-
-
-
-#...
+#...............
 
 var btn2 = app.activeWindow.newButton("Menu", 1,1)
 
@@ -270,7 +271,7 @@ spawn prog2test(addr prog2, addr app)
 
 
 
-#------------------------------------------------------------
+#-------------------------------------------------------------------------------
 import ui_fineprogressbar
 
 var fineprog = app.activeWindow.newFineProgressBar("fine progbar1")
@@ -293,7 +294,7 @@ var fineprog2 = app.activeWindow.newFineProgressBar(
 fineprog2.setBorder("solid")
 
 spawn fineprogtest(addr fineprog2, addr app)
-#------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 
 
@@ -314,7 +315,7 @@ tb33.setBorder("bold")
 
 
 
-#------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 
 

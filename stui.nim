@@ -19,12 +19,14 @@
 ]#
 
 #[
-    TODO:
+    NEXT-NEXT:
         main loop poll consumes cpu
         
         TimedAction needs to be revised to be paralell
 
         force colorMode - xterm reports 8! but true color seems supported...
+
+        multi-app support
 ]#
 
 
@@ -277,6 +279,8 @@ type
 ######       # #    # #####  #####  #    # #####    #      #      #    # #  # #
 ######  #    # #    # #      #      #    # #   #    #      #      #    # #   ##
 ######   ####   ####  #      #       ####  #    #   #      #       ####  #    #
+
+proc trigger*(controll:Controll, evtname:string ) #!FWD
 
 #! import random
 proc genId*(length: int = 5):string=
@@ -702,10 +706,7 @@ proc window_onClick(this:Controll, event:KMEvent)=
     let win = Window(this)
     if event.y == win.y1: # header
         if event.x == win.x1 + 1: # menu
-            discard
-            #[
-                UI_MENU
-            ]#
+            this.trigger("menu")
 
         elif win.pages.len > 1 :
             if event.x == win.x1 + 3: # pageUp
@@ -826,6 +827,7 @@ proc newWindow*(tile: Tile, label:string="Window"): Window =
     result.pages = @[]
     result.controlls = @[]
     result.currentPage = 0
+    result.listeners = @[]
     result.tile = tile
     result.app = tile.app
     result.label = label

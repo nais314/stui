@@ -34,6 +34,8 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
 
 **Demo / test file is stui_test1.nim**
 
+**App template: template_simpleapp.nim**
+
 **Dependency: like Deja-Vu TTF - a font with large unicode character set**
 
 * ui_textbox: text input, 1 line heigh

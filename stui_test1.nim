@@ -1,18 +1,17 @@
-# todo: ListItem, ListBox - header, table columns, ???
-# todo: window menu, buttons
 # done: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
 # todo: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
 # todo: widgets: class, activearea
 # todo: ColumnBreak test
 # done: app addeventlistener fnkey action trigger test
 # done: WS: switch ok, recalc ok
-# todo: window onclick, rightclick
+# todo: window rightclick
 # todo: controll.header.inc.nim
 # todo: tss.nim
 # todo: setDragdata()
 # todo: intro, doc
 # todo: splash
 # todo: filechooser (dir, fname, exists)
+# todo: table columns, ???
 # todo: setEnabled(this:Controll) ?: set style to what?
 # todo: banner?
 # todo: CTRL+C, CTRL+V

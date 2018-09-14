@@ -9,7 +9,11 @@ branches:
 * master: nightly
 * no dev branches now - everything is merged
 
-Status: usable alpha. missing: widgets, banners, splash; docs, cleanup 
+Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
+  see: stui_test1.nim
+  copy&use: template_simpleapp.nim
+
+[Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
 
 
 It can Tile the screen vertically, 

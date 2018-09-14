@@ -92,7 +92,7 @@ tb2.setMargin("bottom", 1)
 tb2.setMargin("left", 1)
 tb2.setBorder("solid")
 
-# test threads:
+# test threads::::::::::::::::::::
 
 proc tb2test(pbPtr: ptr, app: ptr)=
     while true:
@@ -164,7 +164,9 @@ for i in 1..5:
 
 #-------------------------------------------------------------------------------
 
-var btn = app.activeWindow.newButton("12345", 1,1)
+
+
+var btn = app.activeWindow.newButton("BTN: open selectbox", 1,1)
 
 btn.setMargin("left", 1)
 btn.setMargin("bottom", 1)
@@ -184,6 +186,7 @@ import ui_menu
 
 
 # MENU -------------------------------------------------------------------------
+# window menu - quit
 var menuW = app.newMenu()
 menuW.setMargin("all",2)
 discard menuW.currentNode.addChild("Quit",proc() = quit())
@@ -194,7 +197,7 @@ app.workSpaces[0].tiles[1].windows[0].addEventListener("menu", proc(c:Controll) 
 
 #-------------------------------------
 
-
+# test menu
 var menu1 = app.newMenu()
 menu1.setMargin("all",2)
 
@@ -314,7 +317,7 @@ tb33.setBorder("bold")
 
 
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------
 
 
 
@@ -339,7 +342,7 @@ for i in 2..20:
 
 
 
-#------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
     

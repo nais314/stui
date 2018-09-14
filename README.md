@@ -36,7 +36,7 @@ STUI can handle more screens - WorkSpaces
 
 It can be themed with parseCfg compatible files (.TSS) style sheets
 
-**Demo / test file is stui_test1.nim**
+**Demo / test file is stui_test1.nim** - use F10 or 2x ESC to Quit
 
 **App template: template_simpleapp.nim**
 
@@ -50,6 +50,9 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
 * ui_progressbar
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
 * ui_selectbox: (multi) selectbox
+
+[Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
+[Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
 
 
 

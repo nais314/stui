@@ -59,29 +59,31 @@ proc cancel(this: Controll)=discard
 
 # made public to call if replaced - new method of event listener adding
 proc onClick*(this: Controll, event:KMEvent) =
-    #this.focus(this)
-    this.drawit(this, false)
-    var c: char
-    if event.evType != "CtrlKey": # mouseClick flush Release event
-        while c != 'm':
-            c = getch()
-    # visual feedback:
-    sleep(100)
-    this.blur(this)
-    drawit(this)
-    trigger(this,"click")
+    if not this.disabled:
+        #this.focus(this)
+        this.drawit(this, false)
+        var c: char
+        if event.evType != "CtrlKey": # mouseClick flush Release event
+            while c != 'm':
+                c = getch()
+        # visual feedback:
+        sleep(100)
+        this.blur(this)
+        drawit(this)
+        trigger(this,"click")
 
 proc onDrag(this: Controll, event:KMEvent)=discard
 
 proc onDrop(this: Controll, event:KMEvent)=discard
 
 proc onKeyPress(this: Controll, event:KMEvent)=
-    if event.evType == "CtrlKey":
-        case event.ctrlKey:
-            of 13:
-                this.onClick(this, event)
-            else:
-                discard
+    if not this.disabled:
+        if event.evType == "CtrlKey":
+            case event.ctrlKey:
+                of 13:
+                    this.onClick(this, event)
+                else:
+                    discard
 
 
 proc newButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 0 ): Button =

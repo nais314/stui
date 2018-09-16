@@ -72,11 +72,11 @@ echo "TextBox 1"
 
 var tb = app.activeWindow.newTextBox("12345678901234567890",20,20)
 tb.value= "colorMode: " & $app.colorMode
-tb.activeStyle = tb.styles["input:disabled"]
 tb.setMargin("bottom", 1)
 tb.setMargin("left", 1)
 tb.setBorder("bold")
 tb.setDisabled()
+#tb.activeStyle = tb.styles["input:disabled"] # tb.setDisabled() handles this
 
 #------------------------------------------------------------
 
@@ -131,8 +131,19 @@ Handle the tty line connected to standard input. Without arguments, prints baud 
 GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report stty translation bugs to <http://translationproject.org/team/>   
 END"""
 
+#-----------
 
 
+
+var tA2 = app.activeWindow.newTextArea("TA Disabled", 20,10)
+
+tA2.value="""
+Handle the tty line connected to standard input. Without arguments, prints baud rate, line discipline, and deviations from stty sane. In settings, CHAR is taken literally, or coded as in ^c, 0x37, 0177 or 127; special values ^- or undef used to disable special characters.
+
+GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report stty translation bugs to <http://translationproject.org/team/>   
+END"""
+
+tA2.setDisabled()
 
 #-------------------------------------------------------------------------------
 

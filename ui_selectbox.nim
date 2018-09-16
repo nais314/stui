@@ -125,39 +125,40 @@ proc cancel(this: Controll)=
 
 
 proc selectBoxOnClick(this:Controll, event:KMEvent)=
-    var sb = SelectBox(this)
-    sb.preval.deepCopy sb.options[]
+    if not this.disabled:
+        var sb = SelectBox(this)
+        sb.preval.deepCopy sb.options[]
 
-    var parentWin = sb.app.activeWindow
-    var win = sb.app.activeTile.newWindow()
-    win.controlls.add(sb.chooser)
-    var page = win.newPage()
-    page.controlls.add(sb.chooser)
-    sb.chooser.visible = true
-    win.x1 = parentWin.x1
-    win.y1 = parentWin.y1 + 1
-    win.x2 = parentWin.x2
-    win.y2 = parentWin.y2
-    win.width = parentWin.width # win.x2 - win.x1
-    win.heigth = win.y2 - win.y1
-    win.styles["panel"].bgColor[2]=235
-    win.styles["panel"].bgColor[3] = int(packRGB(38,38,38))
-    win.label = sb.label
+        var parentWin = sb.app.activeWindow
+        var win = sb.app.activeTile.newWindow()
+        win.controlls.add(sb.chooser)
+        var page = win.newPage()
+        page.controlls.add(sb.chooser)
+        sb.chooser.visible = true
+        win.x1 = parentWin.x1
+        win.y1 = parentWin.y1 + 1
+        win.x2 = parentWin.x2
+        win.y2 = parentWin.y2
+        win.width = parentWin.width # win.x2 - win.x1
+        win.heigth = win.y2 - win.y1
+        win.styles["panel"].bgColor[2]=235
+        win.styles["panel"].bgColor[3] = int(packRGB(38,38,38))
+        win.label = sb.label
 
-    sb.chooser.win = win
-    sb.chooser.x1 = win.x1
-    sb.chooser.y1 = win.y1 + 1
-    sb.chooser.x2 = win.x2
-    sb.chooser.y2 = win.y2
-    sb.chooser.width = sb.chooser.x2 - sb.chooser.x1
-    sb.chooser.prevActiveControll = this
+        sb.chooser.win = win
+        sb.chooser.x1 = win.x1
+        sb.chooser.y1 = win.y1 + 1
+        sb.chooser.x2 = win.x2
+        sb.chooser.y2 = win.y2
+        sb.chooser.width = sb.chooser.x2 - sb.chooser.x1
+        sb.chooser.prevActiveControll = this
 
-    for iC in 0..this.win.pages[this.win.currentPage].controlls.high :
-        this.win.pages[this.win.currentPage].controlls[iC].visible = false
-    win.draw()
+        for iC in 0..this.win.pages[this.win.currentPage].controlls.high :
+            this.win.pages[this.win.currentPage].controlls[iC].visible = false
+        win.draw()
 
-    sb.app.activeControll = sb.chooser    
-    # setfocus!!!!!!!!!
+        sb.app.activeControll = sb.chooser    
+        # setfocus!!!!!!!!!
 
 
 # ⎡
@@ -189,12 +190,13 @@ proc selectBoxOnChange(this: Controll)= # …✔✖ ⚯ ⚮ ⚭ ⚬ 🂱
 
 
 proc onKeyPress(this: Controll, event:KMEvent)=
-    if event.evType == "CtrlKey":
-        case event.ctrlKey:
-            of 13:
-                this.onClick(this, event)
-            else:
-                discard
+    if not this.disabled:
+        if event.evType == "CtrlKey":
+            case event.ctrlKey:
+                of 13:
+                    this.onClick(this, event)
+                else:
+                    discard
 
 
 proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, size:int=20): SelectBox =

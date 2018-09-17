@@ -137,7 +137,8 @@ proc hide*(this: Menu)=
     this.app.draw()
 
 
-proc cancel(this:Controll) = Menu(this).hide()
+proc cancel(this:Controll) = 
+    Menu(this).hide()
 
 
 proc focus(this: Controll) =

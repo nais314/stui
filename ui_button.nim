@@ -1,6 +1,11 @@
 import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, locks
 
 type Button* = ref object of Controll
+    ## no border or padding style
+    ## use paddingH, paddingV: int in 
+    ##   proc newButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 0 ): Button =
+    ## addEventListener("click", proc(source:Controll):void) for action
+    
     #label*:string
     paddingH, paddingV: int
 
@@ -89,6 +94,7 @@ proc onDrag(this: Controll, event:KMEvent)=discard
 proc onDrop(this: Controll, event:KMEvent)=discard
 
 proc onKeyPress(this: Controll, event:KMEvent)=
+    # todo: focusFWD on KeyLeft ?
     if not this.disabled:
         if event.evType == "CtrlKey":
             case event.ctrlKey:

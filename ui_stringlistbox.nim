@@ -1,22 +1,19 @@
 include "controll.inc.nim"
 
-#[
-    it is a "listview".
-    the items are strings.
-    onclick triggers the items.action:proc():void
-]#
-
 type
     StringListBox_Options* = seq[ tuple[name:string, action:proc():void]  ]
     StringListBox* = ref object of Controll
-        #label*:string
+        ## it is a "listview".
+        ## the items are strings.
+        ## onclick triggers the items.action:proc():void
+        ## no events - as it has actions
+
         offset*:int # num-lines scrolled down
         options*: StringListBox_Options #seq[ tuple[name:string, action:proc():void]  ]
         #win*:Window
         cursor:int
 
-        prevActiveControll*: Controll
-        #multiSelect*:bool
+        prevActiveControll*: Controll # it is here for more fun - but not yet demoed...
 
 
 proc writeFromOffset(this: StringListBox)=
@@ -119,10 +116,7 @@ proc cancel(this:Controll)=
     var slistbox = StringListBox(this)
     slistbox.blur(this)
     slistbox.draw()
-#[     chooser.app.activeTile.windows.del(chooser.app.activeTile.windows.high)
-    chooser.app.activeWindow.draw()
-    if chooser.prevActiveControll.cancel != nil : chooser.prevActiveControll.cancel(chooser.prevActiveControll)
-    chooser.app.activeControll = chooser.prevActiveControll ]#
+
 
 
 
@@ -141,7 +135,7 @@ proc onClick(this:Controll, event:KMEvent)=
                     slistbox.cursor = selected
                     slistbox.draw()
                     sleep(100)
-
+                    # action
                     if slistbox.options[selected].action != nil:
                         slistbox.options[selected].action()
             else: 

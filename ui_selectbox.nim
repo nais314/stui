@@ -5,6 +5,8 @@ import ui_chooser
 type 
     
     SelectBox* = ref object of Controll
+        ## uses Chooser controll to select value(s)
+        ## triggers "change" on blur or chooser change
         #label*:string
         val*:string # for store
         text*:string # for display
@@ -125,6 +127,9 @@ proc cancel(this: Controll)=
 
 
 proc selectBoxOnClick(this:Controll, event:KMEvent)=
+    ## used @:
+    ##  blur() = trigger(this, "change") =
+    ##  chooser.app.activeControll.trigger("change")
     if not this.disabled:
         var sb = SelectBox(this)
         sb.preval.deepCopy sb.options[]

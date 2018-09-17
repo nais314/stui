@@ -1661,7 +1661,26 @@ proc getUIElementAtPos*(app:App, x,y:int, setActive: bool = false): Controll =
 ###############################################################################
 ###############################################################################
 
+proc focusFWD*(app:App)=
+    ## jump focus to next tabstop
+    # HINT: pageBreak is not added to PAGE controlls :)
+    if app.activeControll != nil:
+        var newTabStop: int = app.activeControll.tabStop
 
+        if app.activeControll.tabStop < app.activePage.controlls.high and not (app.activeControll of Window):
+            newTabStop += 1
+        else:
+            newTabStop = 0
+
+        if app.activeControll.blur != nil:    
+            app.activeControll.blur(app.activeControll) 
+            app.activeControll.drawit(app.activeControll, false)
+
+        app.activeControll = app.activePage.controlls[newTabStop]
+
+        if app.activeControll.focus != nil:    
+            app.activeControll.focus(app.activeControll)
+            app.activeControll.drawit(app.activeControll, false)
 
 proc appOnKeypress*(app:App, event: KMEvent):bool=
     result = false
@@ -1690,7 +1709,7 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
         of "CtrlKey":
             case event.ctrlKey:
                 of 9: # TAB 
-                    # HINT: pageBreak is not added to controlls :)
+                    #[ # HINT: pageBreak is not added to PAGE controlls :)
                     if app.activeControll != nil:
                         var newTabStop: int = app.activeControll.tabStop
 
@@ -1707,7 +1726,10 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
 
                         if app.activeControll.focus != nil:    
                             app.activeControll.focus(app.activeControll)
-                            app.activeControll.drawit(app.activeControll, false)
+                            app.activeControll.drawit(app.activeControll, false) ]#
+                    
+                    if app.activeControll != nil:
+                        focusFWD(app)
                             
                         result = true
                     else:

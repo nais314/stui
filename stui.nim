@@ -504,7 +504,7 @@ proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
 
 
 
-proc setPadding*(this:Controll,dir:string, size:int)=
+proc setPadding*(this:Controll,dir:string, size:int = 0)=
     for style in this.styles.values:
         case dir:
             of "top":
@@ -523,7 +523,7 @@ proc setPadding*(this:Controll,dir:string, size:int)=
             else: discard
 
 
-proc setMargin*(this:Controll,dir:string, size:int)=
+proc setMargin*(this:Controll,dir:string, size:int = 0)=
     for style in this.styles.values:
         case dir:
             of "top":
@@ -541,17 +541,32 @@ proc setMargin*(this:Controll,dir:string, size:int)=
                 style.margin.right = size
             else: discard
 
-
-# todo: remake [top, right,bottom,left]
 proc setMargin*(this:Controll, args: varargs[string])=
     var i = 0
     while i < args.len:
         this.setMargin(args[i], parseInt(args[i+1]) )
         i += 2
 
+proc setMargin(style:StyleSheetRef,dir:string, size:int = 0)=
+    case dir:
+        of "top":
+            style.margin.top = size
+        of "bottom":
+            style.margin.bottom = size
+        of "left":
+            style.margin.left = size
+        of "right":
+            style.margin.right = size
+        of "all":
+            style.margin.top = size
+            style.margin.bottom = size
+            style.margin.left = size
+            style.margin.right = size
+        else: discard
+
 #------------------------
 
-proc setBorder*(this:Controll, border:string)=
+proc setBorder*(this:Controll, border:string = "none")=
     for style in this.styles.values:
         style.border = border
 
@@ -1115,7 +1130,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                             echo "ERR Controll cannot be placed on screen!"
                             discard stdin.readLine()
                             continue
-                        
+                #...............................................................        
 
 
 
@@ -1126,7 +1141,8 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
                 this.controlls[iC].x1 = xC #! xC may changed by newColumn->x2 recalc!!!
 
-                this.controlls[iC].y1 = this.y1 + (this.heigth - availH) + this.controlls[iC].activeStyle.margin.top + 1
+                #this.controlls[iC].y1 = this.y1 + (this.heigth - availH) + this.controlls[iC].activeStyle.margin.top + 1
+                this.controlls[iC].y1 =  this.y1 + (this.heigth - availH) + 1
 
                 this.controlls[iC].x2 = this.controlls[iC].x1 + (this.controlls[iC].width - 1) + (this.controlls[iC].borderWidth() * 2) + this.controlls[iC].activeStyle.margin.left + this.controlls[iC].activeStyle.margin.right #!X2
 

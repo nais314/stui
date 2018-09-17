@@ -2,10 +2,16 @@ import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, loc
 
 type Button* = ref object of Controll
     #label*:string
-    paddingH*, paddingV*: int
+    paddingH, paddingV: int
 
 
+proc setPaddingV*(this:Button, padding:int)=
+    this.paddingV = padding
+    this.heigth = 1 + (padding * 2)
 
+proc setPaddingH*(this:Button, padding:int)=
+    this.paddingH = padding
+    this.width = this.label.runeLen() + (this.paddingH * 2) 
 
 proc draw*(this: Button, updateOnly: bool = false)=
     if this.visible:
@@ -14,10 +20,14 @@ proc draw*(this: Button, updateOnly: bool = false)=
         setColors(this.app, this.activeStyle[])
 
         #if this.activeStyle.border != "" and this.activeStyle.border != "none":
-        drawRect(this.x1 + this.activeStyle.margin.left,
-                this.y1 + this.activeStyle.margin.top,
-                this.x2 - this.activeStyle.margin.right,
-                this.y2 - this.activeStyle.margin.bottom)
+        #[ drawRect(this.x1 + this.activeStyle.margin.left,
+                 this.y1 + this.activeStyle.margin.top,
+                 this.x2 - this.activeStyle.margin.right,
+                 this.y2 - this.activeStyle.margin.bottom) ]#
+        drawRect(this.leftX,
+            this.topY,
+            this.rightX,
+            this.bottomY)
         #...
         var cLine = this.topY
         for iP in 1..this.paddingV:
@@ -45,6 +55,8 @@ proc draw*(this: Button, updateOnly: bool = false)=
         
 proc drawit(this: Controll, updateOnly: bool = false) =
     draw(Button(this), updateOnly)
+
+
 
 
 proc focus(this: Controll)=

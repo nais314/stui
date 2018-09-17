@@ -5,3 +5,4 @@
 #--threadanalysis:off
 --debuginfo
 --linedir:on
+--app:console

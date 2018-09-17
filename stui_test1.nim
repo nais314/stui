@@ -131,19 +131,8 @@ Handle the tty line connected to standard input. Without arguments, prints baud 
 GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report stty translation bugs to <http://translationproject.org/team/>   
 END"""
 
-#-----------
+tA1.setMargin("left", 1)
 
-
-
-var tA2 = app.activeWindow.newTextArea("TA Disabled", 20,10)
-
-tA2.value="""
-Handle the tty line connected to standard input. Without arguments, prints baud rate, line discipline, and deviations from stty sane. In settings, CHAR is taken literally, or coded as in ^c, 0x37, 0177 or 127; special values ^- or undef used to disable special characters.
-
-GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report stty translation bugs to <http://translationproject.org/team/>   
-END"""
-
-tA2.setDisabled()
 
 #-------------------------------------------------------------------------------
 
@@ -154,6 +143,7 @@ echo "A"
 var sb1 = app.activeWindow.newSelectBox("opciók",true,20)
 sb1.id = genId(3)
 sb1.setMargin("bottom", 1)
+sb1.setMargin("left", 1)
 
 var opt = (name:"", value:"", selected:true)
 #sb1.options[].add(opt)
@@ -251,6 +241,7 @@ import ui_progressbar
 var prog1 = app.activeWindow.newProgressBar("progbar1")
 
 prog1.setBorder("solid")
+prog1.setMargin("left", 1)
 
 proc prog1test(pbPtr: ptr, app: ptr)=
     while true:
@@ -268,6 +259,8 @@ var prog2 = app.activeWindow.newProgressBar("progbar2")
 prog2.val = 0
 
 #prog2.setBorder("solid")
+prog2.setMargin("left", 1)
+
 
 proc prog2test(pbPtr: ptr, app: ptr)=
     while true:
@@ -290,6 +283,8 @@ import ui_fineprogressbar
 var fineprog = app.activeWindow.newFineProgressBar("fine progbar1")
 
 fineprog.setBorder("solid")
+fineprog.setMargin("left", 1)
+
 
 proc fineprogtest(pbPtr: ptr, app: ptr)=
     while true:
@@ -305,6 +300,8 @@ var fineprog2 = app.activeWindow.newFineProgressBar(
         levels=(33,66))
 
 fineprog2.setBorder("solid")
+fineprog2.setMargin("left", 1)
+
 
 spawn fineprogtest(addr fineprog2, addr app)
 #-------------------------------------------------------------------------------
@@ -356,8 +353,6 @@ for i in 2..20:
 #------------------------------------------------------------------------------
 
 
-    
-
 
 let slb1 = app.activeWindow.newStringListBox("String ListBox", 20, 5)
 
@@ -366,11 +361,20 @@ for i in 0..10:
     slb1.options[i].action = proc() = app.setActiveWorkSpace("secondWS")
 
 slb1.setMargin("left",1)
+slb1.setMargin("bottom",1)
 slb1.setBorder("block")
     
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
+#    ##      ## #### ##    ## ########   #######  ##      ##  #######  
+#    ##  ##  ##  ##  ###   ## ##     ## ##     ## ##  ##  ## ##     ## 
+#    ##  ##  ##  ##  ####  ## ##     ## ##     ## ##  ##  ##        ## 
+#    ##  ##  ##  ##  ## ## ## ##     ## ##     ## ##  ##  ##  #######  
+#    ##  ##  ##  ##  ##  #### ##     ## ##     ## ##  ##  ## ##        
+#    ##  ##  ##  ##  ##   ### ##     ## ##     ## ##  ##  ## ##        
+#     ###  ###  #### ##    ## ########   #######   ###  ###  ######### 
+
 
 for i in 2..20:
     var tb2 = ws1_W2.newTextBox("Teszt" & $i,20,20)
@@ -460,10 +464,17 @@ spawn statusTss_test(addr ws1_W2, addr app, addr status_styles)
 
 
 
-#===============================================================================
-#===============================================================================
 
-
+#===============================================================================
+#                       _                              _____ 
+#                      | |                            / __  \
+#   __      _____  _ __| | _____ _ __   __ _  ___ ___ `' / /'
+#   \ \ /\ / / _ \| '__| |/ / __| '_ \ / _` |/ __/ _ \  / /  
+#    \ V  V / (_) | |  |   <\__ \ |_) | (_| | (_|  __/./ /___
+#     \_/\_/ \___/|_|  |_|\_\___/ .__/ \__,_|\___\___|\_____/
+#                               | |                          
+#                               |_|                          
+#===============================================================================
 
 
 var ws2 = app.newWorkSpace("secondWS")
@@ -478,6 +489,15 @@ ws2T1W1.label = "ws2T1W1"
 
 
 var wsSwitch1 = ws1_W2.newButton("switch to WS 2!")
+wsSwitch1.setMargin("left", 1)
+wsSwitch1.setMargin("bottom", 1)
+wsSwitch1.setMargin("top", 1)
+wsSwitch1.setPaddingV 1
+wsSwitch1.setPaddingH 1
+
+# swapp to front >:)
+ws1_W2.controlls[ws1_W2.controlls.high] = ws1_W2.controlls[0]
+ws1_W2.controlls[0] = wsSwitch1
 
 
 proc wsSwitch1_Click(this:Controll)=
@@ -485,11 +505,13 @@ proc wsSwitch1_Click(this:Controll)=
     app.draw()
 
 addEventListener(Controll(wsSwitch1), "click", wsSwitch1_Click)
-#.....
+
+
+#...................................................
 
 
 var wsSwitch2 = ws2T1W1.newButton("switch to WS 1!")
-
+wsSwitch2.setMargin("left", 1)
 
 #[ 
 # the default method of event cb adding: 
@@ -516,17 +538,49 @@ The quick brown fox jumped over the lazy dog.
 Lorem ipsum dolor sit ameth.
 """
 
-#===============================================================================
-#===============================================================================
-#===============================================================================
+relTA.setMargin("left", 1)
 
 
 
+#-------------------------------------------------------------------------------
+#   ██████╗ ██╗███████╗ █████╗ ██████╗ ██╗     ███████╗██████╗ ███████╗
+#   ██╔══██╗██║██╔════╝██╔══██╗██╔══██╗██║     ██╔════╝██╔══██╗██╔════╝
+#   ██║  ██║██║███████╗███████║██████╔╝██║     █████╗  ██║  ██║███████╗
+#   ██║  ██║██║╚════██║██╔══██║██╔══██╗██║     ██╔══╝  ██║  ██║╚════██║
+#   ██████╔╝██║███████║██║  ██║██████╔╝███████╗███████╗██████╔╝███████║
+#   ╚═════╝ ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚═════╝ ╚══════╝
+                                                                   
+
+
+var tA2 = app.activeWindow.newTextArea("TA Disabled", 20,10)
+
+tA2.value="""
+Handle the tty line connected to standard input. Without arguments, prints baud rate, line discipline, and deviations from stty sane. In settings, CHAR is taken literally, or coded as in ^c, 0x37, 0177 or 127; special values ^- or undef used to disable special characters.
+
+GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report stty translation bugs to <http://translationproject.org/team/>   
+END"""
+
+tA2.setDisabled()
+tA2.setMargin("bottom",1)
+tA2.setMargin("left",1)
+
+
+
+################################################################################
+################################################################################
+#
+#      ███╗   ███╗ █████╗ ██╗███╗   ██╗██╗      ██████╗  ██████╗ ██████╗ 
+#      ████╗ ████║██╔══██╗██║████╗  ██║██║     ██╔═══██╗██╔═══██╗██╔══██╗
+#      ██╔████╔██║███████║██║██╔██╗ ██║██║     ██║   ██║██║   ██║██████╔╝
+#      ██║╚██╔╝██║██╔══██║██║██║╚██╗██║██║     ██║   ██║██║   ██║██╔═══╝ 
+#      ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║███████╗╚██████╔╝╚██████╔╝██║     
+#      ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝ ╚═════╝  ╚═════╝ ╚═╝     
+#                                                                  
+#
+#
 include "mainloop.inc.nim"
-
-
-
-################################################################################
-################################################################################
+#
+#
+#
 ################################################################################
 ################################################################################

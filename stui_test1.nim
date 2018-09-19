@@ -1,6 +1,8 @@
 # done: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
+# todo: TEST all controlls relative w/h
 # todo: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
 # todo: widgets: class, activearea
+# todo: intro, doc
 # todo: ColumnBreak test
 # done: app addeventlistener fnkey action trigger test
 # done: WS: switch ok, recalc ok
@@ -8,7 +10,6 @@
 # todo: controll.header.inc.nim
 # todo: tss.nim
 # todo: setDragdata()
-# todo: intro, doc
 # todo: splash
 # todo: filechooser (dir, fname, exists)
 # todo: table columns, ???
@@ -38,7 +39,7 @@ app.workSpaces[0].tiles[0].id = "TILE ID" # == app.activeTile.id = "TILE ID"
 
 
 #-------------------------------------------------
-# longer version:
+# longer version: app.workSpaces[0].tiles[0].windows[0] -vs- var
 discard app.workSpaces[0].tiles[0].newWindow()
 app.workSpaces[0].tiles[0].windows[0].styles["panel"].padding.left = 1
 app.workSpaces[0].tiles[0].windows[0].styles["panel"].padding.top = 1
@@ -48,8 +49,6 @@ app.workSpaces[0].tiles[0].windows[0].label = "Unnamed Document 1"
 
 discard app.workSpaces[0].newTile("24ch") # 24 char wide tile
 var ws1_W2 = app.workSpaces[0].tiles[1].newWindow()
-#ws1_W2.styles["panel"].bgColor[2] = 25
-#ws1_W2.styles["panel"].bgColor[3] = int(packRGB(51, 102, 153))
 ws1_W2.styles.add("dock", app.styles["dock"])
 ws1_W2.activeStyle = ws1_W2.styles["dock"]
 ws1_W2.label = "öüóőúéá1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi"
@@ -230,6 +229,10 @@ proc btn2Click(this:Controll)=
     menu1.show()
 
 addEventListener(Controll(btn2), "click", btn2Click)
+
+#...............
+# app menu KeyF2
+app.addEventListener(KeyF2, proc() = menu1.show())
 
 
 #-------------------------------------------------------------------------------
@@ -564,7 +567,33 @@ tA2.setDisabled()
 tA2.setMargin("bottom",1)
 tA2.setMargin("left",1)
 
+#...............................................................................
+#   ██████╗ ███████╗██╗      █████╗ ████████╗██╗██╗   ██╗███████╗███████╗
+#   ██╔══██╗██╔════╝██║     ██╔══██╗╚══██╔══╝██║██║   ██║██╔════╝██╔════╝
+#   ██████╔╝█████╗  ██║     ███████║   ██║   ██║██║   ██║█████╗  ███████╗
+#   ██╔══██╗██╔══╝  ██║     ██╔══██║   ██║   ██║╚██╗ ██╔╝██╔══╝  ╚════██║
+#   ██║  ██║███████╗███████╗██║  ██║   ██║   ██║ ╚████╔╝ ███████╗███████║
+#   ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝  ╚══════╝╚══════╝
+                                                                     
+discard app.activeWindow.newButton("100% width", "100", paddingV = 1)
+let btn25pc = app.activeWindow.newButton("25% width", "25", paddingV = 1)
+btn25pc.setDisabled()
+btn25pc.setMargin("top",1)
 
+
+let fp50 = app.activeWindow.newFineProgressBar("50% width", width = "50")
+fp50.value2= 66
+fp50.setMargin("top",1)
+
+let pb50 = app.activeWindow.newProgressBar("50% width", width = "50")
+pb50.value2= 66
+pb50.setMargin("top",1)
+
+let sb50 = app.activeWindow.newSelectBox("50% width", multiSelect = false, width = "50")
+sb50.setMargin("top",1)
+
+let slb50 = app.activeWindow.newStringListBox("50% width", "50", "20")
+slb50.setMargin("top",1)
 
 ################################################################################
 ################################################################################

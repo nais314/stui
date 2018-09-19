@@ -77,7 +77,7 @@ proc draw*(this: FineProgressBar, updateOnly: bool = false) =
             #stdout.write $size
             if rem > 0:
                 stdout.write ("▓" * size) & hBarCharset[rem]
-                stdout.write " " * (this.width - size - rem)
+                stdout.write " " * (this.width - size - 1)
             else:
                 stdout.write ("▓" * size)
                 stdout.write " " * (this.width - size)
@@ -270,3 +270,28 @@ proc newFineProgressBar*(win:Window, label: string, width:int=20,
     result.styles["input:warning"].copyColorsFrom(levelStyles.warning)
     result.styles["input:error"].copyColorsFrom(levelStyles.error)
      
+
+# relativeW:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+proc newFineProgressBar*(win:Window, label: string, width:string): FineProgressBar =
+    result = newFineProgressBar(win, label, width = 0)
+    discard width.parseInt(result.width_value)
+
+
+proc newFineProgressBar*(win:Window, label: string, width:string,
+    levels: tuple[normal, warning:int]): FineProgressBar =
+
+    result = newFineProgressBar(win, label, width = 0, levels)
+    discard width.parseInt(result.width_value)
+
+
+proc newFineProgressBar*(win:Window, label: string, width:string, 
+    levels: tuple[normal, warning:int],
+    levelStyles: tuple[warning, error:StyleSheetRef]): FineProgressBar =
+
+    result = newFineProgressBar(win, label, width = 0)
+    result.levels = levels
+
+    result.styles["input:warning"].copyColorsFrom(levelStyles.warning)
+    result.styles["input:error"].copyColorsFrom(levelStyles.error)
+
+    discard width.parseInt(result.width_value)

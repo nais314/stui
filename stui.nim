@@ -5,7 +5,9 @@
         F9: menu TODO
         F10: quit app
 
-        TAB: add focus to next gui Controll; commit changes to Controll (pe:TextArea)
+        TAB: - add focus to next gui Controll; 
+             - commit changes to Controll (pe:TextArea)
+
         ESC and ESC again: cancel editing, quit app
 
         PgUP/PgDown: on Window -> change Page; on TextArea: "scroll"
@@ -221,7 +223,8 @@ type
     WorkSpace* = ref object of TTUI
         tiles*:seq[Tile]
         app:App
-        #name*:string
+        #name*:string #?
+        draw*: proc():void #todo app draw if not nil draw else as usual
 
 
     #App:------------------------------
@@ -983,18 +986,17 @@ proc newApp*(): App =
 
 
 proc outerHeigth(this: Controll): int {.inline.} =
-    if this.heigth_value > 0:
+    if this.heigth_value > 0: # relative heigth used
         
         if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
             this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
                 this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2
-            #return int((this.win.heigth.float / 100.0) * this.heigth_value.float)
 
         else: # no border
             this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
                 this.activeStyle.margin.top - this.activeStyle.margin.bottom
 
-        return int((this.win.heigth.float / 100.0) * this.heigth_value.float)
+        return this.heigth #int((this.win.heigth.float / 100.0) * this.heigth_value.float)
         
     else:
         if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
@@ -1096,6 +1098,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
 
                 ###### heigth and width should be calculated at this point #####
+                ###### see: outerHeigth
 
 
                 # if no room on bottom / and on side: ------------------------
@@ -1733,7 +1736,8 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
                             
                         result = true
                     else:
-                        echo "???"
+                        discard
+                        #echo "???"
 
                 else: discard
 

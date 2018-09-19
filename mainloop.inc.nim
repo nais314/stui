@@ -39,6 +39,10 @@ proc checkTerminalResized()=
         app.terminalHeight = terminalHeight()
         app.terminalWidth  = terminalWidth()
         app.recalc()
+        for iws in app.workSpaces:
+            for it in iws.tiles:
+                for iw in it.windows:
+                    if iw.currentPage > iw.pages.high: iw.currentPage = iw.pages.high
         app.draw()
 
 

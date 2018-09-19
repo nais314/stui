@@ -199,3 +199,7 @@ proc newProgressBar*(win:Window, label: string, width:int=20): ProgressBar =
     
     win.controlls.add(result)
     
+
+proc newProgressBar*(win:Window, label: string, width:string): ProgressBar =
+    result = newProgressBar(win, label, width = 0)
+    discard width.parseInt(result.width_value)

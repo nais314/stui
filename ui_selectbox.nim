@@ -1,5 +1,5 @@
 import stui, terminal, colors, colors_extra, unicode, tables, locks
-import strutils
+import strutils, parseutils
 import ui_chooser
 
 type 
@@ -15,7 +15,7 @@ type
         
         multiSelect:bool
 
-        size*:int # of input
+        #width*:int # of input
         
         offset_h*:int
         #cursor_pos*:int
@@ -83,18 +83,18 @@ method draw*(this: SelectBox, updateOnly: bool = false) {.base.} =
         terminal.setCursorPos(this.leftX(), 
                               this.bottomY())
         if this.text.runeLen > 0 :
-            if this.text.runeLen < (this.size - 1):
+            if this.text.runeLen < (this.width - 1):
                 stdout.write this.text
-                stdout.write " " * ((this.size - 1) - this.text.runeLen)  & "▼"
+                stdout.write " " * ((this.width - 1) - this.text.runeLen)  & "▼"
             else:
-                if this.offset_h + (this.size - 1) < this.text.runeLen:
-                    stdout.write this.text.runeSubStr(this.offset_h, (this.size - 1) - 1)  & "…▼"
+                if this.offset_h + (this.width - 1) < this.text.runeLen:
+                    stdout.write this.text.runeSubStr(this.offset_h, (this.width - 1) - 1)  & "…▼"
                 else:
                     var used = (this.text.runeLen - this.offset_h - 1)
                     stdout.write this.text.runeSubStr(this.offset_h, used)
-                    stdout.write " " * ((this.size - 1) - used)  & "▼"
+                    stdout.write " " * ((this.width - 1) - used)  & "▼"
         else:
-            stdout.write " " * (this.size - 1) & "▼"
+            stdout.write " " * (this.width - 1) & "▼"
 
 
         #setColors(this.app, this.app.activeStyle[])
@@ -204,16 +204,16 @@ proc onKeyPress(this: Controll, event:KMEvent)=
                     discard
 
 
-proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, size:int=20): SelectBox =
+proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, width:int=20): SelectBox =
     result = new SelectBox
     result.label=label
     result.multiSelect = multiSelect
-    result.size=size
+    result.width=width
     result.offset_h = 0
     #result.cursor_pos = 0
     result.visible = false
     result.disabled = false
-    result.width = size
+    #result.width = width
     result.heigth = 2
     result.styles = newTable[string, StyleSheetRef](8)
 #[     result.styles.add("input",win.app.styles["input"])
@@ -261,5 +261,8 @@ proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, size:int=2
     win.controlls.add(result)
 
 
+proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, width:string): SelectBox =
+    result = newSelectBox(win, label, multiSelect, width = 0)
+    discard width.parseInt(result.width_value)
 
 

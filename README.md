@@ -15,6 +15,8 @@ Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
 
 [Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
 
+Please help the development with your feedback. :)
+
 
 It can Tile the screen vertically, 
 Tiles can have relative "50%" or exact "100ch" width.

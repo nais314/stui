@@ -57,5 +57,9 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
 [Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
 
 
+I think, that even if i go back to my IOT projects, 
+it is an easy to maintain, extend, dependency free project.
+
+
 
 

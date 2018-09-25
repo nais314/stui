@@ -1,3 +1,6 @@
+# stui
+# Copyright István Nagy
+# Simplified Terminal UI for ANSI terminals
 #[
     Default Keyboard Shortcuts:
         F2: menu TODO

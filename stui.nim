@@ -988,7 +988,7 @@ proc newApp*(): App =
 proc outerHeigth(this: Controll): int {.inline.} =
     if this.heigth_value > 0: # relative heigth used
         
-        if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
+        if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
             this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
                 this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2
 
@@ -999,13 +999,13 @@ proc outerHeigth(this: Controll): int {.inline.} =
         return this.heigth #int((this.win.heigth.float / 100.0) * this.heigth_value.float)
         
     else:
-        if this.activeStyle.border != "none" and this.activeStyle.border != nil: # has border
+        if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
             return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
         else: # no border
             return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom
 
 proc borderWidth*(this: Controll): int {.inline.} =
-    return if this.activeStyle.border == "none" or this.activeStyle.border == nil or this.activeStyle.border == "": 0 else: 1
+    return if this.activeStyle.border == "none" or this.activeStyle.border == "" or this.activeStyle.border == "": 0 else: 1
 
 
 

@@ -7,7 +7,7 @@ This is my first app in Nim - it covers pretty much anything i need to learn.
 
 branches:
 * master: usable alpha nim v 0.18 !!!
-* nim019: revision for nim 0.19 devel - work in progress, not compiles, terminal.nim not GC safe
+* nim019: revision for nim 0.19 devel - see issues
 
 Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
   see: stui_test1.nim

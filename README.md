@@ -13,7 +13,7 @@ Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
   see: stui_test1.nim
   copy&use: template_simpleapp.nim
 
-[Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
+![Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
 
 Please help the development with your feedback. :)
 
@@ -53,8 +53,8 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
 * ui_selectbox: (multi) selectbox
 
-[Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
-[Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
+![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
+![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
 
 
 I think, that even if i go back to my IOT projects, 

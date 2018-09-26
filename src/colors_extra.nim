@@ -1,4 +1,4 @@
-import colors, strutils, colors256, colorsRGBto256, terminal_extra
+import colors, strutils, colors256, colorsRGBto256, terminal_extra, terminal
 import os, osproc
 
 
@@ -25,7 +25,9 @@ var colorNames16* = [
 ]
 
 
-type packedRGB*  = distinct int32
+type 
+    packedRGB*  = distinct int32
+    Color16* = distinct int
 
 proc extractRGB*(a: int): tuple[r, g, b: range[0..255]] =
     ## extracts the red/green/blue components of the color `a`.
@@ -65,6 +67,43 @@ proc setForegroundColor*(col: Color256) =
 
 
 
+# 16 colors 8 + bright...
+proc setForegroundColor*(f: File, col: Color16) =
+    f.write("\e[" & $int(col) & "m")
+
+proc setForegroundColor*(col: Color16) =
+    setForegroundColor(stdout, col)
+
+proc setBackgroundColor*(f: File, col: Color16) =
+    f.write("\e[" & $int(col) & "m")
+
+proc setBackgroundColor*(col: Color16) =
+    setForegroundColor(stdout, col)
+
+
+
+# RGB colors RGB   RGB   RGB   RGB   RGB   RGB   RGB   RGB   RGB   
+proc setForegroundColor*(f: File, col: int) =
+    let color = extractRGB(col)
+    f.write("\e[38;2;" & $color.r & ";" & $color.g & ";" & $color.b & "m")
+    #echo color , ("  x1b[38;2;" & $color.r & ";" & $color.g & ";" & $color.b & "m")
+
+proc setForegroundColor*(col: int) =
+    setForegroundColor(stdout, col)
+
+
+proc setBackgroundColor*(f: File, col: int) =
+    let color = extractRGB(col)
+    f.write("\e[48;2;" & $color.r & ";" & $color.g & ";" & $color.b & "m")
+    #echo color, col
+
+proc setBackgroundColor*(col: int) =
+    setBackgroundColor(stdout, col)
+    #echo "AAAA", col
+
+
+
+
 proc searchColorTable*(colorTable: openArray[tuple[name: string, col: int]],
                        colorName: string): int =
     #echo colorTable.high
@@ -80,9 +119,9 @@ proc searchColorTable*(colorTable: openArray[tuple[name: string, col: int]],
         str = $execProcess("tput colors")
 
         case str:
-            of   "8\n": result = 0
-            of  "16\n": result = 1
-            of "256\n": result = 2
+            of   "8": result = 0
+            of  "16": result = 1
+            of "256": result = 2
             else: result = 1
     else:
         result = 3 ]#

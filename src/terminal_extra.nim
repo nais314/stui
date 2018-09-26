@@ -20,6 +20,11 @@ proc switchToAlternateBuffer*()=
 proc switchToNormalBuffer*()=
     stdout.write "\e[?1049l"
 
+import terminal
+proc setCursorPos*(x,y:int) =
+    #stdout.write("\e[" & $x & ";" & $y & "f")
+    terminal.setCursorPos(x - 1, y - 1)
+
 #[ 
 
 # not working as espected - disabling ECHO should remove mouse output on screen

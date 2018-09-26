@@ -1,4 +1,6 @@
-import stui, terminal, colors, colors_extra, unicode, tables, parseutils, locks
+#import stui, terminal, colors, colors_extra, unicode, tables, parseutils, locks
+include "controll.inc.nim"
+
 
 type FineProgressBar* = ref object of Controll
     #label*:string
@@ -22,7 +24,7 @@ proc draw*(this: FineProgressBar, updateOnly: bool = false) =
 
         if not updateOnly:
             setColors(this.app, this.win.activeStyle[])
-            terminal.setCursorPos(this.x1 + this.activeStyle.margin.left,
+            terminal_extra.setCursorPos(this.x1 + this.activeStyle.margin.left,
                                 this.y1 + this.activeStyle.margin.top)
             stdout.write this.label
 
@@ -47,7 +49,7 @@ proc draw*(this: FineProgressBar, updateOnly: bool = false) =
 
             
 
-        terminal.setCursorPos(this.leftX(), 
+        terminal_extra.setCursorPos(this.leftX(), 
                               this.bottomY())
         # █ ▓ ░
         #U+2588	█	e2 96 88

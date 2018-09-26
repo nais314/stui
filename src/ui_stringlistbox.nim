@@ -36,7 +36,7 @@ proc writeFromOffset(this: StringListBox)=
         else:
             setColors(this.app, this.styles["input:odd"])
 
-        setCursorPos(this.leftX, currentY )
+        terminal_extra.setCursorPos(this.leftX, currentY )
 
         if this.options[currentLine].name.runeLen() == this.width:
             stdout.write(this.options[currentLine].name)
@@ -57,7 +57,7 @@ method draw*(this: StringListBox, updateOnly:bool=false){.base.}=
 
         if not updateOnly :
             setColors(this.app, this.win.activeStyle[])
-            terminal.setCursorPos(this.x1 + this.activeStyle.margin.left,
+            terminal_extra.setCursorPos(this.x1 + this.activeStyle.margin.left,
                                 this.y1 + this.activeStyle.margin.top)
             stdout.write this.label
 

@@ -51,7 +51,7 @@ discard app.workSpaces[0].newTile("24ch") # 24 char wide tile
 var ws1_W2 = app.workSpaces[0].tiles[1].newWindow()
 ws1_W2.styles.add("dock", app.styles["dock"])
 ws1_W2.activeStyle = ws1_W2.styles["dock"]
-ws1_W2.label = "öüóőúéá1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi"
+ws1_W2.label = "dock" #"öüóőúéá1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi1234567890asdfghjklé0987456321yxcvbnmpoi"
 
 
 #-------------------------------------------------------------------------------
@@ -93,14 +93,29 @@ tb2.setBorder("solid")
 
 # test threads::::::::::::::::::::
 
-proc tb2test(pbPtr: ptr, app: ptr)=
+#[ proc tb2test(pbPtr: ptr, app: ptr)=
     while true:
         (pbPTR[]).val = genId(5)
         pbPTR[].draw(true)
         app[].setCursorPos()
         sleep(rand(2000))
 
-spawn tb2test(addr tb2, addr app)
+spawn tb2test(addr tb2, addr app) ]#
+#[ proc tb2test(){.gcsafe.}=
+    while true:
+        tb2.val = genId(5)
+        tb2.draw(true)
+        tb2.app.setCursorPos()
+        sleep(rand(2000)) ]#
+proc tb2test(pbPtr: ptr TextBox){.gcsafe.}=
+    while true:
+        pbPTR[].val = genId(5)
+        pbPTR[].draw(true)
+        pbPTR[].app.setCursorPos()
+        sleep(rand(2000))
+        
+
+spawn tb2test(addr tb2)
 
 proc tb2test2(pbPtr: ptr, app: ptr)=
     while true:
@@ -424,7 +439,7 @@ status_styles.add("success", styleSheetRef_fromConfig(statusTss,"success"))
 
 proc statusTss_test(pbPtr: ptr, app: ptr, sty: ptr)=
     randomize()
-    if pbPtr != nil and app != nil and sty!= nil:
+    if pbPtr != nil and app != nil and sty != nil:
         while true:
             for i in 0..(pbPTR[]).controlls.high :
                 if (pbPTR[]).controlls[i] of TextBox:
@@ -594,6 +609,7 @@ sb50.setMargin("top",1)
 
 let slb50 = app.activeWindow.newStringListBox("50% width", "50", "20")
 slb50.setMargin("top",1)
+slb50.setDisabled()
 
 ################################################################################
 ################################################################################

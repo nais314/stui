@@ -1,4 +1,5 @@
-import stui, terminal, colors, colors_extra, unicode, tables, locks, parseutils
+#import stui, terminal, colors, colors_extra, unicode, tables, locks, parseutils
+include "controll.inc.nim"
 type LineMetadata = seq[ tuple[line, width: int]]
 
 type TextArea* = ref object of Controll
@@ -45,7 +46,7 @@ proc writeFromOffset(this: TextArea)=
             cx,cy:int # hold cursor pos
         cx = leftX(this)
         cy = topY(this) + 1
-        terminal.setCursorPos(cx,cy)
+        terminal_extra.setCursorPos(cx,cy)
 
         var firstRune: int
         if this.offset > 0:
@@ -68,7 +69,7 @@ proc writeFromOffset(this: TextArea)=
                             #cy = topY(this)
                             break PRINT
                         cx = leftX(this)
-                        terminal.setCursorPos(cx,cy) # reposition cursor
+                        terminal_extra.setCursorPos(cx,cy) # reposition cursor
                     of 0: discard
                     else:
                         terminal.setStyle(stdout, {styleDim})
@@ -81,7 +82,7 @@ proc writeFromOffset(this: TextArea)=
                     cy += 1
                     if cy > bottomY(this): # reach bottom
                         break PRINT
-                    terminal.setCursorPos(cx,cy) # reposition cursor
+                    terminal_extra.setCursorPos(cx,cy) # reposition cursor
 
 
 
@@ -95,7 +96,7 @@ proc writeFromOffset(this: TextArea)=
                     cy += 1
                     if cy > bottomY(this): # reach bottom
                         break PRINT
-                    terminal.setCursorPos(cx,cy) # reposition cursor
+                    terminal_extra.setCursorPos(cx,cy) # reposition cursor
 
 
 proc draw*(this: TextArea, updateOnly: bool = false) =
@@ -104,7 +105,7 @@ proc draw*(this: TextArea, updateOnly: bool = false) =
 
         if not updateOnly:
             setColors(this.app, this.win.activeStyle[])
-            terminal.setCursorPos(this.x1 + this.activeStyle.margin.left,
+            terminal_extra.setCursorPos(this.x1 + this.activeStyle.margin.left,
                                 this.y1 + this.activeStyle.margin.top)
             stdout.write this.label
 
@@ -348,9 +349,9 @@ proc onPgUp(ta:TextArea)=
 proc onKeyPress(this: Controll, event: KMEvent)=
     var ta = TextArea(this)
     proc debug()=
-        setCursorPos(ta.x1, ta.y1)
+        terminal_extra.setCursorPos(ta.x1, ta.y1)
         stdout.write "____________________"
-        setCursorPos(ta.x1, ta.y1)
+        terminal_extra.setCursorPos(ta.x1, ta.y1)
         stdout.write  $ta.currentLine & " " & $ta.lineMetadata.high & " " & $ta.lineMetadata[ta.currentLine].width# [ta.currentLine].width
     if not this.disabled:
         var column = (ta.app.cursorPos.x - ta.leftX()) #!

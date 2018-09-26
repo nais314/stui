@@ -359,14 +359,16 @@ proc setColors*(app:App, style:StyleSheet) =
     stdout.write "\e[0m"
     case app.colorMode:
         of 0,1:
-            terminal.setBackgroundColor(BackgroundColor(style.bgColor[app.colorMode]))
-            terminal.setForegroundColor(ForegroundColor(style.fgColor[app.colorMode]))
+            colors_extra.setBackgroundColor(Color16(style.bgColor[app.colorMode]))
+            colors_extra.setForegroundColor(Color16(style.fgColor[app.colorMode]))
         of 2:
-            setBackgroundColor(Color256(style.bgColor[app.colorMode]))
-            setForegroundColor(Color256(style.fgColor[app.colorMode]))
+            colors_extra.setBackgroundColor(Color256(style.bgColor[app.colorMode]))
+            colors_extra.setForegroundColor(Color256(style.fgColor[app.colorMode]))
         of 3:
-            terminal.setBackgroundColor(Color(style.bgColor[3]))
-            terminal.setForegroundColor(Color(style.fgColor[3]))
+            colors_extra.setBackgroundColor((style.bgColor[3]))
+            colors_extra.setForegroundColor((style.fgColor[3]))
+            #echo extractRGB(style.fgColor[3])
+            #echo extractRGB(style.bgColor[3])
         else: discard
     if style.textStyle.card() > 0:
         terminal.setStyle(stdout, style.textStyle)
@@ -378,14 +380,14 @@ proc setColors*(colorMode:int, style:StyleSheet) =
     stdout.write "\e[0m"
     case colorMode:
         of 0,1:
-            terminal.setBackgroundColor(BackgroundColor(style.bgColor[colorMode]))
-            terminal.setForegroundColor(ForegroundColor(style.fgColor[colorMode]))
+            colors_extra.setBackgroundColor(Color16(style.bgColor[colorMode]))
+            colors_extra.setForegroundColor(Color16(style.fgColor[colorMode]))
         of 2:
-            setBackgroundColor(Color256(style.bgColor[colorMode]))
-            setForegroundColor(Color256(style.fgColor[colorMode]))
+            colors_extra.setBackgroundColor(Color256(style.bgColor[colorMode]))
+            colors_extra.setForegroundColor(Color256(style.fgColor[colorMode]))
         of 3:
-            terminal.setBackgroundColor(Color(style.bgColor[colorMode]))
-            terminal.setForegroundColor(Color(style.fgColor[colorMode]))
+            colors_extra.setBackgroundColor((style.bgColor[colorMode]))
+            colors_extra.setForegroundColor((style.fgColor[colorMode]))
         else: discard
 
 
@@ -643,12 +645,12 @@ proc restoreCursorPosAndAttrs*(){.inline.}=
 # app.cursorPos is a buffer for controlls, users to hold cursor pos
 proc setCursorPos*(app: App){.inline.}=
     stdout.write "\e[1A\n" #! this should make cursor more visible after updates
-    terminal.setCursorPos(app.cursorPos.x, app.cursorPos.y)
+    terminal_extra.setCursorPos(app.cursorPos.x, app.cursorPos.y)
 
 proc setCursorPos*(app: App, x,y: int){.inline.}=
     app.cursorPos.x = x
     app.cursorPos.y = y
-    terminal.setCursorPos(app.cursorPos.x, app.cursorPos.y)
+    terminal_extra.setCursorPos(app.cursorPos.x, app.cursorPos.y)
 
 #[  CursorStyle* = enum <------- remark
         blinkingBlock = 1,
@@ -1158,7 +1160,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
                 if this.controlls[iC].width_value == 100: maxAvailH = availH
 
-                if maxX <  this.controlls[iC].x1 + 
+                if maxX < this.controlls[iC].x1 + 
                     (this.controlls[iC].width - 1) + 
                     (this.controlls[iC].borderWidth() * 2) + 
                     this.controlls[iC].activeStyle.margin.left + 
@@ -1283,7 +1285,7 @@ proc topY*(this: Controll) : int {.inline.} =
 
 proc drawRect*(x1,y1,x2,y2:int){.inline.}=
     for y in y1..y2:
-        terminal.setCursorPos(x1,y)
+        terminal_extra.setCursorPos(x1,y)
         stdout.write(" " * (x2 - x1 + 1) )
 
 
@@ -1291,94 +1293,94 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
     case borderStyle:
         of "block":
             #top
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("█" * (x2 - x1 + 1) )
             #bottom
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("█" * (x2 - x1 + 1) )
             #left
             for i in y1..y2:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("█")
             #right
             for i in y1..y2:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("█")
 
         of "bold":
             #top
-            setCursorPos(x1+1,y1)
+            terminal_extra.setCursorPos(x1+1,y1)
             stdout.write("━" * (x2 - x1) )
             #bottom
-            setCursorPos(x1+1,y2)
+            terminal_extra.setCursorPos(x1+1,y2)
             stdout.write("━" * (x2 - x1) )
             #left
             for i in y1 + 1..y2-1:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("┃")
             #right
             for i in y1+1..y2-1:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("┃")
             #corners
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("┏")
-            setCursorPos(x2,y1)
+            terminal_extra.setCursorPos(x2,y1)
             stdout.write("┓")
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("┗")
-            setCursorPos(x2,y2)
+            terminal_extra.setCursorPos(x2,y2)
             stdout.write("┛")
 
         of "solid":
             #top
-            setCursorPos(x1+1,y1)
+            terminal_extra.setCursorPos(x1+1,y1)
             stdout.write("─" * (x2 - x1 - 1) )
             #bottom
-            setCursorPos(x1+1,y2)
+            terminal_extra.setCursorPos(x1+1,y2)
             stdout.write("─" * (x2 - x1 - 1) )
             #left
             for i in y1 + 1..y2-1:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("│")
             #right
             for i in y1+1..y2-1:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("│")
             #corners
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("┌")
-            setCursorPos(x2,y1)
+            terminal_extra.setCursorPos(x2,y1)
             stdout.write("┐")
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("└")
-            setCursorPos(x2,y2)
+            terminal_extra.setCursorPos(x2,y2)
             stdout.write("┘")
     
 
         of "double":
             #top
-            setCursorPos(x1+1,y1)
+            terminal_extra.setCursorPos(x1+1,y1)
             stdout.write("═" * (x2 - x1 - 1) )
             #bottom
-            setCursorPos(x1+1,y2)
+            terminal_extra.setCursorPos(x1+1,y2)
             stdout.write("═" * (x2 - x1 - 1) )
             #left
             for i in y1 + 1..y2-1:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("║")
             #right
             for i in y1+1..y2-1:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("║")
             #corners
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("╔")
-            setCursorPos(x2,y1)
+            terminal_extra.setCursorPos(x2,y1)
             stdout.write("╗")
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("╚")
-            setCursorPos(x2,y2)
+            terminal_extra.setCursorPos(x2,y2)
             stdout.write("╝")
     
 
@@ -1400,7 +1402,7 @@ proc drawTitle*(this: Window) =
     if this.isVisible():
         acquire(this.app.termlock)
         setColors(this.app, this.activeStyle[])
-        terminal.setCursorPos(this.x1, this.y1)
+        terminal_extra.setCursorPos(this.x1, this.y1)
         stdout.write("[≡]") # ▪ ≡ ✽  ☰
         var used = 3
         if this.pages.len > 1 and this.width > 7:
@@ -1520,12 +1522,12 @@ proc initTerminal*(app:App)=
     echo "\ec\e[0m" # ? reset
     echo "\e[?1002h\e[?1006h" # mouse enable + mode
     echo "\e%G" # ? set UTF8
-    echo "\e[7l" # dont wrap
+    echo "\e[?7l" # dont wrap
     switchToAlternateBuffer()
     enableCanon()
     hideCursor()
 
-    if getColorMode() == 3: terminal.enableTrueColors()
+    #if getColorMode() == 3: terminal.enableTrueColors()
     app.terminalHeight = terminalHeight()
     app.terminalWidth = terminalWidth()
     setCursorStyle(CursorStyle.steadyUnderline)
@@ -1589,7 +1591,7 @@ proc parkCursor*(app:App){.inline.}=
     ## move cursor to "parking" position
     ## proc blur() uses it mostly
     withLock app.termlock:
-        terminal.setCursorPos(app.activeWindow.x1 + 1, app.activeWindow.y1 + 2)
+        terminal_extra.setCursorPos(app.activeWindow.x1 + 1, app.activeWindow.y1 + 2)
         app.cursorPos.x = app.activeWindow.x1 + 1
         app.cursorPos.y = app.activeWindow.y1
 

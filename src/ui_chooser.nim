@@ -1,4 +1,5 @@
-import stui, terminal, colors, colors_extra, unicode
+#import stui, terminal, colors, colors_extra, unicode
+include "controll.inc.nim"
 
 type
     Chooser* = ref object of Controll
@@ -37,7 +38,7 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
     var winMiddleY = this.y1 + int((this.y2 - this.y1) / 2) - 1 #!
     var writeX = this.x1 + int((this.width - this.options[firstSelected].name.len) / 2)
     setColors(this.app, this.win.activeStyle[])
-    terminal.setCursorPos(writeX - 4, winMiddleY)
+    terminal_extra.setCursorPos(writeX - 4, winMiddleY)
     stdout.write("░▒▓█")
     terminal.setStyle(stdout, {terminal.styleReverse})
 
@@ -55,7 +56,7 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
         drawCursor = drawCursor + 1
         while writeY <= this.y2 and drawCursor <= this.options[].high: # write till end or win botom
             writeX = this.x1 + int((this.width - this.options[drawCursor].name.len) / 2)
-            terminal.setCursorPos(writeX, writeY)
+            terminal_extra.setCursorPos(writeX, writeY)
             stdout.write(this.options[drawCursor].name)
             if this.options[drawCursor].selected: # ☐☑☒☓⟦⟧⟰⦗⦘
                 stdout.write("☒")
@@ -72,7 +73,7 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
         drawCursor = drawCursor - 1
         while writeY >= this.y1 and drawCursor >= 0:
             writeX = this.x1 + int((this.width - this.options[drawCursor].name.len) / 2)
-            terminal.setCursorPos(writeX, writeY)
+            terminal_extra.setCursorPos(writeX, writeY)
             stdout.write(this.options[drawCursor].name)
             if this.options[drawCursor].selected: # ☐☑☒☓⟦⟧⟰⦗⦘
                 stdout.write("☒")

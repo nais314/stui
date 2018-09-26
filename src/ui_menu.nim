@@ -78,7 +78,7 @@ proc draw*(this: Menu, updateOnly:bool=false)=
             else:
                 setColors(this.app, this.styles["input:odd"])
 
-            setCursorPos(this.leftX, currentY )
+            terminal_extra.setCursorPos(this.leftX, currentY )
 
             if this.currentNode.childs[currentLine].name.runeLen() == this.width:
                 stdout.write(this.currentNode.childs[currentLine].name)
@@ -162,7 +162,7 @@ proc onPgUp(menu:Menu)=
 
 proc onPgDown(menu:Menu)=
     if menu.currentNode.offset < menu.currentNode.childs.high - menu.heigth + 1:
-        if menu.currentNode.offset + menu.heigth < menu.currentNode.childs.high - menu.heigth  + 1:
+        if menu.currentNode.offset + menu.heigth < menu.currentNode.childs.high - menu.heigth + 1:
             menu.currentNode.offset += menu.heigth
             menu.currentNode.currentChild = menu.currentNode.offset #+= menu.heigth
         else:

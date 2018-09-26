@@ -1,2 +1,2 @@
-import stui, terminal, colors, colors_extra, unicode
-import tables, locks, parseutils, os, times
+import stui, terminal, terminal_extra, colors, colors_extra, unicode
+import tables, locks, parseutils, strutils, os, times

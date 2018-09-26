@@ -1,4 +1,4 @@
-import terminal, parseutils, threadpool, os, times, stui
+import terminal, parseutils, threadpool, os, times, stui, colors_extra, terminal_extra
 
 
 
@@ -65,7 +65,7 @@ proc mouse_parser*(mstring: var string, c: var char): KMEvent {.inline.}=
                     else:
                         clickEpoch = epochTime()
                     
-            elif c  == 'm' :
+            elif c == 'm' :
                 result.evType = "Release"
                 #clickM2 += 1
                 if clickEpoch != 0 :#and clickM == clickM2:
@@ -83,8 +83,9 @@ proc mouse_parser*(mstring: var string, c: var char): KMEvent {.inline.}=
         of 32,33,34: 
             if mouse_state != 3: 
                 mouse_state = 1 #drag-1 if not cancelled-3
-                terminal.setCursorPos(mx, my)
-                terminal.setForegroundColor(fgMagenta,true)
+                terminal_extra.setCursorPos(mx, my)
+                #terminal.setForegroundColor(fgMagenta,true)
+                colors_extra.setForegroundColor(Color16(fgMagenta))
                 stdout.write("◉") # •
             result.evType = "Drag"
             clickEpoch = 0

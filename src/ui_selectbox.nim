@@ -1,5 +1,6 @@
-import stui, terminal, colors, colors_extra, unicode, tables, locks
-import strutils, parseutils
+include "controll.inc.nim"
+#import stui, terminal, colors, colors_extra, unicode, tables, locks
+#import strutils, parseutils
 import ui_chooser
 
 type 
@@ -66,7 +67,7 @@ method draw*(this: SelectBox, updateOnly: bool = false) {.base.} =
 
         if not updateOnly:
             setColors(this.app, this.win.activeStyle[])
-            terminal.setCursorPos(this.x1 + this.activeStyle.margin.left,
+            terminal_extra.setCursorPos(this.x1 + this.activeStyle.margin.left,
                                 this.y1 + this.activeStyle.margin.top)
             stdout.write this.label
 
@@ -80,19 +81,19 @@ method draw*(this: SelectBox, updateOnly: bool = false) {.base.} =
             #...
 
         setColors(this.app, this.activeStyle[])
-        terminal.setCursorPos(this.leftX(), 
+        terminal_extra.setCursorPos(this.leftX(), 
                               this.bottomY())
         if this.text.runeLen > 0 :
             if this.text.runeLen < (this.width - 1):
                 stdout.write this.text
-                stdout.write " " * ((this.width - 1) - this.text.runeLen)  & "▼"
+                stdout.write " " * ((this.width - 1) - this.text.runeLen) & "▼"
             else:
                 if this.offset_h + (this.width - 1) < this.text.runeLen:
-                    stdout.write this.text.runeSubStr(this.offset_h, (this.width - 1) - 1)  & "…▼"
+                    stdout.write this.text.runeSubStr(this.offset_h, (this.width - 1) - 1) & "…▼"
                 else:
                     var used = (this.text.runeLen - this.offset_h - 1)
                     stdout.write this.text.runeSubStr(this.offset_h, used)
-                    stdout.write " " * ((this.width - 1) - used)  & "▼"
+                    stdout.write " " * ((this.width - 1) - used) & "▼"
         else:
             stdout.write " " * (this.width - 1) & "▼"
 

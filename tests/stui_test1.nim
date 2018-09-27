@@ -140,10 +140,16 @@ spawn tb2test2(addr tb2, addr app)
 var tA1 = app.activeWindow.newTextArea("Diary_1", 20,10)
 
 tA1.value="""
-Handle the tty line connected to standard input. Without arguments, prints baud rate, line discipline, and deviations from stty sane. In settings, CHAR is taken literally, or coded as in ^c, 0x37, 0177 or 127; special values ^- or undef used to disable special characters.
+scroll with mouse-wheel on window, textarea, lists.
+F10: Quit - standard
+F2: Menu - user
+ESC+ESC: cancel, quit
+Menu nav: cursors/mouse
+Selectbox: space, enter, mouse
+TAB: navigate to next controll
+PgUP/Down: window/controll paging
 
-GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report stty translation bugs to <http://translationproject.org/team/>   
-END"""
+have fun, write comments :)"""
 
 tA1.setMargin("left", 1)
 

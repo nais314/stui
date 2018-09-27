@@ -53,6 +53,24 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
 * ui_selectbox: (multi) selectbox
 
+**Demo / test file is stui_test1.nim**
+
+    Default Keyboard Shortcuts:
+        F2: menu TODO
+        F5: refresh screen
+        F9: menu TODO
+        F10: quit app
+
+        TAB: - add focus to next gui Controll; 
+             - commit changes to Controll (pe:TextArea)
+
+        ESC and ESC again: cancel editing, quit app
+
+        PgUP/PgDown: on Window -> change Page; on TextArea: "scroll"
+
+    Mouse:
+        Wheel "Scrolls": Window->Page; TextArea
+
 ![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
 ![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
 

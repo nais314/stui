@@ -402,7 +402,7 @@ proc setTextStyle*(style: StyleSheetRef, textStyleStr: string)=
         of "": discard
         of "styleBright", "styleBold": style.textStyle.incl(styleBright)
         of "styleDim": style.textStyle.incl(styleDim)
-        of "styleUnknown", "styleItalic", "styleStandout": style.textStyle.incl(styleUnknown)
+        of "styleUnknown", "styleItalic", "styleStandout": style.textStyle.incl(styleItalic)
         of "styleUnderscore", "styleUnderline": style.textStyle.incl(styleUnderscore)
         of "styleBlink": style.textStyle.incl(styleBlink)
         of "styleReverse", "styleInverse": style.textStyle.incl(styleReverse)

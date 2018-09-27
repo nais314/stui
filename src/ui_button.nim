@@ -37,26 +37,26 @@ proc draw*(this: Button, updateOnly: bool = false)=
         #...
         var cLine = this.topY
         for iP in 1..this.paddingV:
-            terminal.setCursorPos(this.leftX, cLine )
+            terminal_extra.setCursorPos(this.leftX, cLine )
             stdout.write(" " * this.width)
             cLine += 1
 
         if this.width_value != 0: # relative width; width_value == 0 by default
-            terminal.setCursorPos(this.leftX, cLine )
+            terminal_extra.setCursorPos(this.leftX, cLine )
 
             this.paddingH = (this.width - this.label.runeLen) div 2
             stdout.write(" " * this.paddingH)
             stdout.write(this.label)
             stdout.write(" " * (this.width - this.label.runeLen - (this.paddingH * 2)) )
         else: # exactly:
-            terminal.setCursorPos(this.leftX, cLine )
+            terminal_extra.setCursorPos(this.leftX, cLine )
             stdout.write(" " * this.paddingV)
             stdout.write(this.label)
             stdout.write(" " * this.paddingV)
 
         cLine += 1
         for iP in 1..this.paddingV:
-            terminal.setCursorPos(this.leftX, cLine )
+            terminal_extra.setCursorPos(this.leftX, cLine )
             stdout.write(" " * this.width)
             cLine += 1        
 

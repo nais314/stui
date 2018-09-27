@@ -1,4 +1,5 @@
-import stui, terminal, colors, colors_extra, unicode, tables, locks
+#import stui, terminal, colors, colors_extra, unicode, tables, locks
+include "controll.inc.nim"
 
 type TextBox* = ref object of Controll
     #label*:string
@@ -23,7 +24,7 @@ proc draw*(this: TextBox, updateOnly: bool = false) =
 
         if not updateOnly:
             setColors(this.app, this.win.activeStyle[])
-            terminal.setCursorPos(this.x1 + this.activeStyle.margin.left,
+            terminal_extra.setCursorPos(this.x1 + this.activeStyle.margin.left,
                                 this.y1 + this.activeStyle.margin.top)
             stdout.write this.label
 
@@ -40,7 +41,7 @@ proc draw*(this: TextBox, updateOnly: bool = false) =
             # echo input area
 
         setColors(this.app, this.activeStyle[])
-        terminal.setCursorPos(leftX(this), 
+        terminal_extra.setCursorPos(leftX(this), 
                               bottomY(this))
 
         if this.val.runeLen > 0 :
@@ -111,11 +112,11 @@ proc onDrop(this: Controll, event: KMEvent):void=
             #of "[F": #End:    
             if TextBox(this).val.runeLen > TextBox(this).width:
                 TextBox(this).offset_h = TextBox(this).val.runeLen - TextBox(this).width + 1
-                setCursorPos(TextBox(this).rightX(), TextBox(this).bottomY())
+                terminal_extra.setCursorPos(TextBox(this).rightX(), TextBox(this).bottomY())
                 this.app.cursorPos.x = TextBox(this).rightX()
                 this.app.cursorPos.y = TextBox(this).bottomY()
             else:
-                setCursorPos(TextBox(this).leftX() + TextBox(this).val.runeLen, TextBox(this).bottomY())
+                terminal_extra.setCursorPos(TextBox(this).leftX() + TextBox(this).val.runeLen, TextBox(this).bottomY())
                 this.app.cursorPos.x = TextBox(this).leftX() + TextBox(this).val.runeLen
                 this.app.cursorPos.y = TextBox(this).bottomY()
         
@@ -210,11 +211,11 @@ proc onKeyPress(this: Controll, event: KMEvent)=
                 
                     if tb.val.runeLen > tb.width:
                         tb.offset_h = tb.val.runeLen - tb.width + 1
-                        setCursorPos(tb.rightX(), tb.bottomY())
+                        terminal_extra.setCursorPos(tb.rightX(), tb.bottomY())
                         this.app.cursorPos.x = tb.rightX()
                         this.app.cursorPos.y = tb.bottomY()
                     else:
-                        setCursorPos(tb.leftX() + tb.val.runeLen, tb.bottomY())
+                        terminal_extra.setCursorPos(tb.leftX() + tb.val.runeLen, tb.bottomY())
                         this.app.cursorPos.x = tb.leftX() + tb.val.runeLen
                         this.app.cursorPos.y = tb.bottomY()
                 

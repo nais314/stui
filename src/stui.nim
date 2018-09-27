@@ -1283,7 +1283,7 @@ proc topY*(this: Controll) : int {.inline.} =
 
 proc drawRect*(x1,y1,x2,y2:int){.inline.}=
     for y in y1..y2:
-        terminal.setCursorPos(x1,y)
+        terminal_extra.setCursorPos(x1,y)
         stdout.write(" " * (x2 - x1 + 1) )
 
 
@@ -1291,94 +1291,94 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
     case borderStyle:
         of "block":
             #top
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("█" * (x2 - x1 + 1) )
             #bottom
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("█" * (x2 - x1 + 1) )
             #left
             for i in y1..y2:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("█")
             #right
             for i in y1..y2:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("█")
 
         of "bold":
             #top
-            setCursorPos(x1+1,y1)
+            terminal_extra.setCursorPos(x1+1,y1)
             stdout.write("━" * (x2 - x1) )
             #bottom
-            setCursorPos(x1+1,y2)
+            terminal_extra.setCursorPos(x1+1,y2)
             stdout.write("━" * (x2 - x1) )
             #left
             for i in y1 + 1..y2-1:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("┃")
             #right
             for i in y1+1..y2-1:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("┃")
             #corners
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("┏")
-            setCursorPos(x2,y1)
+            terminal_extra.setCursorPos(x2,y1)
             stdout.write("┓")
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("┗")
-            setCursorPos(x2,y2)
+            terminal_extra.setCursorPos(x2,y2)
             stdout.write("┛")
 
         of "solid":
             #top
-            setCursorPos(x1+1,y1)
+            terminal_extra.setCursorPos(x1+1,y1)
             stdout.write("─" * (x2 - x1 - 1) )
             #bottom
-            setCursorPos(x1+1,y2)
+            terminal_extra.setCursorPos(x1+1,y2)
             stdout.write("─" * (x2 - x1 - 1) )
             #left
             for i in y1 + 1..y2-1:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("│")
             #right
             for i in y1+1..y2-1:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("│")
             #corners
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("┌")
-            setCursorPos(x2,y1)
+            terminal_extra.setCursorPos(x2,y1)
             stdout.write("┐")
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("└")
-            setCursorPos(x2,y2)
+            terminal_extra.setCursorPos(x2,y2)
             stdout.write("┘")
     
 
         of "double":
             #top
-            setCursorPos(x1+1,y1)
+            terminal_extra.setCursorPos(x1+1,y1)
             stdout.write("═" * (x2 - x1 - 1) )
             #bottom
-            setCursorPos(x1+1,y2)
+            terminal_extra.setCursorPos(x1+1,y2)
             stdout.write("═" * (x2 - x1 - 1) )
             #left
             for i in y1 + 1..y2-1:
-                setCursorPos(x1,i)
+                terminal_extra.setCursorPos(x1,i)
                 stdout.write("║")
             #right
             for i in y1+1..y2-1:
-                setCursorPos(x2,i)
+                terminal_extra.setCursorPos(x2,i)
                 stdout.write("║")
             #corners
-            setCursorPos(x1,y1)
+            terminal_extra.setCursorPos(x1,y1)
             stdout.write("╔")
-            setCursorPos(x2,y1)
+            terminal_extra.setCursorPos(x2,y1)
             stdout.write("╗")
-            setCursorPos(x1,y2)
+            terminal_extra.setCursorPos(x1,y2)
             stdout.write("╚")
-            setCursorPos(x2,y2)
+            terminal_extra.setCursorPos(x2,y2)
             stdout.write("╝")
     
 

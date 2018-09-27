@@ -1,4 +1,5 @@
-import stui, terminal, colors, colors_extra, unicode, tables, parseutils, locks
+include "controll.inc.nim"
+#import stui, terminal, colors, colors_extra, unicode, tables, parseutils, locks
 
 type ProgressBar* = ref object of Controll
     #label*:string
@@ -28,7 +29,7 @@ proc draw*(this: ProgressBar, updateOnly: bool = false) =
 
         if not updateOnly:
             setColors(this.app, this.win.activeStyle[])
-            terminal.setCursorPos(this.x1 + this.activeStyle.margin.left,
+            terminal_extra.setCursorPos(this.x1 + this.activeStyle.margin.left,
                                 this.y1 + this.activeStyle.margin.top)
             stdout.write this.label
 
@@ -45,7 +46,7 @@ proc draw*(this: ProgressBar, updateOnly: bool = false) =
             # echo input area
 
         stui.setColors(this.app, this.activeStyle[])
-        terminal.setCursorPos(this.leftX(), 
+        terminal_extra.setCursorPos(this.leftX(), 
                               this.bottomY())
         # █ ▓ ░
         var size: int = int((this.width / 100) * float(this.val))

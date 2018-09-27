@@ -14,11 +14,17 @@ proc getColorMode*(): int =
     else:
         result = 3
 
-proc switchToAlternateBuffer*()=
+proc switchToAlternateBuffer*() {.inline.} =
     stdout.write "\e[?1049h\e[H" #and move to home position
 
-proc switchToNormalBuffer*()=
+proc switchToNormalBuffer*() {.inline.} =
     stdout.write "\e[?1049l"
+
+
+proc setCursorPos*(x,y:int) {.inline.} =
+    stdout.write("\e[" & $y & ";" & $x & "H") # H-ome : standard, more referenced
+    #stdout.write("\e[" & $y & ";" & $x & "f") # f-orce : this should be it...
+
 
 #[ 
 

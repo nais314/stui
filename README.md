@@ -13,7 +13,7 @@ Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
   see: stui_test1.nim
   copy&use: template_simpleapp.nim
 
-![Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
+![Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-27_16-14-04.png)
 
 Please help the development with your feedback. :)
 

@@ -21,7 +21,7 @@ import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool,
 
 import ui_textbox, ui_button, ui_textarea, ui_stringlistbox
 
-import strformat, unicode
+import strformat, unicode, strutils, parseutils
 
 import random, parsecfg
 
@@ -175,13 +175,30 @@ for i in 1..5:
 
 echo "selectbox 2"
 
-var sb2 = app.activeWindow.newSelectBox("opciók 222",false,20)
+var sb2 = app.activeWindow.newSelectBox("ColorMode Changer :)",false,20)
 sb2.setMargin("bottom", 1)
 sb2.setMargin("left", 1)
 sb2.setBorder("solid")
-for i in 1..5:
+#[ for i in 1..5:
     opt = (name:"name-" & $i, value: $i, selected:false)
-    sb2.options[].add(opt)
+    sb2.options[].add(opt) ]#
+opt = (name:"16 Colors", value: "1", selected: false)
+sb2.options[].add(opt)
+opt = (name:"256 Colors", value: "2", selected: false)
+sb2.options[].add(opt)
+opt = (name:"RGB Colors", value: "3", selected: true)
+sb2.options[].add(opt)
+
+proc changeColorMode(source:Controll)=
+    discard parseInt(sb2.value, source.app.colorMode)
+    source.app.draw()
+    #echo "Color Mode: ", sb2.value, " : ", source.app.colorMode
+
+sb2.addEventListener("change", changeColorMode)
+
+sb2.value = $getColorMode()
+
+
 
 #-------------------------------------------------------------------------------
 

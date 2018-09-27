@@ -28,7 +28,45 @@ type
     this.val = str
     if this.visible: this.draw() ]#
 
+proc draw*(this: SelectBox, updateOnly: bool = false) #FWD
+
+
 proc `value`*(this:SelectBox): string =
+    ## returns string with 1 option or comma separated string of values
+    result = ""
+    for i in 1..this.options[].high:
+        if this.options[i].selected:
+            if result.len == 0:
+                result.add(this.options[i].value)
+            else:
+                result.add("," & this.options[i].value)
+
+proc `value=`*(this:SelectBox, val:string) =
+    for word in split(val, ','):
+        for i in 1..this.options[].high:
+            if this.options[i].value == word: 
+                this.options[i].selected = true
+    this.draw(true)
+
+proc `value2`*(this:SelectBox): string = `value`(this)
+
+
+
+proc `values`*(this:SelectBox): seq[string] =
+    ## returns a seq of selected option VALUES
+    result = @[]
+    for i in 1..this.options[].high:
+        if this.options[i].selected: result.add(this.options[i].value)
+
+proc `values=`*(this:SelectBox, selected: seq[string]) =
+    for c in 0..selected.high:
+        for i in 1..this.options[].high:
+            if this.options[i].value == selected[c]: this.options[i].selected = true
+
+
+################ these functions working with NAME prop!!! ################
+proc `names`*(this:SelectBox): string =
+    ## returns selected opts name or comma sep string of selected names
     result = ""
     for i in 1..this.options[].high:
         if this.options[i].selected:
@@ -37,20 +75,23 @@ proc `value`*(this:SelectBox): string =
             else:
                 result.add("," & this.options[i].name)
 
-proc `value=`*(this:SelectBox, val:string) =
+proc `names=`*(this:SelectBox, val:string) =
     for word in split(val, ','):
         for i in 1..this.options[].high:
             if this.options[i].name == word: this.options[i].selected = true
 
-proc `value2`*(this:SelectBox): seq[string] =
+proc `names2`*(this:SelectBox): seq[string] =
+    ## returns a seq of selected option NAMEs
     result = @[]
     for i in 1..this.options[].high:
         if this.options[i].selected: result.add(this.options[i].name)
 
-proc `value2=`*(this:SelectBox, selected: seq[string]) =
+proc `names2=`*(this:SelectBox, selected: seq[string]) =
     for c in 0..selected.high:
         for i in 1..this.options[].high:
-            if this.options[i].name == selected[c]: this.options[i].selected = true
+            if this.options[i].name == selected[c]: this.options[i].selected = true            
+
+
 
 proc deselectAll*(this:SelectBox)=
     for i in 0..this.options[].high:
@@ -59,7 +100,7 @@ proc deselectAll*(this:SelectBox)=
 #----------------------------------
 
 
-method draw*(this: SelectBox, updateOnly: bool = false) {.base.} =
+proc draw*(this: SelectBox, updateOnly: bool = false) =
     #echo "TB"
     if this.visible:
         #echo "TV"
@@ -170,7 +211,7 @@ proc selectBoxOnClick(this:Controll, event:KMEvent)=
 # ⎡
 # ⎢
 # ⎣
-proc selectBoxOnChange(this: Controll)= # …✔✖ ⚯ ⚮ ⚭ ⚬ 🂱
+proc selectBoxOnChange*(this: Controll)= # …✔✖ ⚯ ⚮ ⚭ ⚬ 🂱
     if SelectBox(this).multiSelect:
         SelectBox(this).text = ""
         SelectBox(this).val = ""

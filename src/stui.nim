@@ -116,7 +116,7 @@ const
 
 
 type
-    StyleColor* = array[0..3, int] # 0: 8color; 1: 16color int(terminal.fgBlue); 2: 256 color int(colors256.Blue); 3: RGB int(colors.colBlue)or(colors_extras.packedRGB)
+    StyleColor* = array[0..3, int] # 0: 8color; 1: 16color int(terminal.fgBlue); 2: 256 color int(colors256.Blue); 3: RGB int(colors.colBlue)or(colors_extras.PackedRGB)
     StyleSheet* = tuple[fgColor: StyleColor, 
                         bgColor: StyleColor, 
                         padding: tuple[left,top,right,bottom:int], 
@@ -365,8 +365,8 @@ proc setColors*(app:App, style:StyleSheet) =
             colors_extra.setBackgroundColor(Color256(style.bgColor[app.colorMode]))
             colors_extra.setForegroundColor(Color256(style.fgColor[app.colorMode]))
         of 3:
-            colors_extra.setBackgroundColor((style.bgColor[3]))
-            colors_extra.setForegroundColor((style.fgColor[3]))
+            colors_extra.setBackgroundColor(PackedRGB(style.bgColor[3]))
+            colors_extra.setForegroundColor(PackedRGB(style.fgColor[3]))
             #echo extractRGB(style.fgColor[3])
             #echo extractRGB(style.bgColor[3])
         else: discard
@@ -386,8 +386,8 @@ proc setColors*(colorMode:int, style:StyleSheet) =
             colors_extra.setBackgroundColor(Color256(style.bgColor[colorMode]))
             colors_extra.setForegroundColor(Color256(style.fgColor[colorMode]))
         of 3:
-            colors_extra.setBackgroundColor((style.bgColor[colorMode]))
-            colors_extra.setForegroundColor((style.fgColor[colorMode]))
+            colors_extra.setBackgroundColor(PackedRGB(style.bgColor[colorMode]))
+            colors_extra.setForegroundColor(PackedRGB(style.fgColor[colorMode]))
         else: discard
 
 
@@ -1504,6 +1504,7 @@ include termios
 
 proc closeTerminal() {.noconv.} =
     echo "\e[?1006l\e[?1002l" # mouse
+    echo "\e[?7h" # do wrap
     #echo "\ec\e[0m" # ? reset
     #resetAttributes()
     #echo "\e[?1049l" #switchToNormalBuffer

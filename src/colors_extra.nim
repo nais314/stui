@@ -26,7 +26,7 @@ var colorNames16* = [
 
 
 type 
-    packedRGB*  = distinct int32
+    PackedRGB*  = distinct int32
     Color16* = distinct int
 
 proc extractRGB*(a: int): tuple[r, g, b: range[0..255]] =
@@ -34,11 +34,11 @@ proc extractRGB*(a: int): tuple[r, g, b: range[0..255]] =
     result.r = a.int shr 16 and 0xff
     result.g = a.int shr 8 and 0xff
     result.b = a.int and 0xff
-proc extractRGB*(a: packedRGB): tuple[r, g, b: range[0..255]] = extractRGB(int(a))
+proc extractRGB*(a: PackedRGB): tuple[r, g, b: range[0..255]] = extractRGB(int(a))
 
-proc packRGB*(r,g,b:int): packedRGB =
-    result = packedRGB(r shl 16 or g shl 8 or b)
-proc packRGB*(a:seq[string]): packedRGB =
+proc packRGB*(r,g,b:int): PackedRGB =
+    result = PackedRGB(r shl 16 or g shl 8 or b)
+proc packRGB*(a:seq[string]): PackedRGB =
     var
         r,g,b:int
 
@@ -46,9 +46,9 @@ proc packRGB*(a:seq[string]): packedRGB =
     g = parseInt(a[1])
     b = parseInt(a[2])
 
-    result = packedRGB(r shl 16 or g shl 8 or b)
+    result = PackedRGB(r shl 16 or g shl 8 or b)
 
-proc `$`*(a: packedRGB): string =
+proc `$`*(a: PackedRGB): string =
     $int(a)
 
 
@@ -83,25 +83,25 @@ proc setBackgroundColor*(col: Color16) =
 
 
 # RGB colors RGB   RGB   RGB   RGB   RGB   RGB   RGB   RGB   RGB   
-proc setForegroundColor*(f: File, col: int) =
+proc setForegroundColor*(f: File, col: PackedRGB) =
     let color = extractRGB(col)
     f.write("\e[38;2;" & $color.r & ";" & $color.g & ";" & $color.b & "m")
     #echo color , ("  x1b[38;2;" & $color.r & ";" & $color.g & ";" & $color.b & "m")
 
-proc setForegroundColor*(col: int) =
+proc setForegroundColor*(col: PackedRGB) =
     setForegroundColor(stdout, col)
 
 
-proc setBackgroundColor*(f: File, col: int) =
+proc setBackgroundColor*(f: File, col: PackedRGB) =
     let color = extractRGB(col)
     f.write("\e[48;2;" & $color.r & ";" & $color.g & ";" & $color.b & "m")
     #echo color, col
 
-proc setBackgroundColor*(col: int) =
+proc setBackgroundColor*(col: PackedRGB) =
     setBackgroundColor(stdout, col)
     #echo "AAAA", col
 
-
+#...............................................................................
 
 
 proc searchColorTable*(colorTable: openArray[tuple[name: string, col: int]],

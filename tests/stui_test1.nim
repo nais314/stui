@@ -613,9 +613,12 @@ pb50.setMargin("top",1)
 let sb50 = app.activeWindow.newSelectBox("50% width", multiSelect = false, width = "50")
 sb50.setMargin("top",1)
 
-let slb50 = app.activeWindow.newStringListBox("50% width", "50", "20")
+let slb50 = app.activeWindow.newStringListBox("50% width", "50", "30")
 slb50.setMargin("top",1)
-slb50.setDisabled()
+#slb50.setDisabled()
+for i in 0..1:
+    slb50.options.add((genId(10), nil)) # tuple[name:string, action:proc():void]
+    #slb50.options[i].action = proc() = app.setActiveWorkSpace("secondWS")
 
 ################################################################################
 ################################################################################

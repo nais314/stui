@@ -71,7 +71,7 @@ method draw*(this: StringListBox, updateOnly:bool=false){.base.}=
                 )
             #...
         setColors(this.app, this.styles["input"])
-        drawRect(this.leftX, this.topY, this.rightX, this.bottomY)
+        drawRect(this.leftX, this.topY + 1, this.rightX, this.bottomY)
         this.writeFromOffset()
         #this.app.setCursorPos()
         release(this.app.termlock)
@@ -129,15 +129,15 @@ proc onClick(this:Controll, event:KMEvent)=
         case event.btn:
             of 0:
                 if clickedInside(this,event):
-                    let selected = (event.y - (slistbox.topY + 1)) + slistbox.offset
+                    if ((event.y - (slistbox.topY + 1)) + slistbox.offset) <= slistbox.options.high: # if not clicked on empty space
+                        let selected = (event.y - (slistbox.topY + 1)) + slistbox.offset
 
-                    # visuals:
-                    slistbox.cursor = selected
-                    slistbox.draw()
-                    sleep(100)
-                    # action
-                    if slistbox.options[selected].action != nil:
-                        slistbox.options[selected].action()
+                        # visuals:
+                        slistbox.cursor = selected
+                        slistbox.draw()
+                        # action
+                        if slistbox.options[selected].action != nil:
+                            slistbox.options[selected].action()
             else: 
                 #slistbox.draw()
                 discard

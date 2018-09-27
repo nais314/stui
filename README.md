@@ -6,14 +6,14 @@ This is my first app in Nim - it covers pretty much anything i need to learn.
 **STUI is a drag&drop aware, responsive layout, themeable, ANSI terminal UI.**
 
 branches:
-* master: nightly
-* no dev branches now - everything is merged
+* master: usable alpha nim v 0.18 !!!
+* nim019: revision for nim 0.19 devel - see issues
 
 Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
   see: stui_test1.nim
   copy&use: template_simpleapp.nim
 
-[Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
+![Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
 
 Please help the development with your feedback. :)
 
@@ -53,8 +53,25 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
 * ui_selectbox: (multi) selectbox
 
-[Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
-[Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
+**Demo / test file is stui_test1.nim**
+    Default Keyboard Shortcuts:
+        F2: menu TODO
+        F5: refresh screen
+        F9: menu TODO
+        F10: quit app
+
+        TAB: - add focus to next gui Controll; 
+             - commit changes to Controll (pe:TextArea)
+
+        ESC and ESC again: cancel editing, quit app
+
+        PgUP/PgDown: on Window -> change Page; on TextArea: "scroll"
+
+    Mouse:
+        Wheel "Scrolls": Window->Page; TextArea
+
+![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
+![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
 
 
 I think, that even if i go back to my IOT projects, 

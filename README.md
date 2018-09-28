@@ -31,32 +31,33 @@ or manually if Controll.recalc() is added then it sets x1,x2,y1,y2,width,heigth.
 
 Terminal resize is watched in every 2 secs - on resize layout recalculated.
 
-STUI can handle more screens - WorkSpaces
+STUI can handle more screens - WorkSpaces  
 
-  tree: App->WorkSpaces->Tiles->Windows->(Pages->)Controlls
+  tree: App->WorkSpaces->Tiles->Windows->(Pages->)Controlls  
 
-  PageBreak is not inserted into pages.controlls[]
-
-
-It can be themed with parseCfg compatible files (.TSS) style sheets
+  PageBreak is not inserted into pages.controlls[]  
 
 
-Event listeners: Observer style:
-  Listener = tuple[name:string, actions: seq[proc(source:Controll):void]]
+It can be *themed* with parseCfg compatible files *(.TSS)* style sheets
 
-  ListenerList = seq[Listener]
 
-  proc addEventListener*(controll:Controll, evtname:string, fun:proc(source:Controll):void)
+*Event listeners: Observer style:*  
+    Listener = tuple[name:string, actions: seq[proc(source:Controll):void]]
 
-  proc removeEventListener*(controll:Controll, evtname:string, fun:proc(source:Controll):void)
+    ListenerList = seq[Listener]
 
-  proc trigger*(controll:Controll, evtname:string )
+    proc addEventListener*(controll:Controll, evtname:string, fun:proc(source:Controll):void)
 
-    e.g.: selectbox2.addEventListener("change", changeColorMode)
+    proc removeEventListener*(controll:Controll, evtname:string, fun:proc(source:Controll):void)
 
-    proc changeColorMode(source:Controll)=
-    discard parseInt(sb2.value, source.app.colorMode)
-    source.app.draw()
+    proc trigger*(controll:Controll, evtname:string )
+
+    e.g.:
+        selectbox2.addEventListener("change", changeColorMode)
+
+        proc changeColorMode(source:Controll)=
+        discard parseInt(sb2.value, source.app.colorMode)
+        source.app.draw()
 
 
 

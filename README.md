@@ -95,12 +95,12 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
     Mouse:
         Wheel "Scrolls": Window->Page; TextArea
 
-![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
-![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
+![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)  
+![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)  
 
 
-  [on colors](doc/Colors.md)
-  [on Controll](doc/Controlls.md)
+  [on colors](doc/Colors.md)  
+  [on Controll](doc/Controlls.md)  
 
 
 

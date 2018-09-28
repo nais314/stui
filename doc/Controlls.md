@@ -2,10 +2,10 @@ see stui.nim, textbox.nim
 
 Controll is a ui element.
 
-app.activeControll: set this if focus changes
+app.activeControll: set this if focus changes  
 
-`value`: is a string representation of the ..., for using in SQL etc...
-`value2`: is [T] representation of the value - if applicable
+`value`: is a string representation of the ..., for using in SQL etc...  
+`value2`: is [T] representation of the value - if applicable  
 
 other value/name functions as needed - see selectbox
 
@@ -19,9 +19,10 @@ drawit(): maybe methods would be better, but methods cannot be FWD declared (? n
 activeStyle: from the controlls styles the currently active one - for draw
 
 
-Event flow, automatic KM events: (Keyboard & Mouse)
-    see mainloop.inc.nim
+Event flow, automatic KM events: (Keyboard & Mouse)  
 
+    see mainloop.inc.nim  
+  
     than stui.nim mouseEventHandler:
         eventTarget.onClick(eventTarget, event)
         eventTarget.onScroll(eventTarget, event)

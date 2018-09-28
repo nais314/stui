@@ -166,8 +166,8 @@ type
     ListenerList = seq[Listener]
 
     Controll* = ref object of TTUI
-        label*:string
-        x1*,y1*,x2*,y2*, width*,heigth*:int
+        label*:string # displayed above controll
+        x1*,y1*,x2*,y2*, width*,heigth*:int # incl margins & borders!
         
         width_unit*: string # used (by Tile) to store width unit: %, auto, ch(aracter)
         width_value*:int # used (by Tile) for responsive width calc
@@ -175,7 +175,7 @@ type
         heigth_value*: int # stores % value in int 0-100
         recalc*:       proc(this_elem: Controll):void # if not nil called by Window.recalc()
 
-        visible*:    bool # if `value=` fires draw(), decide if not to draw
+        visible*:    bool # if `value=` fires draw(), decide if not to draw - Window.draw()
         disabled*:   bool # only copy, no events
 
         onClick*:     proc(this_elem: Controll, event: KMEvent):void
@@ -438,7 +438,7 @@ proc newStyleSheets*(): StyleSheets =
 
 
 proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
-    # supports newApp. read values from opened Config
+    ## supports newApp. read values from opened Config
     #
     result = new StyleSheetRef
     var value: string
@@ -453,8 +453,14 @@ proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
     value = config.getSectionValue(section,"bgColor16")
     if value.len < 3:
         discard parseInt(value, result.bgColor[1])
+        if result.bgColor[1] >= 90:
+            result.bgColor[1] - 60
+            result.setTextStyle("styleBright")
     else:
         result.bgColor[1] = colors_extra.parseColor(value, 1) #colorNames16[ searchColorTable(colorNames16, value) ][1]
+        if result.bgColor[1] >= 90:
+            result.bgColor[1] - 60
+            result.setTextStyle("styleBright")
 
     value = config.getSectionValue(section,"bgColor256")
     if value.len < 4:
@@ -925,7 +931,7 @@ proc newApp*(): App =
     # init StyleSheet
     result.colorMode = getColorMode()
 
-    result.styles = newStyleSheets() #newTable[string, StyleSheetRef](8)
+    result.styles = newStyleSheets() ## newTable[string, StyleSheetRef](8)
     block LOAD_TSS:
 
         # _Terminal_Style_Sheet
@@ -1704,6 +1710,7 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
                 of KeyF5:
                     app.recalc()
                     app.draw()
+                    result = true
                 of KeyF10:
                     acquire(app.termlock)
                     app.closeTerminal()

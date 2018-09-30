@@ -16,6 +16,7 @@
 # todo: setEnabled(this:Controll) ?: set style to what?
 # todo: banner?
 # todo: CTRL+C, CTRL+V
+# todo: ui_intbox, ui_floatbox, ui_datepicker
 
 import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
 

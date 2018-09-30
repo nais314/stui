@@ -1,0 +1,36 @@
+[error]
+bgColor16 = "bgRed"
+bgColor256 = "red"
+bgColorRGB = "red"
+fgColor16 = "fgWhite"
+fgColor256 = "White"
+fgColorRGB = "White"
+border = "none"
+
+[warning]
+bgColor16 = "bgYellow"
+bgColor256 = "orange"
+bgColorRGB = "orange"
+fgColor16 = "fgBlack"
+fgColor256 = "black"
+fgColorRGB = "black"
+border = "none"
+
+[info]
+bgColor16 = "bgBlue"
+bgColor256 = "blue"
+bgColorRGB = "blue"
+fgColor16 = "fgWhite"
+fgColor256 = "white"
+fgColorRGB = "white"
+border = "none"
+
+[success]
+bgColor16 = "bgGreen"
+bgColor256 = "green"
+bgColorRGB = "green"
+fgColor16 = "fgWhite"
+fgColor256 = "White"
+fgColorRGB = "White"
+border = "none"
+

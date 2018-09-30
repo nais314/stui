@@ -276,11 +276,7 @@ proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, width:int=
     styleFocused.deepcopy result.styles["input"]
     styleFocused.bgColor[2]=222
     styleFocused.bgColor[3] = int(packRGB(255,215,95))
-<<<<<<< HEAD
     styleFocused.textStyle.incl(styleItalic)
-=======
-    #styleFocused.textStyle.incl(styleItalic)
->>>>>>> master
     result.styles.add("input:focus",styleFocused)
 
     var styleDragged: StyleSheetRef = new StyleSheetRef

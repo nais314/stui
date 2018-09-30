@@ -6,14 +6,14 @@ This is my first app in Nim - it covers pretty much anything i need to learn.
 **STUI is a drag&drop aware, responsive layout, themeable, ANSI terminal UI.**
 
 branches:
-* master: usable alpha nim v 0.18 !!!
-* nim019: revision for nim 0.19 devel - see issues
+* master: usable alpha nim v0.18 
+* nim019: revision for nim v0.19 devel - see issues
 
 Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
   see: stui_test1.nim
   copy&use: template_simpleapp.nim
 
-![Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-14_14-06-24.png)
+![Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-27_16-14-04.png)
 
 Please help the development with your feedback. :)
 
@@ -31,12 +31,36 @@ or manually if Controll.recalc() is added then it sets x1,x2,y1,y2,width,heigth.
 
 Terminal resize is watched in every 2 secs - on resize layout recalculated.
 
-STUI can handle more screens - WorkSpaces
+STUI can handle more screens - **WorkSpaces**  
 
-  tree: App->WorkSpaces->Tiles->Windows->(Pages->)Controlls
+  **tree: App->WorkSpaces->Tiles->Windows->(Pages->)Controlls**  
+
+  PageBreak is not inserted into pages.controlls[]  
 
 
-It can be themed with parseCfg compatible files (.TSS) style sheets
+It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
+
+
+**Event listeners: Observer style:**  
+
+    Listener = tuple[name:string, actions: seq[proc(source:Controll):void]]
+
+    ListenerList = seq[Listener]
+
+    proc addEventListener*(controll:Controll, evtname:string, fun:proc(source:Controll):void)
+
+    proc removeEventListener*(controll:Controll, evtname:string, fun:proc(source:Controll):void)
+
+    proc trigger*(controll:Controll, evtname:string )
+
+    e.g.:
+        selectbox2.addEventListener("change", changeColorMode)
+
+        proc changeColorMode(source:Controll)=
+        discard parseInt(sb2.value, source.app.colorMode)
+        source.app.draw()
+
+
 
 **Demo / test file is stui_test1.nim** - use F10 or 2x ESC to Quit
 
@@ -62,7 +86,7 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
         F10: quit app
 
         TAB: - add focus to next gui Controll; 
-             - commit changes to Controll (pe:TextArea)
+             - commit changes to Controll (e.g.:TextArea)
 
         ESC and ESC again: cancel editing, quit app
 
@@ -71,8 +95,13 @@ It can be themed with parseCfg compatible files (.TSS) style sheets
     Mouse:
         Wheel "Scrolls": Window->Page; TextArea
 
-![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)
-![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)
+![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)  
+![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)  
+
+
+  [on colors](doc/Colors.md)  
+  [on Controll](doc/Controlls.md)  
+
 
 
 I think, that even if i go back to my IOT projects, 

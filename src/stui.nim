@@ -454,12 +454,12 @@ proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
     if value.len < 3:
         discard parseInt(value, result.bgColor[1])
         if result.bgColor[1] >= 90:
-            result.bgColor[1] - 60
+            result.bgColor[1] -= 60
             result.setTextStyle("styleBright")
     else:
         result.bgColor[1] = colors_extra.parseColor(value, 1) #colorNames16[ searchColorTable(colorNames16, value) ][1]
         if result.bgColor[1] >= 90:
-            result.bgColor[1] - 60
+            result.bgColor[1] -= 60
             result.setTextStyle("styleBright")
 
     value = config.getSectionValue(section,"bgColor256")

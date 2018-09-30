@@ -21,7 +21,7 @@ var colorNames16* = [
     ("bgBlue",44),
     ("bgMagenta",45),
     ("bgCyan",46),
-    ("bgWhite",47)
+    ("bgWhite",47),
 
 
     ("fgBrightBlack",90),

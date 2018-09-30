@@ -32,3 +32,8 @@ Event flow, automatic KM events: (Keyboard & Mouse)
     key events:
         if KeyPgUp, KeyPgDown trigger controlls proc first then apps
         else: trigger apps cb first, then controlls
+
+
+**Window**
+
+"menu" event fired when clicked on titlebar menu button

@@ -4,9 +4,16 @@ for now 8 and 16 color modes use the same procs,
 256 color and rgb color modes are widely available.
 
 colorsRGBto256.nim makes using default nim/x11 color names
-for 256 + rgb color modes available
+for 256 + rgb color modes available - useful for themeing.
+see colors.nim stdlib for color names too.
 
 
-from nim 0.19
+from nim 0.19  
 setting colors are handled by ANSI escape sequences,
 for GC safety, see: colors_extra.setForegroundColor
+
+
+**Styles**
+
+to spare repeating setMargin("bottom", 1), modify app's styles before creating 
+controll instances.

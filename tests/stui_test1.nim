@@ -338,7 +338,7 @@ proc fineprogtest(pbPtr: ptr, app: ptr)=
 spawn fineprogtest(addr fineprog, addr app)
 #------------------------------------------------------------
 var fineprog2 = app.activeWindow.newFineProgressBar(
-        "fine progbar1", 
+        "fine progbar2 w levels", 
         levels=(33,66))
 
 fineprog2.setBorder("solid")
@@ -359,7 +359,6 @@ echo "TextBox 33%"
 
 var tb33 = app.activeWindow.newTextBox("Relative W","100%",20)
 tb33.value= "Relative Width Test"
-#tb.activeStyle = tb.styles["input:disabled"]
 tb33.setMargin("bottom", 1)
 tb33.setMargin("left", 1)
 tb33.setBorder("bold")
@@ -374,7 +373,7 @@ tb33.setBorder("bold")
 
 proc tbOnChange(this:Controll)=
     #echo "Change"
-    this.removeEventListener("change", tbOnChange)
+    this.removeEventListener("change", tbOnChange) # ;)
 
 
 import random
@@ -624,12 +623,19 @@ let fp50 = app.activeWindow.newFineProgressBar("50% width", width = "50")
 fp50.value2= 66
 fp50.setMargin("top",1)
 
-let pb50 = app.activeWindow.newProgressBar("50% width", width = "50")
+
+let pb50 = app.activeWindow.newProgressBar("50% w - Click Me!", width = "50")
 pb50.value2= 66
 pb50.setMargin("top",1)
 
+proc pb50onClick(this:Controll, event:KMEvent) =
+    ProgressBar(this).value2= rand(100)
+pb50.onClick = pb50onClick
+
+
 let sb50 = app.activeWindow.newSelectBox("50% width", multiSelect = false, width = "50")
 sb50.setMargin("top",1)
+
 
 let slb50 = app.activeWindow.newStringListBox("50% width", "50", "30")
 slb50.setMargin("top",1)

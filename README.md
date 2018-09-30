@@ -6,12 +6,14 @@ This is my first app in Nim - it covers pretty much anything i need to learn.
 **STUI is a drag&drop aware, responsive layout, themeable, ANSI terminal UI.**
 
 branches:
-* master: usable alpha nim v0.18 
-* nim019: revision for nim v0.19 devel - see issues
+* master: usable alpha, revised for nim v0.19, devel
+
+releases:
+* nim 0.18 version archived as release
 
 Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
-  see: stui_test1.nim
-  copy&use: template_simpleapp.nim
+  see: stui_test1.nim  
+  copy&use: template_simpleapp.nim  
 
 ![Screenshot_2018-09-14_14-06-24](doc/Screenshot_2018-09-27_16-14-04.png)
 

@@ -1,22 +1,23 @@
 # done: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
 # todo: TEST all controlls relative w/h
-# todo: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
+# done: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
 # todo: widgets: class, activearea
-# todo: intro, doc
+# doing: intro, doc
 # todo: ColumnBreak test
 # done: app addeventlistener fnkey action trigger test
 # done: WS: switch ok, recalc ok
 # todo: window rightclick
-# todo: controll.header.inc.nim
+# done: controll.header.inc.nim
 # todo: tss.nim
 # todo: setDragdata()
-# todo: splash
+# todo: ui_splash
 # todo: filechooser (dir, fname, exists)
-# todo: table columns, ???
+# todo: ui_ table columns, ???
 # todo: setEnabled(this:Controll) ?: set style to what?
-# todo: banner?
 # todo: CTRL+C, CTRL+V
-# todo: ui_intbox, ui_floatbox, ui_datepicker
+# todo: ui_intbox, ui_floatbox, ui_scale, ui_datepicker
+# todo: ui_bargraph
+# todo: ui_banner?
 
 import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
 

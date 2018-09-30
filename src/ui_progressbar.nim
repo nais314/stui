@@ -121,14 +121,16 @@ proc cancel(this: Controll)=
     ProgressBar(this).draw()
     
 
-
+proc onClick(this: Controll, event: KMEvent):void=
+    if not this.disabled:
+        trigger(this, "click")
+        ProgressBar(this).draw()
 #[ 
 proc onKeyPress(this: Controll, event: KMEvent)=
     discard
 
 
-proc onClick(this: Controll, event: KMEvent):void=
-    ProgressBar(this).draw()
+
 
 
 proc onDrop(this: Controll, event: KMEvent):void=

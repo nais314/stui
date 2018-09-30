@@ -90,9 +90,9 @@ proc `value2`*(this: TextBox): string = this.val
 
 
 proc onClick(this: Controll, event: KMEvent):void=
-    #echo "KLIKKKKK"
-    #if this.focus != nil: this.focus(this)
-    TextBox(this).draw()
+    if not this.disabled:
+        trigger(this, "click")
+        TextBox(this).draw()
 
     ### MEMOS ###
     #cast[ptr Textbox](event.target).val = "KLIKK" & $cast[ptr Textbox](event.target).y1 & " " & $cast[ptr Textbox](event.target).y2 

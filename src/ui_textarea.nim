@@ -157,7 +157,9 @@ proc `value2`*(this: TextArea): string = this.val
 
 
 proc onClick(this: Controll, event: KMEvent):void=
-    TextArea(this).draw()
+    if not this.disabled:
+        trigger(this, "click")
+        TextArea(this).draw()
 
 
 proc onDrop(this: Controll, event: KMEvent):void=

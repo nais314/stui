@@ -9,15 +9,17 @@
 # todo: window rightclick
 # done: controll.header.inc.nim
 # todo: tss.nim
-# todo: setDragdata()
+#? todo: setDragdata()
 # todo: ui_splash
-# todo: filechooser (dir, fname, exists)
+# todo: ui_filechooser (dir, fname, exists)
 # todo: ui_ table columns, ???
 # todo: setEnabled(this:Controll) ?: set style to what?
 # todo: CTRL+C, CTRL+V
-# todo: ui_intbox, ui_floatbox, ui_scale, ui_datepicker
+# todo: ui_switchbtn, ui_intbox, ui_floatbox, ui_scale, ui_datepicker
 # todo: ui_bargraph
-# todo: ui_banner?
+# todo: ui_banner? ui_checkbox?
+#? progressbar to show value?
+################################################################################
 
 import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
 
@@ -281,7 +283,7 @@ import ui_progressbar
 
 #-----------------
 
-var prog1 = app.activeWindow.newProgressBar("progbar1")
+var prog1 = app.activeWindow.newProgressBar("progbar1", showValue = true)
 
 prog1.setBorder("solid")
 prog1.setMargin("left", 1)

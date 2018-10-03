@@ -7,6 +7,7 @@ type ProgressBar* = ref object of Controll
     preval*:int # undo
 
     size*:int # of input
+    showValue*:bool
 
 
 
@@ -67,6 +68,23 @@ proc draw*(this: ProgressBar, updateOnly: bool = false) =
             #stdout.write $size
             stdout.write " " * this.width
             stdout.write '\n'
+
+        if this.showValue :
+            terminal_extra.setCursorPos(this.x2 - this.activeStyle.margin.right - 4,
+                                this.y1 + this.activeStyle.margin.top)
+
+            stdout.write "████" # clear prev value
+            terminal_extra.setCursorPos(this.x2 - this.activeStyle.margin.right - 4,
+                                this.y1 + this.activeStyle.margin.top)
+
+            terminal_extra.setReversed()
+            
+            if this.val < 10:
+                terminal_extra.cursorForward(2)
+            elif this.val < 100 :
+                terminal_extra.cursorForward(1)
+
+            stdout.write $this.val & "%"
 
         #this.app.parkCursor()
         this.app.setCursorPos()
@@ -153,9 +171,10 @@ proc onDrag(this: Controll, event: KMEvent)=
 ########        #   ## #      ##  ## 
 ########        #    # ###### #    # 
                       
-proc newProgressBar*(win:Window, label: string, width:int=20): ProgressBar =
+proc newProgressBar*(win:Window, label: string, width:int=20, showValue: bool = false): ProgressBar =
     result = new ProgressBar
     result.label=label
+    result.showValue = showValue
 
     result.visible = false
     result.disabled = false
@@ -203,6 +222,6 @@ proc newProgressBar*(win:Window, label: string, width:int=20): ProgressBar =
     win.controlls.add(result)
     
 
-proc newProgressBar*(win:Window, label: string, width:string): ProgressBar =
-    result = newProgressBar(win, label, width = 0)
+proc newProgressBar*(win:Window, label: string, width:string, showValue: bool = false): ProgressBar =
+    result = newProgressBar(win, label, width = 0, showValue)
     discard width.parseInt(result.width_value)

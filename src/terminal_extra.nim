@@ -68,3 +68,19 @@ proc enableCanon*()=
     discard fd.tcgetattr(cur.addr)
     cur.c_lflag = cur.c_lflag and not Cflag(ICANON)
     discard fd.tcsetattr(TCSANOW, cur.addr)
+
+
+proc setReversed*()=
+    stdout.write "\e[7m"
+
+proc resetTerminal*() = 
+    ## Reset all terminal settings to default
+    stdout.write "\ec"
+
+proc resetStyle*()=
+    ## Reset all attributes
+    stdout.write "\e[0m"
+
+proc cursorForward*(n:int=1)=
+    ## Move Cursor to the right with n characters
+    stdout.write "\e[" & $n & "C"

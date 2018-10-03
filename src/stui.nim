@@ -472,6 +472,7 @@ proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
     if value.find(',') != -1:
         result.bgColor[3] = int(packRGB(value.split({','})))
     else:
+        echo "\n\n : ", value, " : \n\n"
         result.bgColor[3] = int(colors_extra.parseColor(value))
     
     #...................................................
@@ -822,12 +823,12 @@ proc parseSizeStr*(width:string): tuple[width_unit:string,width_value:int]=
 
 proc newColumnBreak*(win: Window): ColumnBreak =
     result = new ColumnBreak
-    result.activeStyle = win.styles["panel"]
+    result.activeStyle = win.styles["window"]
     win.controlls.add(result)
 
 proc newPageBreak*(win: Window): PageBreak =
     result = new PageBreak
-    #result.activeStyle = win.styles["panel"]
+    #result.activeStyle = win.styles["window"]
     win.controlls.add(result)
 
 proc newPage*(): Page =
@@ -839,7 +840,7 @@ proc newPage*(win: Window): Page =
     result.controlls = @[]
     result.app = win.app
     result.styles.deepCopy win.app.styles
-    result.activeStyle = result.styles["panel"]
+    result.activeStyle = result.styles["window"]
     win.pages.add(result)
 
 
@@ -865,7 +866,7 @@ proc newWindow*(tile: Tile, label:string="Window"): Window =
     result.onScroll = window_onScroll
 
     result.styles.deepCopy tile.app.styles
-    result.activeStyle = result.styles["panel"]
+    result.activeStyle = result.styles["window"]
 
     result.blur = windowBlur
     result.focus = windowFocus
@@ -890,7 +891,7 @@ proc newTile*(ws: WorkSpace, width: string) : Tile =
 
     result.windows = @[]
     result.styles.deepCopy ws.app.styles
-    result.activeStyle = result.styles["panel"]
+    result.activeStyle = result.styles["window"]
     result.app = ws.app
     ws.tiles.add(result)
 
@@ -941,8 +942,8 @@ proc newApp*(): App =
         # default background colors:
 
         # window background
-        result.styles.add("panel",styleSheetRef_fromConfig(dict,"panel"))
-        result.activeStyle = result.styles["panel"] # ???
+        result.styles.add("window",styleSheetRef_fromConfig(dict,"window"))
+        result.activeStyle = result.styles["window"] # ???
 
         result.styles.add("dock",styleSheetRef_fromConfig(dict,"dock")) # alt. win style
 

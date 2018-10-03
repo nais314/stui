@@ -45,8 +45,8 @@ app.workSpaces[0].tiles[0].id = "TILE ID" # == app.activeTile.id = "TILE ID"
 #-------------------------------------------------
 # longer version: app.workSpaces[0].tiles[0].windows[0] -vs- var
 discard app.workSpaces[0].tiles[0].newWindow()
-app.workSpaces[0].tiles[0].windows[0].styles["panel"].padding.left = 1
-app.workSpaces[0].tiles[0].windows[0].styles["panel"].padding.top = 1
+app.workSpaces[0].tiles[0].windows[0].styles["window"].padding.left = 1
+app.workSpaces[0].tiles[0].windows[0].styles["window"].padding.top = 1
 app.workSpaces[0].tiles[0].windows[0].label = "Unnamed Document 1"
 
 
@@ -88,8 +88,8 @@ echo "TextBox 2"
 var tb2 = app.activeWindow.newTextBox("TextBox 2",20,20)
 tb2.value= "teszt2"
 
-tb2.activeStyle.fgColor = app.styles["panel"].fgColor
-tb2.activeStyle.bgColor = app.styles["panel"].bgColor
+tb2.activeStyle.fgColor = app.styles["window"].fgColor
+tb2.activeStyle.bgColor = app.styles["window"].bgColor
 
 tb2.setMargin("bottom", 1)
 tb2.setMargin("left", 1)
@@ -525,8 +525,8 @@ var ws2 = app.newWorkSpace("secondWS")
 var ws2T1 = ws2.newTile("auto")
 
 var ws2T1W1 = ws2T1.newWindow()
-ws2T1W1.styles["panel"].padding.left = 1
-ws2T1W1.styles["panel"].padding.top = 1
+ws2T1W1.styles["window"].padding.left = 1
+ws2T1W1.styles["window"].padding.top = 1
 ws2T1W1.label = "ws2T1W1"
 
 #...............................................................................

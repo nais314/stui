@@ -9,7 +9,7 @@
 #            of "styleReverse", "styleInverse": style.textStyle.incl(styleReverse)
 #            of "styleHidden": style.textStyle.incl(styleHidden)
 
-[panel]
+[window]
 bgColor16 = "bgBlue"
 bgColor256 = "MidnightBlue"
 bgColorRGB = "MidnightBlue"

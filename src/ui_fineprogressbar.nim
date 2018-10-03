@@ -194,7 +194,7 @@ proc newFineProgressBar*(win:Window, label: string, width:int=20): FineProgressB
     #[ styleNormal.deepcopy win.app.styles["input"]
     result.styles.add("input",styleNormal)
     styleNormal.fgColor = styleNormal.bgColor
-    styleNormal.bgColor = win.app.styles["panel"].bgColor ]#
+    styleNormal.bgColor = win.app.styles["window"].bgColor ]#
    
     var styleFocused: StyleSheetRef = new StyleSheetRef
     styleFocused.deepcopy win.app.styles["input:focus"]

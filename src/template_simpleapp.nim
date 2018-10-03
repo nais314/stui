@@ -12,8 +12,8 @@ proc newSimpleApp(): App =
     result.activeWorkSpace = result.newWorkSpace("WorkSpace1")
     result.activeTile = result.activeWorkSpace.newTile("auto")
     discard result.activeTile.newWindow("Window1")
-    result.activeWindow.styles["panel"].padding.left = 1
-    result.activeWindow.styles["panel"].padding.top = 1
+    result.activeWindow.styles["window"].padding.left = 1
+    result.activeWindow.styles["window"].padding.top = 1
 
 var app = newSimpleApp()
 

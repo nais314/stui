@@ -17,3 +17,6 @@ for GC safety, see: colors_extra.setForegroundColor
 
 to spare repeating setMargin("bottom", 1), modify app's styles before creating 
 controll instances.
+
+"input" is the default style, suits TextBox and such, background white
+"input:inverse" when the foreground color is white - see ProgressBar

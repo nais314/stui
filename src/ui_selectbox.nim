@@ -188,8 +188,8 @@ proc selectBoxOnClick(this:Controll, event:KMEvent)=
         win.y2 = parentWin.y2
         win.width = parentWin.width # win.x2 - win.x1
         win.heigth = win.y2 - win.y1
-        win.styles["panel"].bgColor[2]=235
-        win.styles["panel"].bgColor[3] = int(packRGB(38,38,38))
+        win.styles["window"].bgColor[2]=235
+        win.styles["window"].bgColor[3] = int(packRGB(38,38,38))
         win.label = sb.label
 
         sb.chooser.win = win

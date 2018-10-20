@@ -170,7 +170,7 @@ proc blur(this: Controll)=
 
 
 
-proc cancel(this: Controll)=
+proc cancel*(this: Controll)=
     TextBox(this).val = TextBox(this).preval
     TextBox(this).blur(this)
     TextBox(this).draw()
@@ -235,29 +235,29 @@ proc onKeyPress(this: Controll, event: KMEvent)=
                 else: discard
 
         elif event.evType == "Char": #......Char......Char......Char......Char
-            
-            # add to begin or insert at point
-            if tb.cursor_pos > 0 :
-                tb.val = tb.val.runeSubStr(0, tb.cursor_pos ) & event.key & tb.val.runeSubStr(tb.cursor_pos , tb.val.runeLen)
-            elif tb.cursor_pos == 0:
-                tb.val = event.key & tb.val
-            elif tb.cursor_pos == tb.val.runeLen:
-                tb.val &= event.key
+            if tb.maxlength == 0 or tb.maxlength >= tb.val.runeLen :
+                # add to begin or insert at point
+                if tb.cursor_pos > 0 :
+                    tb.val = tb.val.runeSubStr(0, tb.cursor_pos ) & event.key & tb.val.runeSubStr(tb.cursor_pos , tb.val.runeLen)
+                elif tb.cursor_pos == 0:
+                    tb.val = event.key & tb.val
+                elif tb.cursor_pos == tb.val.runeLen:
+                    tb.val &= event.key
 
-            tb.cursor_pos += 1
-            
-            # insert: scrolls text
-            if #[ tb.offset_h > 0 or ]# this.app.cursorPos.x == tb.rightX(): 
-                tb.offset_h += 1
+                tb.cursor_pos += 1
+                
+                # insert: scrolls text
+                if #[ tb.offset_h > 0 or ]# this.app.cursorPos.x == tb.rightX(): 
+                    tb.offset_h += 1
 
-            #[ elif this.app.cursorPos.x < tb.rightX():    
-                tb.app.cursorPos.x += 1 ]#
-            else:
-                tb.app.cursorPos.x += 1
+                #[ elif this.app.cursorPos.x < tb.rightX():    
+                    tb.app.cursorPos.x += 1 ]#
+                else:
+                    tb.app.cursorPos.x += 1
 
 
-            tb.draw()
-            #tb.app.setCursorPos()
+                tb.draw()
+                #tb.app.setCursorPos()
 
         elif event.evType == "CtrlKey": #.....CtrlKey.....CtrlKey.....CtrlKey 
             case event.ctrlKey:

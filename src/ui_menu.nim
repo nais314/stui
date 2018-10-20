@@ -3,12 +3,15 @@ include "controll.inc.nim"
 
 type
     MenuNode* = ref object of TTUI
-        name*: string
+        name*: string # for display
+        value*: string # for You :)
         action*: proc():void
         parent*: MenuNode
         childs*: seq[MenuNode]
         currentChild*:int # cursor item
         offset*:int # num-lines scrolled down
+        customType*: int # for You :) int, to make > < possible... hasKey for styling
+        #! id is used by `==`
 
     Menu* = ref object of Controll
         workSpace* : WorkSpace
@@ -16,11 +19,36 @@ type
         rootNode*, currentNode* : MenuNode
         prevActiveControll*:Controll
         prevCursorPos*: tuple[x,y:int]
-        childLoader*:proc(menuNode: MenuNode) # use for loadnig childs on demand
+        childLoader*:proc(menu: Menu, menuNode: MenuNode) # use for loading childs on demand
+        ## childLoader's menu param links to menu.prevActiveControll -> wich can have custom variables, like path, etc
+        childUnLoader*:proc(menu: Menu, menuNode: MenuNode) # unload childLoader-ed nodes
+        childRefresh*:proc(menu: Menu, menuNode: MenuNode) # todo # re-childLoader
+        menuType*: uint8 # 0: app menu; 1: inlineMenu
         #app*:App
         #label*:string
         
         
+#...............................................................................
+
+proc `==`*(x, y: MenuNode): bool =
+    if x.id != "" and y.id != "" and x.id == y.id : return true # TODO: stui wide todo
+    if x.name == y.name and
+        x.value == y.value and
+        x.id == y.id and # parent == parent freezes :((
+        x.childs == y.childs: 
+        return true
+    else:
+        return false
+
+proc `<`*(x, y: MenuNode): bool =
+    return x.value < y.value
+
+proc childUnLoader*(menu: Menu, menuNode: MenuNode) =
+    let parent = menuNode.parent
+    parent.childs.del(menuNode)
+    GC_unref menuNode
+
+
 #...............................................................................
 
 
@@ -64,16 +92,21 @@ proc draw*(this: Menu, updateOnly:bool=false)=
     currentLine = this.currentNode.offset
     currentY = this.topY()
 
-
     block PRINT:
+        acquire(this.app.termlock)
+
+        if not updateOnly:
+            setColors(this.app, this.win.styles["window"])
+            drawRect(this.x1, this.y1, this.x2, this.y2)
  
         while currentY <= this.bottomY() and currentLine <= this.currentNode.childs.high:
             #echo currentLine
-            # todo: style: even,odd,highlight
             if this.currentNode.currentChild == currentLine and this.app.activeControll == this: #! todo
+                # if focused line
                 setColors(this.app, this.styles["input:focus"])
                 this.app.cursorPos.y = currentY #! patch for scroll issues
             elif currentLine mod 2 == 0:
+                # todo style by customType: haskey? : key & even
                 setColors(this.app, this.styles["input:even"])
             else:
                 setColors(this.app, this.styles["input:odd"])
@@ -98,6 +131,9 @@ proc draw*(this: Menu, updateOnly:bool=false)=
             #this.win.setTitle(this.currentNode.name)
 
 
+        release(this.app.termlock)
+
+
 proc drawit(this: Controll, updateOnly:bool=false)=
     Menu(this).draw()
 
@@ -112,6 +148,9 @@ proc drawit(this: Controll, updateOnly:bool=false)=
 #...............................................................................
 
 proc show*(this: Menu)=
+    ## used by "app menu" and such
+    ## not for inlineMenu
+    ## as it swaps workspaces
     this.visible = true
     # SAVE STATE - maybe should create proc saveState(app) ?
     this.prevActiveControll = this.app.activeControll
@@ -127,7 +166,9 @@ proc show*(this: Menu)=
 
 proc hide*(this: Menu)=
     ## hide menu
-    ## RESTORE APP STATE 
+    ## RESTORE APP STATE
+    ## not for inlineMenu
+    ## as it swaps workspaces
     #? maybe should create proc restoreState(app) ?
     this.app.activeWorkSpace = this.prevWorkSpace
     this.app.workSpaces.del(this.app.workSpaces.high)
@@ -187,32 +228,70 @@ proc onScroll(this:Controll, event:KMEvent)=
         
 
 proc onKeyLeft(menu:Menu)=
-    if menu.currentNode.parent != nil:
-        menu.currentNode = menu.currentNode.parent
+    #echo menu.currentNode.parent.name
+    # todo: if childloader, always reload!
+    if not isNil(menu.childUnLoader):
+        var parent = menu.currentNode.parent
 
-        var newTitle : string = ""
-        var cursor = menu.currentNode #!.childs[menu.currentNode.currentChild]
-        while cursor != menu.rootNode:
-            newTitle = cursor.name & "\\" & newTitle
-            cursor = cursor.parent
+        if not isNil(menu.childUnLoader):
+            menu.childUnLoader(menu, menu.currentNode)
 
-        if newTitle.runeLen <= menu.width - 6:
-            menu.win.setTitle(newTitle)
-        else:
-            menu.win.setTitle("…" & newTitle.
-                runeSubStr(newTitle.runeLen - (menu.width - 7)) )
+        menu.currentNode = parent
+
+        menu.draw()
+    else:
+
+        if not isNil(menu.currentNode.parent) :
+            
 
 
-        menu.draw(true)
+
+            if menu.menuType == 0:
+                var newTitle : string = ""
+                var cursor = menu.currentNode #!.childs[menu.currentNode.currentChild]
+                while cursor != menu.rootNode:
+                    newTitle = cursor.name & "\\" & newTitle
+                    cursor = cursor.parent
+
+                if newTitle.runeLen <= menu.width - 6:
+                    menu.win.setTitle(newTitle)
+                else:
+                    menu.win.setTitle("…" & newTitle.
+                        runeSubStr(newTitle.runeLen - (menu.width - 7)) )
+
+            menu.draw()
+            trigger(Controll(menu), "change") # for You :)
+
+        
 
 
 proc onEnter(menu:Menu)=
     # if NO action and NO childs: load childs via childLoader()
-    if menu.currentNode.childs[menu.currentNode.currentChild].action == nil and
-        menu.currentNode.childs[menu.currentNode.currentChild].childs.len == 0:
-            if menu.childLoader != nil:
-                # todo: use id to load childs
-                menu.childLoader(menu.currentNode.childs[menu.currentNode.currentChild])
+    if isNil(menu.currentNode.childs[menu.currentNode.currentChild].action) and
+        not isNil(menu.childLoader): #menu.currentNode.childs[menu.currentNode.currentChild].childs.len == 0:
+                # todo: if childloader, always reload!
+                menu.childLoader(menu, menu.currentNode.childs[menu.currentNode.currentChild])
+
+                if menu.currentNode.childs[menu.currentNode.currentChild].childs.len > 0:
+                    #echo "has childs\nhas childs\nhas childs\nhas childs\nhas childs\n"
+                    if menu.menuType == 0: # if windowed, app menu like
+                        var newTitle : string = ""
+                        var cursor = menu.currentNode.childs[menu.currentNode.currentChild]
+                        while cursor != menu.rootNode:
+                            newTitle = cursor.name & "\\" & newTitle
+                            cursor = cursor.parent
+            
+                        if newTitle.runeLen <= menu.width - 6:
+                            menu.win.setTitle(newTitle)
+                        else:
+                            menu.win.setTitle("…" & newTitle.
+                                runeSubStr(newTitle.runeLen - (menu.width - 7)) )
+                    
+                    menu.currentNode = menu.currentNode.childs[menu.currentNode.currentChild]
+        
+                #menu.app.draw()
+                menu.draw()
+
 
     # if action and no childs: run action()
     elif menu.currentNode.childs[menu.currentNode.currentChild].action != nil :
@@ -238,6 +317,8 @@ proc onEnter(menu:Menu)=
             menu.currentNode = menu.currentNode.childs[menu.currentNode.currentChild]
 
             menu.app.draw()
+
+    else: echo "ERROR!!!!!!!"
 
     
 proc onKeypress(this:Controll, event:KMEvent)=
@@ -336,16 +417,21 @@ proc onClick(this:Controll, event:KMEvent)=
     let menu = Menu(this)
     if event.btn == 0:
         # get selected:
-        if event.y <= menu.bottomY and event.y >= menu.topY and event.x <= menu.rightX and event.x >= menu.leftX:
-            menu.currentNode.currentChild = menu.currentNode.offset + (event.y - menu.topY)
-            menu.onEnter()
-            #menu.draw(true)
+        if event.y <= menu.bottomY and event.y >= menu.topY and event.x <= menu.rightX and event.x >= menu.leftX and
+            menu.currentNode.childs.high >= (menu.currentNode.offset + (event.y - menu.topY)) :
+                menu.currentNode.currentChild = menu.currentNode.offset + (event.y - menu.topY)
+                menu.onEnter()
+                menu.draw()
+                #echo  menu.currentNode.currentChild
     else:
-        if menu.currentNode.parent != nil:
+        if not isNil(menu.currentNode.parent):
             onKeyLeft(menu)
         else:
-            menu.hide()
-                
+            if menu.menuType == 0 : 
+                menu.hide() # todo
+            else:
+                discard
+                #?
                 
                 
 #...............................................................................
@@ -356,6 +442,7 @@ proc addChild*(parent: MenuNode,
         action: proc():void): MenuNode =
     
     var newNode = new MenuNode
+    newNode.id = genID()
     newNode.action = action
     newNode.name = name
     newNode.parent = parent
@@ -365,17 +452,27 @@ proc addChild*(parent: MenuNode,
     #newNode = MenuNode(name: name, action: action, childs: @[], parent: parent)
     #parent.childs.add( MenuNode(name: name, action: action, childs: @[], parent: parent) )
 
+proc addChild*(parent: MenuNode, 
+    name: string, value: string,
+    action: proc():void): MenuNode =
+    let newNode = parent.addChild(name, action)
+    newNode.value = value
+    return newNode
+
 
 
 proc newMenuNode*(name: string = "menu item"): MenuNode =
     result = new MenuNode
     result.name = name
     result.childs = @[]
+    result.id = genID()
 
 
 
 proc newMenu*(app:App, label:string="Menu"): Menu =
+    ## it is for app menus
     result = new Menu
+    result.menuType = 0
     result.app = app
     result.label = label
     result.rootNode = newMenuNode("ROOT") #MenuNode(name : "ROOT")
@@ -405,35 +502,29 @@ proc newMenu*(app:App, label:string="Menu"): Menu =
     var styleNormal: StyleSheetRef = new StyleSheetRef
     styleNormal.deepcopy app.styles["input"]
     styleNormal.border="none"
-    #styleNormal.setTextStyle("styleUnderline") #! disabled because border draw
     result.styles.add("input",styleNormal)
     result.activeStyle = result.styles["input"]
 
     var styleEven: StyleSheetRef = new StyleSheetRef
     styleEven.deepcopy app.styles["input:even_dark"]
-    #styleEven.setTextStyle("styleUnderline") #!
     result.styles.add("input:even",styleEven)
 
     var styleOdd: StyleSheetRef = new StyleSheetRef
     styleOdd.deepcopy app.styles["input:odd_dark"]
-    #styleOdd.setTextStyle("styleUnderline") #!
     result.styles.add("input:odd",styleOdd)
 
 
     var styleFocused: StyleSheetRef = new StyleSheetRef
     styleFocused.deepcopy app.styles["input:focus"]
-    #styleFocused.setTextStyle("styleUnderline") #! disabled because border draw
     result.styles.add("input:focus",styleFocused)
 
     var styleDragged: StyleSheetRef = new StyleSheetRef
     styleDragged.deepCopy app.styles["input:drag"]
-    #styleDragged.setTextStyle("styleUnderline") #!
     result.styles.add("input:drag",styleDragged)
 
     #???
     var styleDisabled: StyleSheetRef = new StyleSheetRef
     styleDisabled.deepcopy app.styles["input:disabled"]
-    #styleDisabled.setTextStyle("styleUnderline") #!
     result.styles.add("input:disabled", styleDisabled)
 
     result.drawit = drawit
@@ -452,3 +543,83 @@ proc newMenu*(app:App, label:string="Menu"): Menu =
     #result.listeners = @[]
 
     #controlls.add(result)
+
+
+
+
+
+
+
+
+
+
+
+proc newInlineMenu*(win:Window, label:string="Menu", width:int=20, heigth:int=20): Menu =
+   ## it modifies newMenu for inline, controll style use
+   ## it is for app menus
+   result = new Menu
+   result.menuType = 1
+   result.app = win.app
+   result.win = win
+   result.label = label
+   result.rootNode = newMenuNode("ROOT") #MenuNode(name : "ROOT")
+   result.currentNode = result.rootNode
+   result.prevWorkSpace = nil #...
+   result.visible = true
+   
+   result.width = width
+   result.heigth = heigth
+
+
+   result.styles = newStyleSheets()
+
+   var styleNormal: StyleSheetRef = new StyleSheetRef
+   styleNormal.deepcopy win.app.styles["input"]
+   styleNormal.border="none"
+   result.styles.add("input",styleNormal)
+   result.activeStyle = result.styles["input"]
+
+   var styleEven: StyleSheetRef = new StyleSheetRef
+   styleEven.deepcopy win.app.styles["input:even_dark"]
+   result.styles.add("input:even",styleEven)
+
+   var styleOdd: StyleSheetRef = new StyleSheetRef
+   styleOdd.deepcopy win.app.styles["input:odd_dark"]
+   result.styles.add("input:odd",styleOdd)
+
+
+   var styleFocused: StyleSheetRef = new StyleSheetRef
+   styleFocused.deepcopy win.app.styles["input:focus"]
+   result.styles.add("input:focus",styleFocused)
+
+   var styleDragged: StyleSheetRef = new StyleSheetRef
+   styleDragged.deepCopy win.app.styles["input:drag"]
+   result.styles.add("input:drag",styleDragged)
+
+   var styleDisabled: StyleSheetRef = new StyleSheetRef
+   styleDisabled.deepcopy win.app.styles["input:disabled"]
+   result.styles.add("input:disabled", styleDisabled)
+
+
+   result.drawit = drawit
+   result.blur = blur
+   result.focus = focus
+   result.onClick = onClick
+   #result.onDrag = onDrag
+   #result.onDrop = onDrop
+   result.cancel = cancel
+   result.onKeypress = onKeyPress
+   result.onScroll = onScroll
+   #result.recalc = recalc
+
+   #result.app = win.app
+   #result.win = win
+   #result.listeners = @[]
+
+   #controlls.add(result)
+
+   #result = newMenu(win.app, label)
+   result.recalc = nil # disable recalc fun - you may replace recalc wit your own
+   result.width = width #todo #????    
+   result.heigth = heigth #todo #????
+   win.controlls.add(result)

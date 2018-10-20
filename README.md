@@ -78,6 +78,7 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 * ui_progressbar
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
 * ui_selectbox: (multi) selectbox
+* **ui_fileselect: <NEW><DEVEL>**
 
 **Demo / test file is stui_test1.nim**
 
@@ -99,6 +100,7 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 
 ![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)  
 ![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)  
+![FileSelect](doc/FileSelect_Screenshot_2018-10-20_13-35-40.png)  
 
 
   [on colors](doc/Colors.md)  

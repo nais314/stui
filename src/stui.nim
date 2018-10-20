@@ -297,6 +297,8 @@ proc genId*(length: int = 5):string=
     result = $rand(A)
     while result.len < length:
         result &= $rand(9)
+    
+    # todo: append milli or nanosecond
 
 #---------------------------------------------
 
@@ -314,7 +316,12 @@ template tryit*(fun: untyped)=
               e = getCurrentException()
               msg = getCurrentExceptionMsg()
             echo "Got exception ", repr(e), " with message ", msg
-            #discard stdin.readLine()
+            discard stdin.readLine()
+
+proc del*[T](x: var seq[T], y: T) =
+    for i in 0..x.high:
+        if x[i] == y:
+            x.del(i)
 
 #---------------------------------------------
 ###        ######  ######## ##    ## ##       ######## 
@@ -609,6 +616,9 @@ proc setControllsVisibility*(this: Window, setVisible: bool)=
         for iC in 0..this.controlls.high :
             this.controlls[iC].visible = setVisible
     #this.currentPage = 0 # disabled as it seems to cause more trouble than benefit
+
+proc hideControlls*(this:Window)=
+    this.setControllsVisibility(false)
 
 proc hideControlls*(this:Tile)=
     ## disable draw for controlls
@@ -1008,7 +1018,7 @@ proc outerHeigth(this: Controll): int {.inline.} =
             this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
                 this.activeStyle.margin.top - this.activeStyle.margin.bottom
 
-        return this.heigth #int((this.win.heigth.float / 100.0) * this.heigth_value.float)
+        return this.heigth + 1 #int((this.win.heigth.float / 100.0) * this.heigth_value.float)
         
     else:
         if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
@@ -1017,7 +1027,7 @@ proc outerHeigth(this: Controll): int {.inline.} =
             return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom
 
 proc borderWidth*(this: Controll): int {.inline.} =
-    return if this.activeStyle.border == "none" or this.activeStyle.border == "" or this.activeStyle.border == "": 0 else: 1
+    return if this.activeStyle.border == "none" or this.activeStyle.border == "" : 0 else: 1
 
 
 
@@ -1091,6 +1101,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                 this.controlls[iC].tabStop = tabStop
                 page.controlls.add(this.controlls[iC])
                 tabStop += 1
+                availH -= this.controlls[iC].outerHeigth() #??????
             else: # if values for width, heigth added - by int or percentage:
                 # if relative width used:
                 if this.controlls[iC].width_value != 0: # 0 by default == look for heigth prop
@@ -1290,10 +1301,10 @@ proc topY*(this: Controll) : int {.inline.} =
 
 
 
-proc drawRect*(x1,y1,x2,y2:int){.inline.}=
+proc drawRect*(x1,y1,x2,y2:int, pattern: string = " "){.inline.}=
     for y in y1..y2:
         terminal_extra.setCursorPos(x1,y)
-        stdout.write(" " * (x2 - x1 + 1) )
+        stdout.write(pattern * (x2 - x1 + 1) )
 
 
 proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=

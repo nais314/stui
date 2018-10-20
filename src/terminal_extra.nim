@@ -1,6 +1,10 @@
 import os, osproc
 import termios
 
+#[
+    http://www.termsys.demon.co.uk/vtansi.htm
+]#
+
 proc getColorMode*(): int =
     var str = getEnv("COLORTERM") #$execProcess("printenv COLORTERM")
     if str notin ["truecolor", "24bit"]:
@@ -80,6 +84,10 @@ proc resetTerminal*() =
 proc resetStyle*()=
     ## Reset all attributes
     stdout.write "\e[0m"
+
+proc clearScreen*()=
+    ## Erases the screen with the background colour and moves the cursor to home.
+    stdout.write "\e[2J"
 
 proc cursorForward*(n:int=1)=
     ## Move Cursor to the right with n characters

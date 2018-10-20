@@ -178,18 +178,19 @@ proc onPgUp(this: StringListBox) =
 
 
 proc onPgDown(this: StringListBox) =
-    if this.offset + (this.heigth - 1) < this.options.len - (this.heigth - 1):
-        # jump a page down
-        this.offset += (this.heigth - 1)
-        this.cursor = this.offset
-    else:
-        if this.offset == this.options.len - (this.heigth - 1):
-            this.cursor = this.options.high
-            this.app.cursorPos.y = this.bottomY
-        else:
-            this.offset = this.options.len - (this.heigth - 1)
+    if this.options.len > this.heigth:
+        if this.offset + (this.heigth - 1) < this.options.len - (this.heigth - 1):
+            # jump a page down
+            this.offset += (this.heigth - 1)
             this.cursor = this.offset
-    this.draw(true)
+        else:
+            if this.offset == this.options.len - (this.heigth - 1):
+                this.cursor = this.options.high
+                this.app.cursorPos.y = this.bottomY
+            else:
+                this.offset = this.options.len - (this.heigth - 1)
+                this.cursor = this.offset
+        this.draw(true)
 
 
 proc onHome(this: StringListBox)=

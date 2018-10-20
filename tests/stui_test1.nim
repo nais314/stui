@@ -1,7 +1,9 @@
 # done: add label to T Controll, + `label=` + if label=="" + labelHeigth==0
 # todo: TEST all controlls relative w/h
+# TODO: auto id for objects
 # done: proc onClick(this:Controll, event:KMEvent)=  if not this.disabled:
 # todo: widgets: class, activearea
+#? style for popup windows? 38,38,38
 # doing: intro, doc
 # todo: ColumnBreak test
 # done: app addeventlistener fnkey action trigger test
@@ -11,14 +13,15 @@
 # todo: tss.nim
 #? todo: setDragdata()
 # todo: ui_splash
-# todo: ui_filechooser (dir, fname, exists)
+# todo: ui_filechooser (dir, fname, exists) ▲ ▣ ■ 
 # todo: ui_ table columns, ???
 # todo: setEnabled(this:Controll) ?: set style to what?
-# todo: CTRL+C, CTRL+V
+# todo: CTRL+C, CTRL+V HELP!
 # todo: ui_switchbtn, ui_intbox, ui_floatbox, ui_scale, ui_datepicker
 # todo: ui_bargraph
 # todo: ui_banner? ui_checkbox?
 #? progressbar to show value?
+#! page style is useless
 ################################################################################
 
 import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
@@ -164,7 +167,7 @@ import ui_selectbox
 
 echo "selectbox"
 echo "A"
-var sb1 = app.activeWindow.newSelectBox("opciók",true,20)
+var sb1 = app.activeWindow.newSelectBox("⒮ selectbox1",true,20)
 sb1.id = genId(3)
 sb1.setMargin("bottom", 1)
 sb1.setMargin("left", 1)
@@ -640,12 +643,32 @@ let sb50 = app.activeWindow.newSelectBox("50% width", multiSelect = false, width
 sb50.setMargin("top",1)
 
 
-let slb50 = app.activeWindow.newStringListBox("50% width", "50", "30")
+let slb50 = app.activeWindow.newStringListBox("50% width", "50", "25")
 slb50.setMargin("top",1)
 #slb50.setDisabled()
 for i in 0..1:
     slb50.options.add((genId(10), nil)) # tuple[name:string, action:proc():void]
     #slb50.options[i].action = proc() = app.setActiveWorkSpace("secondWS")
+
+
+################################################################################
+################################################################################
+#      
+#      ██████╗ ███████╗██╗   ██╗███████╗██╗     
+#      ██╔══██╗██╔════╝██║   ██║██╔════╝██║     
+#      ██║  ██║█████╗  ██║   ██║█████╗  ██║     
+#      ██║  ██║██╔══╝  ╚██╗ ██╔╝██╔══╝  ██║     
+#      ██████╔╝███████╗ ╚████╔╝ ███████╗███████╗
+#      ╚═════╝ ╚══════╝  ╚═══╝  ╚══════╝╚══════╝
+#
+
+
+#discard app.activeWindow.newTextBox("dummy")
+
+import ui_fileselect
+
+let fch1 = app.activeWindow.newFileSelect("FileSelect1 fch1")
+fch1.setMargin("top",1)
 
 ################################################################################
 ################################################################################

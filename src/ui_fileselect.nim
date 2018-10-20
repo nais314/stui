@@ -7,6 +7,19 @@ import ui_textbox, ui_menu, ui_button
 from algorithm import sort
 import sequtils
 
+## on fileselect:
+##    its displayed liker the selectbox,
+##    
+##    when clicked on, it shows a new window
+##    with Controlls (TextBox, Menu, Button)
+##
+##    Menu is modified, so FileSelect's variables, path, filename
+##    gets updated as navigation happens  (childLoader, childUnLoader)
+##      cancel writes data back from TextBox preval
+##
+##    finally "change" event fires and variables gets finalized, screen updated
+
+
 # %userprofile%
 
 type 
@@ -44,7 +57,13 @@ proc `value`*(this:FileSelect): string =
 proc `value=`*(this:FileSelect, val:string) =
     this.val = val
 
-proc `value2`*(this:FileSelect): string = `value`(this)
+proc `value2`*(this:FileSelect): tuple[dir, name:string] =
+    return (this.path, this.filename)
+
+proc `value2=`*(this:FileSelect, v: tuple[path, filename:string]) =
+    this.path = v.path
+    this.filename = v.filename
+
 
 
 #----------------------------------
@@ -233,10 +252,11 @@ proc childLoader(menu: Menu, menuNode: MenuNode) =
         TextBox(fs.app.activeWindow.controlls[2]).value= menuNode.value
         fs.filename = menuNode.value
 
-    else:
+    else: # subdir:
         fs.path = fs.path & DirSep & menuNode.value
         fsNodeLoader(fs.path, menuNode)
         TextBox(fs.app.activeWindow.controlls[0]).value= fs.path
+        TextBox(fs.app.activeWindow.controlls[2]).value= ""
         fs.filename = ""
         
         #echo fs.path, "\n"
@@ -298,9 +318,7 @@ proc cancelClick(this_elem: Controll)=
 
 
 proc onClick(this:Controll, event:KMEvent)=
-    ## used @:
-    ##  blur() = trigger(this, "change") =
-    ##  chooser.app.activeControll.trigger("change")
+
     if not this.disabled:
         let fs = FileSelect(this)
         
@@ -327,8 +345,6 @@ proc onClick(this:Controll, event:KMEvent)=
             win.width = parentWin.width # win.x2 - win.x1
             win.heigth = win.y2 - win.y1
             
-            #[ win.styles["window"].bgColor[2]=235
-            win.styles["window"].bgColor[3] = int(packRGB(38,38,38)) ]#
 
             var styleNormal: StyleSheetRef = new StyleSheetRef
             styleNormal.deepcopy win.app.styles["dock"]
@@ -352,9 +368,6 @@ proc onClick(this:Controll, event:KMEvent)=
             fileMenu.rootNode.name = filename(fs.path)
             fileMenu.rootNode.value = filename(fs.path)
             fileMenu.cancel = cancelClick
-            #page.controlls.add(fileMenu)
-            #discard fileMenu.currentNode.addChild("test-", nil)
-            #fileMenu.currentNode.name = fs.path #deprecated
 
 
             fsNodeLoader(fs.path, fileMenu.rootNode)

@@ -669,6 +669,23 @@ import ui_fileselect
 
 let fch1 = app.activeWindow.newFileSelect("FileSelect1 fch1")
 fch1.setMargin("top",1)
+fch1.setMargin("left",1)
+
+
+
+import ui_shdbutton
+
+let shdbtn1 = app.activeWindow.newShdButton("shdbtn1")
+shdbtn1.setMargin("top",1)
+shdbtn1.setMargin("left",1)
+
+let shdbtn2 = app.activeWindow.newShdButton("shdbtn2",1,1)
+shdbtn2.setMargin("top",1)
+shdbtn2.setMargin("left",1)
+
+
+
+
 
 ################################################################################
 ################################################################################

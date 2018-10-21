@@ -77,6 +77,59 @@ proc `$`*(a: PackedRGB): string =
 
 
 
+
+
+
+
+
+proc searchColorTable*(colorTable: openArray[tuple[name: string, col: int]],
+    colorName: string): int =
+    #echo colorTable.high
+    result = -1 #int.high
+    for i in 0..colorTable.high:
+        if toLowerAscii(colorTable[i].name) == toLowerAscii(colorName): return colorTable[i].col
+        #echo i
+
+
+#[ proc getColorMode(): int =
+var str = getEnv("COLORTERM") #$execProcess("printenv COLORTERM")
+if str notin ["truecolor", "24bit"]:
+str = $execProcess("tput colors")
+
+case str:
+of   "8": result = 0
+of  "16": result = 1
+of "256": result = 2
+else: result = 1
+else:
+result = 3 ]#
+
+
+
+proc parseColor*(colorName: string, colorMode: int): int =
+    ## searches for colors int value by name
+    case colorMode:
+        of 0,1: result = searchColorTable(colorNames16, colorName) #colorNames16[ searchColorTable(colorNames16, colorName) ][1]
+        of 2:   
+            result = searchColorTable(colorNames256, colorName) #colorNames256[ searchColorTable(colorNames256, colorName) ][1]
+            if result == -1:
+                result = searchColorTable(colorNamesRGBto256, colorName)
+        of 3: result = int(colors.parseColor( toLowerAscii(colorName)))
+
+        else: result = 0
+
+proc parseColor*(colorName: string): int = parseColor(colorName, getColorMode())
+
+
+
+
+
+
+
+
+
+
+
 # 16 colors 8 + bright...
 # "Later terminals added the ability to directly specify the "bright" colors with 90-97 and 100-107. "
 # but for me, only adding styleBright gives good results
@@ -128,49 +181,25 @@ proc setBackgroundColor*(col: PackedRGB) =
     setBackgroundColor(stdout, col)
     #echo "AAAA", col
 
+#................................
+
+proc setForegroundColor*(colorname: string) =
+    let cmode = getColorMode()
+    let color = colors_extra.parseColor(colorname, cmode)
+    case cmode:
+        of 0,1:
+            #colors_extra.setBackgroundColor(Color16(style.bgColor[colorMode]))
+            colors_extra.setForegroundColor(Color16(color))
+        of 2:
+            #colors_extra.setBackgroundColor(Color256(style.bgColor[colorMode]))
+            colors_extra.setForegroundColor(Color256(color))
+        of 3:
+            #colors_extra.setBackgroundColor(PackedRGB(style.bgColor[colorMode]))
+            colors_extra.setForegroundColor(PackedRGB(color))
+        else: discard
+
+
 #...............................................................................
-
-
-proc searchColorTable*(colorTable: openArray[tuple[name: string, col: int]],
-                       colorName: string): int =
-    #echo colorTable.high
-    result = -1 #int.high
-    for i in 0..colorTable.high:
-        if toLowerAscii(colorTable[i].name) == toLowerAscii(colorName): return colorTable[i].col
-        #echo i
-
-
-#[ proc getColorMode(): int =
-    var str = getEnv("COLORTERM") #$execProcess("printenv COLORTERM")
-    if str notin ["truecolor", "24bit"]:
-        str = $execProcess("tput colors")
-
-        case str:
-            of   "8": result = 0
-            of  "16": result = 1
-            of "256": result = 2
-            else: result = 1
-    else:
-        result = 3 ]#
-
-
-
-proc parseColor*(colorName: string, colorMode: int): int =
-    ## searches for colors int value by name
-    case colorMode:
-        of 0,1: result = searchColorTable(colorNames16, colorName) #colorNames16[ searchColorTable(colorNames16, colorName) ][1]
-        of 2:   
-            result = searchColorTable(colorNames256, colorName) #colorNames256[ searchColorTable(colorNames256, colorName) ][1]
-            if result == -1:
-                result = searchColorTable(colorNamesRGBto256, colorName)
-        of 3: result = int(colors.parseColor( toLowerAscii(colorName)))
-            
-        
-        
-        else: result = 0
-
-proc parseColor*(colorName: string): int = parseColor(colorName, getColorMode())
-
 
 
 

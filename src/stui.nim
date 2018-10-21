@@ -360,6 +360,25 @@ proc del*[T](x: var seq[T], y: T) =
 proc resetColors*()=
     stdout.write "\e[0m"
 
+
+proc setForegroundColor*(app:App, style:StyleSheetRef)=
+    # should be in colors_extra, but that is more generic, and should be (?)
+    case app.colorMode:
+        of 0,1:
+            #colors_extra.setBackgroundColor(Color16(style.bgColor[app.colorMode]))
+            colors_extra.setForegroundColor(Color16(style.fgColor[app.colorMode]))
+        of 2:
+            #colors_extra.setBackgroundColor(Color256(style.bgColor[app.colorMode]))
+            colors_extra.setForegroundColor(Color256(style.fgColor[app.colorMode]))
+        of 3:
+            #colors_extra.setBackgroundColor(PackedRGB(style.bgColor[3]))
+            colors_extra.setForegroundColor(PackedRGB(style.fgColor[3]))
+            #echo extractRGB(style.fgColor[3])
+            #echo extractRGB(style.bgColor[3])
+        else: discard
+    if style.textStyle.card() > 0:
+        terminal.setStyle(stdout, style.textStyle)
+
 # set uotput colors during Draw proc
 proc setColors*(app:App, style:StyleSheet) =
     #terminal.resetAttributes()

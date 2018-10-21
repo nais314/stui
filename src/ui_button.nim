@@ -50,9 +50,9 @@ proc draw*(this: Button, updateOnly: bool = false)=
             stdout.write(" " * (this.width - this.label.runeLen - (this.paddingH * 2)) )
         else: # exactly:
             terminal_extra.setCursorPos(this.leftX, cLine )
-            stdout.write(" " * this.paddingV)
+            stdout.write(" " * this.paddingH)
             stdout.write(this.label)
-            stdout.write(" " * this.paddingV)
+            stdout.write(" " * this.paddingH)
 
         cLine += 1
         for iP in 1..this.paddingV:
@@ -158,6 +158,6 @@ proc newButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 0 )
     win.controlls.add(result) # typical finish line
         
 proc newButton*(win:Window, label: string, width:string, paddingV:int = 0): Button =
-    result = newButton(win, label)
+    result = newButton(win, label, 0, paddingV)
     discard width.parseInt(result.width_value)
     #discard heigth.parseInt(result.heigth_value)

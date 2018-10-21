@@ -32,7 +32,7 @@ type
         text*:string # for display
         path*,filename*:string
         #options*: OptionListRef # seq[ tuple[name, value:string, selected:bool]  ]
-        preval*:  string # undo
+        preval*:  tuple[val, path, filename: string] # well... #string # undo
         
         #multiSelect:bool # an advanced table/tree controll will be used instead
 
@@ -51,10 +51,11 @@ proc draw*(this: FileSelect, updateOnly: bool = false) #FWD
 
 
 proc `value`*(this:FileSelect): string =
-    ## returns string 
+    ## returns /path/filename string 
     return this.val
 
 proc `value=`*(this:FileSelect, val:string) =
+    ## error checking not included
     this.val = val
 
 proc `value2`*(this:FileSelect): tuple[dir, name:string] =
@@ -74,7 +75,7 @@ proc basename*(file: string): string =
 proc filename*(file: string): string =
     result = file.runeSubStr(file.rfind(DirSep) + 1) # +1 DirSep
 
-proc prevDir*(path:string): string {.inline.} =
+#[ proc prevDir*(path:string): string {.inline.} =
     # /
     # ""
     # /foo/bar
@@ -84,10 +85,10 @@ proc prevDir*(path:string): string {.inline.} =
     if path.runeSubStr(path.runeLen - 1) == $DirSep :
         result = path.runeSubStr(0, -2)
 
-    result = result.runeSubStr(0, result.rfind(DirSep) - 1)
+    result = result.runeSubStr(0, result.rfind(DirSep) - 1) ]#
 
-proc enterDir*(path, subdir: string): string {.inline.} =
-    return path & DirSep & subdir
+#[ proc enterDir*(path, subdir: string): string {.inline.} =
+    return path & DirSep & subdir ]#
 
 
 
@@ -151,7 +152,9 @@ proc blur(this: Controll)=
     trigger(this, "change")
 
 proc cancel(this: Controll)=
-    FileSelect(this).val = FileSelect(this).preval
+    FileSelect(this).val = FileSelect(this).preval.val
+    FileSelect(this).path = FileSelect(this).preval.path
+    FileSelect(this).filename = FileSelect(this).preval.filename
     trigger(this, "change")
 
 
@@ -205,7 +208,10 @@ proc fsNodeLoader(cwd:string, menuNode:MenuNode )=
                     nCh.customType = int(PathComponent.pcLinkToDir)
 
         fileNodes.childs.sort(system.cmp)
-        dirNodes.childs.sort(system.cmp)
+        if dirNodes.childs.len > 0:
+            ## last dir style "└":
+            dirNodes.childs.sort(system.cmp)
+            dirNodes.childs[dirNodes.childs.high].name = "└" & dirNodes.childs[dirNodes.childs.high].value & DirSep
 
         if cwd != $DirSep : # aka ROOT, then add prev dir:
             menuNode.childs = @[]
@@ -300,14 +306,17 @@ proc commit(this_elem: Controll)=
 
 
 proc cancelClick(this_elem: Controll)=
-    TextBox(this_elem.win.controlls[0]).cancel(this_elem.win.controlls[0])
-    TextBox(this_elem.win.controlls[2]).cancel(this_elem.win.controlls[2])
-    FileSelect(Menu(this_elem.win.controlls[1]).prevActiveControll).path = TextBox(this_elem.win.controlls[0]).val
-    FileSelect(Menu(this_elem.win.controlls[1]).prevActiveControll).filename = TextBox(this_elem.win.controlls[2]).val
+    ## textbox reset will be on next activate - unneccessary here
+    #TextBox(this_elem.win.controlls[0]).cancel(this_elem.win.controlls[0])
+    #TextBox(this_elem.win.controlls[2]).cancel(this_elem.win.controlls[2])
 
-    Menu(this_elem.win.controlls[1]).prevActiveControll.cancel(Menu(this_elem.win.controlls[1]).prevActiveControll)
+    let fs = FileSelect(Menu(this_elem.win.controlls[1]).prevActiveControll)
+    #[ fs.path = fs.preval.path
+    fs.filename = fs.preval.filename ]#
 
+    fs.cancel(fs)
 
+    # visuals:
     this_elem.app.activeTile.windows.del(this_elem.app.activeTile.windows.high)
     this_elem.app.activeWindow.draw()
     this_elem.app.activeControll = Menu(this_elem.win.controlls[1]).prevActiveControll
@@ -322,9 +331,9 @@ proc onClick(this:Controll, event:KMEvent)=
     if not this.disabled:
         let fs = FileSelect(this)
         
-        if event.btn > 0:
+        if event.btn > 0: # clear, reset
             fs.val = ""
-            fs.preval = ""
+            fs.preval = ("","","")
             fs.path = getEnv("HOME")
             fs.filename = ""
             trigger(this, "change")
@@ -332,7 +341,9 @@ proc onClick(this:Controll, event:KMEvent)=
 
         else:
 
-            fs.preval = fs.val
+            fs.preval.val = fs.val
+            fs.preval.path = fs.path
+            fs.preval.filename = fs.filename
 
             var parentWin = fs.app.activeWindow
             var win = fs.app.activeTile.newWindow()
@@ -380,13 +391,13 @@ proc onClick(this:Controll, event:KMEvent)=
             filenameTB.preval = fs.filename
 
             
-            let cancelBtn = win.newButton("cancel")
+            let cancelBtn = win.newButton("cancel", paddingH = 1)
             cancelBtn.setMargin("left", 2)
             addEventListener(Controll(cancelBtn), "click", cancelClick)
 
             discard win.newColumnBreak()
             
-            let okBtn = win.newButton("OK")
+            let okBtn = win.newButton("OK", paddingH = 1)
             okBtn.setMargin("left", 2)
             Controll(okBtn).addEventListener("click", commit)
 
@@ -395,7 +406,7 @@ proc onClick(this:Controll, event:KMEvent)=
             #echo  win.pages[win.currentPage].controlls[0].activeStyle.bgColor[3]
             #fs.app.activeControll = fileMenu
             fs.app.activate(fileMenu)
-            fs.preval = fs.val
+            #fs.preval = fs.val
 
 
 # ⎡

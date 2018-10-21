@@ -1,15 +1,18 @@
 # stui
 ### Simplified Terminal UI (Nim lang, ANSI terminal) 
 
-This is my first app in Nim - it covers pretty much anything i need to learn.
+This is my first app in Nim - it covers pretty much anything i need to learn >:)
 
-**STUI is a drag&drop aware, responsive layout, themeable, ANSI terminal UI.**
+**STUI is a drag&drop aware, responsive layout, themeable, ANSI terminal UI. (currently for linux terminals...)**  
 
 branches:
 * master: usable alpha, revised for nim v0.19, devel
 
 releases:
 * nim 0.18 version archived as release
+
+(manjaro linux, visual stuido code [better comments])  
+  
 
 Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
   see: stui_test1.nim  
@@ -77,8 +80,8 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 * ui_stringlistbox: like a listbox, items having actions, not for (multi)selection
 * ui_progressbar
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
-* ui_selectbox: (multi) selectbox
-* **ui_fileselect: <NEW><DEVEL>**
+* ui_selectbox: (multi) selectbox - it is a combined controll
+* **ui_fileselect: <NEW><DEVEL>** well it is also a sandbox for testing Controll reusability and combined controlls
 
 **Demo / test file is stui_test1.nim**
 

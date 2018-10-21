@@ -11,6 +11,7 @@ type
         currentChild*:int # cursor item
         offset*:int # num-lines scrolled down
         customType*: int # for You :) int, to make > < possible... hasKey for styling
+        ## it was a hard decision to make it int.. but it works well with enums...
         #! id is used by `==`
 
     Menu* = ref object of Controll
@@ -23,6 +24,7 @@ type
         ## childLoader's menu param links to menu.prevActiveControll -> wich can have custom variables, like path, etc
         childUnLoader*:proc(menu: Menu, menuNode: MenuNode) # unload childLoader-ed nodes
         childRefresh*:proc(menu: Menu, menuNode: MenuNode) # todo # re-childLoader
+        childStyler*:proc(menu: Menu, menuNode: MenuNode) # todo hook in the proc draw()
         menuType*: uint8 # 0: app menu; 1: inlineMenu
         #app*:App
         #label*:string
@@ -105,11 +107,23 @@ proc draw*(this: Menu, updateOnly:bool=false)=
                 # if focused line
                 setColors(this.app, this.styles["input:focus"])
                 this.app.cursorPos.y = currentY #! patch for scroll issues
+
             elif currentLine mod 2 == 0:
                 # todo style by customType: haskey? : key & even
-                setColors(this.app, this.styles["input:even"])
-            else:
+                setColors(this.app, this.styles["input:even"]) # leave it, may background color will not changed
+                if not isNil(this.childStyler): 
+                    this.childStyler(this, this.currentNode.childs[currentLine])
+                else: #if customType is also a style name:
+                    if this.styles.hasKey($this.currentNode.childs[currentLine].customType):
+                        setForegroundColor(this.app, this.styles[$this.currentNode.childs[currentLine].customType])
+
+            else: #if customType is also a style name:
                 setColors(this.app, this.styles["input:odd"])
+                if not isNil(this.childStyler): 
+                    this.childStyler(this, this.currentNode.childs[currentLine])
+                else:
+                    if this.styles.hasKey($this.currentNode.childs[currentLine].customType):
+                        setForegroundColor(this.app, this.styles[$this.currentNode.childs[currentLine].customType])
 
             terminal_extra.setCursorPos(this.leftX, currentY )
 

@@ -420,6 +420,16 @@ proc setColors*(colorMode:int, style:StyleSheet) =
 proc copyColorsFrom*(this, style: StyleSheetRef)=
     this.fgColor = style.fgColor
     this.bgColor = style.bgColor
+
+
+
+proc changeFGColor*(this: Controll, stylename: string, colors: StyleColor)=
+    this.styles[stylename].fgColor = colors
+
+proc changeFGColor*(this: Controll, stylename: string, colorname: string) =
+    for iCM in 0..3:
+        this.styles[stylename].fgColor[iCM] = colors_extra.parseColor(colorname, iCM)
+
 #---------------------------------------------
 
 

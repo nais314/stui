@@ -397,9 +397,11 @@ proc onClick(this:Controll, event:KMEvent)=
 
             discard win.newColumnBreak()
             
-            let okBtn = win.newButton("OK", paddingH = 1)
+            let okBtn = win.newButton("OK", paddingH = 2)
             okBtn.setMargin("left", 2)
             Controll(okBtn).addEventListener("click", commit)
+            Controll(okBtn).changeFGColor("input", "green")
+            okBtn.styles["input"].setTextStyle("StyleBold")
 
 
             fs.app.redraw()

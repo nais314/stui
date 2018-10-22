@@ -691,6 +691,14 @@ let tgbtn1 = app.activeWindow.newToggleButton("tgbtn1", "on", "off")
 tgbtn1.setMargin("top",1)
 tgbtn1.setMargin("left",1)
 
+let tglbtn2 = app.activeWindow.newToggleButton("tglbtn2", "on", "off", 2, 1)
+tglbtn2.setMargin("top",1)
+tglbtn2.setMargin("left",1)
+
+let tglbtn3 = app.activeWindow.newToggleButton("tglbtn3", "on", "off", "50", 1)
+tglbtn3.setMargin("top",1)
+tglbtn3.setMargin("left",1)
+
 
 
 ################################################################################

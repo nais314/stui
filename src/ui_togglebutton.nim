@@ -79,7 +79,7 @@ proc draw*(this: ToggleButton, updateOnly: bool = false)=
                 this.paddingH = (this.width - this.label.runeLen) div 2
                 stdout.write(" " * this.paddingH)
                 stdout.write(this.label)
-                stdout.write(" " * (this.width - this.label.runeLen - (this.paddingH * 2)) )
+                stdout.write(" " * this.paddingH)#(this.width - this.label.runeLen - (this.paddingH * 2)) )
             else: # exactly:
                 terminal_extra.setCursorPos(this.leftX, cLine )
                 stdout.write(" " * this.paddingH)
@@ -103,10 +103,12 @@ proc draw*(this: ToggleButton, updateOnly: bool = false)=
             cLine = this.bottomY
             terminal_extra.setCursorPos(this.leftX, cLine )
 
-            this.paddingH = (this.width - this.label.runeLen) div 2
+            if this.width_value != 0:
+                this.paddingH = (this.width - this.label.runeLen) div 2
+
             stdout.write(" " * this.paddingH)
             stdout.write(this.label)
-            stdout.write(" " * (this.width - this.label.runeLen - (this.paddingH * 2)) )
+            stdout.write(" " * this.paddingH)#(this.width - this.label.runeLen - (this.paddingH * 2)) )
 
         #this.app.parkCursor()
         this.app.setCursorPos()

@@ -47,7 +47,7 @@ proc draw*(this: Button, updateOnly: bool = false)=
             this.paddingH = (this.width - this.label.runeLen) div 2
             stdout.write(" " * this.paddingH)
             stdout.write(this.label)
-            stdout.write(" " * (this.width - this.label.runeLen - (this.paddingH * 2)) )
+            stdout.write(" " * this.paddingH)# (this.width - this.label.runeLen - (this.paddingH * 2)) )
         else: # exactly:
             terminal_extra.setCursorPos(this.leftX, cLine )
             stdout.write(" " * this.paddingH)
@@ -86,8 +86,8 @@ proc cancel(this: Controll)=discard
 # made public to call if replaced - new method of event listener adding
 proc onClick*(this: Controll, event:KMEvent) =
     if not this.disabled:
-        #this.focus(this)
-        this.drawit(this, false)
+        this.app.activate(this)
+        drawit(this)
         var c: char
         if event.evType != "CtrlKey": # mouseClick flush Release event
             while c != 'm':
@@ -95,6 +95,7 @@ proc onClick*(this: Controll, event:KMEvent) =
         # visual feedback:
         sleep(100)
         this.blur(this)
+        #this.app.activate(this.win)
         drawit(this)
         trigger(this,"click")
 

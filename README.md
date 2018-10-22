@@ -77,11 +77,13 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 * ui_button: .
 * ui_textarea: multi line textbox, editable, scrollable
 * ui_menu: full screen hierarchial menu - breadcrumbs in window
-* ui_stringlistbox: like a listbox, items having actions, not for (multi)selection
+* ui_stringlistbox: like a listbox, items having actions, not for (multi)selection (will continue)
 * ui_progressbar
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
 * ui_selectbox: (multi) selectbox - it is a combined controll
 * **ui_fileselect: <NEW><DEVEL>** well it is also a sandbox for testing Controll reusability and combined controlls
+* ui_togglebutton: on or off :)
+* ui_shdbutton: button with drop shadow - just like in the good old times...
 
 **Demo / test file is stui_test1.nim**
 

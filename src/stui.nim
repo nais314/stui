@@ -1379,7 +1379,7 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
             terminal_extra.setCursorPos(x2,y2)
             stdout.write("┛")
 
-        of "solid":
+        of "solid", "single":
             #top
             terminal_extra.setCursorPos(x1+1,y1)
             stdout.write("─" * (x2 - x1 - 1) )

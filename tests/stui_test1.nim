@@ -685,6 +685,12 @@ shdbtn2.setMargin("left",1)
 
 
 
+import ui_togglebutton
+
+let tgbtn1 = app.activeWindow.newToggleButton("tgbtn1", "on", "off")
+tgbtn1.setMargin("top",1)
+tgbtn1.setMargin("left",1)
+
 
 
 ################################################################################

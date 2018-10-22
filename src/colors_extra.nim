@@ -108,6 +108,7 @@ result = 3 ]#
 
 proc parseColor*(colorName: string, colorMode: int): int =
     ## searches for colors int value by name
+    ## you better search for valid color names... ;)
     case colorMode:
         of 0,1: result = searchColorTable(colorNames16, colorName) #colorNames16[ searchColorTable(colorNames16, colorName) ][1]
         of 2:   

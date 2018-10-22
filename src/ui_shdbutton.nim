@@ -62,7 +62,11 @@ proc draw*(this: ShdButton, updateOnly: bool = false)=
 
         
         setColors(this.app, this.win.activeStyle[])
-        colors_extra.setForegroundColor("Black")
+        case this.app.colorMode:
+            of 0,1: colors_extra.setForegroundColor(Color16(90))
+            of 2:   colors_extra.setForegroundColor(Color256(236))
+            else #[ of 3 ]#:   colors_extra.setForegroundColor("dimgray")
+            
         terminal_extra.setCursorPos(this.leftX, cLine )
         stdout.write("▝")
         stdout.write("▀" * (this.width - 1))
@@ -75,9 +79,6 @@ proc draw*(this: ShdButton, updateOnly: bool = false)=
                 cLine += 1
                 terminal_extra.setCursorPos(this.rightX + 1, cLine )
                 stdout.write("▌")
-        #[ cLine += 1
-        terminal_extra.setCursorPos(this.rightX + 1, this.bottomY )
-        stdout.write("▘") ]#
 
 
         #this.app.parkCursor()
@@ -106,8 +107,8 @@ proc cancel(this: Controll)=discard
 # made public to call if replaced - new method of event listener adding
 proc onClick*(this: Controll, event:KMEvent) =
     if not this.disabled:
-        #this.focus(this)
-        #this.drawit(this, false)
+        #this.focus(this) - it is already focused
+        #drawit:
         withLock this.app.termlock:
             setColors(this.app, this.win.activeStyle[])
             colors_extra.setForegroundColor("orange")

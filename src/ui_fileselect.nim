@@ -57,6 +57,12 @@ proc `value`*(this:FileSelect): string =
 proc `value=`*(this:FileSelect, val:string) =
     ## error checking not included
     this.val = val
+    if val.rfind(DirSep) == -1:
+        this.text = val
+    else:
+        this.text = val.substr(val.rfind(DirSep) + 1)
+
+    if this.visible: this.draw()
 
 proc `value2`*(this:FileSelect): tuple[dir, name:string] =
     return (this.path, this.filename)
@@ -70,10 +76,16 @@ proc `value2=`*(this:FileSelect, v: tuple[path, filename:string]) =
 #----------------------------------
 
 proc basename*(file: string): string =
-    result = file.runeSubStr(0,file.rfind(DirSep) - 1) # -1 DirSep
+    if file.rfind(DirSep) == -1 or file.rfind(DirSep) == 0 :
+        result = file
+    else:
+        result = file.substr(0,file.rfind(DirSep) - 1) # -1 DirSep
 
 proc filename*(file: string): string =
-    result = file.runeSubStr(file.rfind(DirSep) + 1) # +1 DirSep
+    if file.rfind(DirSep) == -1 :
+        result = file
+    else:    
+        result = file.substr(file.rfind(DirSep) + 1) # +1 DirSep
 
 #[ proc prevDir*(path:string): string {.inline.} =
     # /

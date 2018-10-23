@@ -8,7 +8,7 @@
         F9: menu TODO
         F10: quit app
 
-        TAB: - add focus to next gui Controll; 
+        TAB: - add focus to next gui Controll;
              - commit changes to Controll (pe:TextArea)
 
         ESC and ESC again: cancel editing, quit app
@@ -26,7 +26,7 @@
 #[
     NEXT-NEXT:
         main loop poll consumes cpu
-        
+
         TimedAction needs to be revised to be paralell
 
         force colorMode - xterm reports 8! but true color seems supported...
@@ -117,11 +117,11 @@ const
 
 type
     StyleColor* = array[0..3, int] # 0: 8color; 1: 16color int(terminal.fgBlue); 2: 256 color int(colors256.Blue); 3: RGB int(colors.colBlue)or(colors_extras.PackedRGB)
-    StyleSheet* = tuple[fgColor: StyleColor, 
-                        bgColor: StyleColor, 
-                        padding: tuple[left,top,right,bottom:int], 
-                        margin: tuple[left,top,right,bottom:int], 
-                        border:string, 
+    StyleSheet* = tuple[fgColor: StyleColor,
+                        bgColor: StyleColor,
+                        padding: tuple[left,top,right,bottom:int],
+                        margin: tuple[left,top,right,bottom:int],
+                        border:string,
                         textStyle: set[terminal.Style]  ]
 
     StyleSheetRef* = ref StyleSheet
@@ -168,7 +168,7 @@ type
     Controll* = ref object of TTUI
         label*:string # displayed above controll
         x1*,y1*,x2*,y2*, width*,heigth*:int # incl margins & borders!
-        
+
         width_unit*: string # used (by Tile) to store width unit: %, auto, ch(aracter)
         width_value*:int # used (by Tile) for responsive width calc
         #heigth_unit*: string #? heigth unit is percent.
@@ -179,6 +179,7 @@ type
         disabled*:   bool # only copy, no events
 
         onClick*:     proc(this_elem: Controll, event: KMEvent):void
+        onRelease*:   proc(this_elem: Controll, event: KMEvent):void
         onScroll*:    proc(this_elem: Controll, event: KMEvent):void
         onDrag*:      proc(this_elem: Controll, event: KMEvent):void # set style
         onDrop*:      proc(this_elem: Controll, event: KMEvent):void
@@ -297,7 +298,7 @@ proc genId*(length: int = 5):string=
     result = $rand(A)
     while result.len < length:
         result &= $rand(9)
-    
+
     # todo: append milli or nanosecond
 
 #---------------------------------------------
@@ -324,22 +325,22 @@ proc del*[T](x: var seq[T], y: T) =
             x.del(i)
 
 #---------------------------------------------
-###        ######  ######## ##    ## ##       ######## 
-###       ##    ##    ##     ##  ##  ##       ##       
-###       ##          ##      ####   ##       ##       
-###        ######     ##       ##    ##       ######   
-###             ##    ##       ##    ##       ##       
-###       ##    ##    ##       ##    ##       ##       
-###        ######     ##       ##    ######## ######## 
-###       
-###        
-###         ######   #######  ##        #######  ########  
-###       ##    ## ##     ## ##       ##     ## ##     ## 
-###       ##       ##     ## ##       ##     ## ##     ## 
-###       ##       ##     ## ##       ##     ## ########  
-###       ##       ##     ## ##       ##     ## ##   ##   
-###       ##    ## ##     ## ##       ##     ## ##    ##  
-###        ######   #######  ########  #######  ##     ## 
+###        ######  ######## ##    ## ##       ########
+###       ##    ##    ##     ##  ##  ##       ##
+###       ##          ##      ####   ##       ##
+###        ######     ##       ##    ##       ######
+###             ##    ##       ##    ##       ##
+###       ##    ##    ##       ##    ##       ##
+###        ######     ##       ##    ######## ########
+###
+###
+###         ######   #######  ##        #######  ########
+###       ##    ## ##     ## ##       ##     ## ##     ##
+###       ##       ##     ## ##       ##     ## ##     ##
+###       ##       ##     ## ##       ##     ## ########
+###       ##       ##     ## ##       ##     ## ##   ##
+###       ##    ## ##     ## ##       ##     ## ##    ##
+###        ######   #######  ########  #######  ##     ##
 
 
 #moved to terminal_extra
@@ -468,7 +469,7 @@ proc setCursorStyle*(Ps: int)=
 
 
 
-proc newStyleSheets*(): StyleSheets = 
+proc newStyleSheets*(): StyleSheets =
     ## init controlls stylesheets
     newTable[string, StyleSheetRef](8)
 
@@ -510,7 +511,7 @@ proc styleSheetRef_fromConfig*(config: Config, section: string): StyleSheetRef =
     else:
         echo "\n\n : ", value, " : \n\n"
         result.bgColor[3] = int(colors_extra.parseColor(value))
-    
+
     #...................................................
 
 
@@ -661,7 +662,7 @@ proc hideControlls*(this:App)=
             for iW in 0..this.workSpaces[i_ws].tiles[iT].windows.high:
                 setControllsVisibility(this.workSpaces[i_ws].tiles[iT].windows[iW], false)
 
-    
+
 
 
 
@@ -670,15 +671,15 @@ proc hideControlls*(this:App)=
 
 
 
-#      
-#       ######  ##     ## ########   ######   #######  ########  
-#      ##    ## ##     ## ##     ## ##    ## ##     ## ##     ## 
-#      ##       ##     ## ##     ## ##       ##     ## ##     ## 
-#      ##       ##     ## ########   ######  ##     ## ########  
-#      ##       ##     ## ##   ##         ## ##     ## ##   ##   
-#      ##    ## ##     ## ##    ##  ##    ## ##     ## ##    ##  
-#       ######   #######  ##     ##  ######   #######  ##     ## 
-#       
+#
+#       ######  ##     ## ########   ######   #######  ########
+#      ##    ## ##     ## ##     ## ##    ## ##     ## ##     ##
+#      ##       ##     ## ##     ## ##       ##     ## ##     ##
+#      ##       ##     ## ########   ######  ##     ## ########
+#      ##       ##     ## ##   ##         ## ##     ## ##   ##
+#      ##    ## ##     ## ##    ##  ##    ## ##     ## ##    ##
+#       ######   #######  ##     ##  ######   #######  ##     ##
+#
 proc parkCursor*(app:App){.inline.} # FW declaration
 
 
@@ -719,13 +720,13 @@ proc showCursor*()=
 #*******************************************************************************
 
 
-###   ##      ## #### ##    ## ########   #######  ##      ##    ###   ###   
-###   ##  ##  ##  ##  ###   ## ##     ## ##     ## ##  ##  ##   ##       ##  
-###   ##  ##  ##  ##  ####  ## ##     ## ##     ## ##  ##  ##  ##         ## 
-###   ##  ##  ##  ##  ## ## ## ##     ## ##     ## ##  ##  ##  ##         ## 
-###   ##  ##  ##  ##  ##  #### ##     ## ##     ## ##  ##  ##  ##         ## 
-###   ##  ##  ##  ##  ##   ### ##     ## ##     ## ##  ##  ##   ##       ##  
-###    ###  ###  #### ##    ## ########   #######   ###  ###     ###   ###   
+###   ##      ## #### ##    ## ########   #######  ##      ##    ###   ###
+###   ##  ##  ##  ##  ###   ## ##     ## ##     ## ##  ##  ##   ##       ##
+###   ##  ##  ##  ##  ####  ## ##     ## ##     ## ##  ##  ##  ##         ##
+###   ##  ##  ##  ##  ## ## ## ##     ## ##     ## ##  ##  ##  ##         ##
+###   ##  ##  ##  ##  ##  #### ##     ## ##     ## ##  ##  ##  ##         ##
+###   ##  ##  ##  ##  ##   ### ##     ## ##     ## ##  ##  ##   ##       ##
+###    ###  ###  #### ##    ## ########   #######   ###  ###     ###   ###
 
 proc draw*(this: Window)
 proc draw*(this: App)
@@ -823,7 +824,7 @@ proc setActiveWorkSpace*(app: App, id:string)=
         if wS.id == id:
             app.setActiveWorkSpace wS
 
-            
+
 #*******************************************************************************
 #*******************************************************************************
 #*******************************************************************************
@@ -841,7 +842,7 @@ proc setActiveWorkSpace*(app: App, id:string)=
 
 
 proc parseSizeStr*(width:string): tuple[width_unit:string,width_value:int]=
-    var 
+    var
         width_unit:string
         width_value:int
 
@@ -1038,17 +1039,17 @@ proc newApp*(): App =
 
 proc outerHeigth(this: Controll): int {.inline.} =
     if this.heigth_value > 0: # relative heigth used
-        
+
         if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
-            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
+            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) -
                 this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2
 
         else: # no border
-            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) - 
+            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) -
                 this.activeStyle.margin.top - this.activeStyle.margin.bottom
 
         return this.heigth + 1 #int((this.win.heigth.float / 100.0) * this.heigth_value.float)
-        
+
     else:
         if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
             return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
@@ -1136,16 +1137,16 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                 if this.controlls[iC].width_value != 0: # 0 by default == look for heigth prop
                     # 100% width, maybe not needed but...:
                     if this.controlls[iC].width_value == 100:
-                        this.controlls[iC].width = (this.width) - 
-                            (this.controlls[iC].activeStyle.margin.left + 
-                            this.controlls[iC].activeStyle.margin.right + 
+                        this.controlls[iC].width = (this.width) -
+                            (this.controlls[iC].activeStyle.margin.left +
+                            this.controlls[iC].activeStyle.margin.right +
                             this.controlls[iC].borderWidth() * 2) - 1
 
                     else:
-                        this.controlls[iC].width = int((this.width.float / 100) * 
-                            this.controlls[iC].width_value.float) - 
-                            (this.controlls[iC].activeStyle.margin.left + 
-                            this.controlls[iC].activeStyle.margin.right + 
+                        this.controlls[iC].width = int((this.width.float / 100) *
+                            this.controlls[iC].width_value.float) -
+                            (this.controlls[iC].activeStyle.margin.left +
+                            this.controlls[iC].activeStyle.margin.right +
                             this.controlls[iC].borderWidth() * 2)
 
 
@@ -1155,18 +1156,18 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
                 # if no room on bottom / and on side: ------------------------
                 #   x2 precalc to know if controll fits on page
-                #   
-                this.controlls[iC].x2 = xC + 
-                    (this.controlls[iC].width - 1) + 
-                    (this.controlls[iC].borderWidth() * 2) + 
-                    this.controlls[iC].activeStyle.margin.left + 
+                #
+                this.controlls[iC].x2 = xC +
+                    (this.controlls[iC].width - 1) +
+                    (this.controlls[iC].borderWidth() * 2) +
+                    this.controlls[iC].activeStyle.margin.left +
                     this.controlls[iC].activeStyle.margin.right #!X2
 
-                if this.controlls[iC].outerHeigth() >= availH  or this.controlls[iC].x2 > this.x2: 
+                if this.controlls[iC].outerHeigth() >= availH  or this.controlls[iC].x2 > this.x2:
                     # if room on the right: new column
-                    if maxX + 1 + this.controlls[iC].width + 
-                        this.controlls[iC].activeStyle.margin.left + 
-                        this.controlls[iC].activeStyle.margin.right + 
+                    if maxX + 1 + this.controlls[iC].width +
+                        this.controlls[iC].activeStyle.margin.left +
+                        this.controlls[iC].activeStyle.margin.right +
                         this.controlls[iC].borderWidth() * 2 < this.x2:
 
                         xC = maxX + 1 # +1: next column, not the x2 of this controll!
@@ -1174,25 +1175,25 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                         availH = calcAvailH()
                     else: # new page
                         newPage()
-                        
-                        this.controlls[iC].x2 = xC + (this.controlls[iC].width - 1) + 
-                            (this.controlls[iC].borderWidth() * 2) + 
-                            this.controlls[iC].activeStyle.margin.left + 
+
+                        this.controlls[iC].x2 = xC + (this.controlls[iC].width - 1) +
+                            (this.controlls[iC].borderWidth() * 2) +
+                            this.controlls[iC].activeStyle.margin.left +
                             this.controlls[iC].activeStyle.margin.right #!X2
 
                         # todo: rethink error MSG
-                        if this.controlls[iC].outerHeigth() >= availH + 1 or this.controlls[iC].x2 > this.x2: 
+                        if this.controlls[iC].outerHeigth() >= availH + 1 or this.controlls[iC].x2 > this.x2:
                             echo "ERR Controll cannot be placed on screen!"
                             discard stdin.readLine()
                             continue
-                #...............................................................        
+                #...............................................................
 
 
 
                 this.controlls[iC].tabStop = tabStop
                 page.controlls.add(this.controlls[iC])
                 tabStop += 1
-                
+
 
                 this.controlls[iC].x1 = xC #! xC may changed by newColumn->x2 recalc!!!
 
@@ -1207,17 +1208,17 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
                 if this.controlls[iC].width_value == 100: maxAvailH = availH
 
-                if maxX < this.controlls[iC].x1 + 
-                    (this.controlls[iC].width - 1) + 
-                    (this.controlls[iC].borderWidth() * 2) + 
-                    this.controlls[iC].activeStyle.margin.left + 
+                if maxX < this.controlls[iC].x1 +
+                    (this.controlls[iC].width - 1) +
+                    (this.controlls[iC].borderWidth() * 2) +
+                    this.controlls[iC].activeStyle.margin.left +
                     this.controlls[iC].activeStyle.margin.right and
                     this.controlls[iC].width_value != 100:
 
-                    maxX =  this.controlls[iC].x1 + 
-                        (this.controlls[iC].width - 1) + 
-                        (this.controlls[iC].borderWidth() * 2) + 
-                        this.controlls[iC].activeStyle.margin.left + 
+                    maxX =  this.controlls[iC].x1 +
+                        (this.controlls[iC].width - 1) +
+                        (this.controlls[iC].borderWidth() * 2) +
+                        this.controlls[iC].activeStyle.margin.left +
                         this.controlls[iC].activeStyle.margin.right
 
 
@@ -1403,7 +1404,7 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
             stdout.write("└")
             terminal_extra.setCursorPos(x2,y2)
             stdout.write("┘")
-    
+
 
         of "double":
             #top
@@ -1429,7 +1430,7 @@ proc drawBorder*(borderStyle: string, x1,y1,x2,y2:int){.inline.}=
             stdout.write("╚")
             terminal_extra.setCursorPos(x2,y2)
             stdout.write("╝")
-    
+
 
         else: discard
 #---------------------------------------------
@@ -1517,16 +1518,16 @@ proc draw*(this: App) =
 
 
 
-                                
-                                                                                      
+
+
 #      I8                                                                           ,dPYb,
 #      I8                                                                           IP'`Yb
 #   88888888                                         gg                             I8  8I
 #      I8                                            ""                             I8  8'
-#      I8     ,ggg,    ,gggggg,   ,ggg,,ggg,,ggg,    gg    ,ggg,,ggg,     ,gggg,gg  I8 dP 
-#      I8    i8" "8i   dP""""8I  ,8" "8P" "8P" "8,   88   ,8" "8P" "8,   dP"  "Y8I  I8dP  
-#     ,I8,   I8, ,8I  ,8'    8I  I8   8I   8I   8I   88   I8   8I   8I  i8'    ,8I  I8P   
-#    ,d88b,  `YbadP' ,dP     Y8,,dP   8I   8I   Yb,_,88,_,dP   8I   Yb,,d8,   ,d8b,,d8b,_ 
+#      I8     ,ggg,    ,gggggg,   ,ggg,,ggg,,ggg,    gg    ,ggg,,ggg,     ,gggg,gg  I8 dP
+#      I8    i8" "8i   dP""""8I  ,8" "8P" "8P" "8,   88   ,8" "8P" "8,   dP"  "Y8I  I8dP
+#     ,I8,   I8, ,8I  ,8'    8I  I8   8I   8I   8I   88   I8   8I   8I  i8'    ,8I  I8P
+#    ,d88b,  `YbadP' ,dP     Y8,,dP   8I   8I   Yb,_,88,_,dP   8I   Yb,,d8,   ,d8b,,d8b,_
 #   88P""Y88888P"Y8888P      `Y88P'   8I   8I   `Y88P""Y88P'   8I   `Y8P"Y8888P"`Y88P'"Y88
 #[
 XTERM conf
@@ -1547,7 +1548,7 @@ Merge .Xresources and check
 For color: env TERM=xterm-256color xterm
  ]#
 
-include termios                                  
+include termios
 
 proc closeTerminal() {.noconv.} =
     echo "\e[?1006l\e[?1002l" # mouse
@@ -1559,7 +1560,7 @@ proc closeTerminal() {.noconv.} =
     setCursorStyle(CursorStyle.blinkingBlock)
     showCursor()
     disableCanon()
-    
+
 proc closeTerminal*(app:App)=
     closeTerminal()
 
@@ -1647,7 +1648,7 @@ proc parkCursor*(app:App){.inline.}=
 proc redraw*(app:App)=
     app.recalc()
     app.draw()
-    
+
 
 
 ###############################################################################
@@ -1657,7 +1658,7 @@ proc redraw*(app:App)=
 proc getUIElementAtPos*(app:App, x,y:int, setActive: bool = false): Controll =
     ## gets Controll at mouse pos, make it activ if asked
     result = nil
-    
+
     # todo: WIDGETS!!!!!
     # todo: WIDGETS!!!!!
     # todo: WIDGETS!!!!!
@@ -1675,9 +1676,9 @@ proc getUIElementAtPos*(app:App, x,y:int, setActive: bool = false): Controll =
                 let page = tile.windows[tile.windows.high].pages[tile.windows[tile.windows.high].currentPage]
 
                 for iE in 0..page.controlls.len - 1:
-                    if  page.controlls[iE].x1 <= x and 
-                        page.controlls[iE].x2 >= x and 
-                        page.controlls[iE].y1 <= y and 
+                    if  page.controlls[iE].x1 <= x and
+                        page.controlls[iE].x2 >= x and
+                        page.controlls[iE].y1 <= y and
                         page.controlls[iE].y2 >= y and
                         page.controlls[iE].visible :
                         #echo "FOUNDIT"
@@ -1696,7 +1697,7 @@ proc getUIElementAtPos*(app:App, x,y:int, setActive: bool = false): Controll =
 
                             # set active controll
                             app.activeControll = page.controlls[iE]
-                            if app.activeControll.focus != nil: 
+                            if app.activeControll.focus != nil:
                                 app.activeControll.focus(app.activeControll)
 
                         return page.controlls[iE]
@@ -1728,13 +1729,13 @@ proc focusFWD*(app:App)=
         else:
             newTabStop = 0
 
-        if app.activeControll.blur != nil:    
-            app.activeControll.blur(app.activeControll) 
+        if app.activeControll.blur != nil:
+            app.activeControll.blur(app.activeControll)
             app.activeControll.drawit(app.activeControll, false)
 
         app.activeControll = app.activePage.controlls[newTabStop]
 
-        if app.activeControll.focus != nil:    
+        if app.activeControll.focus != nil:
             app.activeControll.focus(app.activeControll)
             app.activeControll.drawit(app.activeControll, false)
 
@@ -1745,7 +1746,7 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
         of "FnKey":
             case event.key:
                 of KeyPgDown:
-                    app.activeWindow.pgDown()   
+                    app.activeWindow.pgDown()
                 of KeyPgUp:
                     app.activeWindow.pgUp()
                 of KeyF5:
@@ -1765,7 +1766,7 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
 
         of "CtrlKey":
             case event.ctrlKey:
-                of 9: # TAB 
+                of 9: # TAB
                     #[ # HINT: pageBreak is not added to PAGE controlls :)
                     if app.activeControll != nil:
                         var newTabStop: int = app.activeControll.tabStop
@@ -1775,19 +1776,19 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
                         else:
                             newTabStop = 0
 
-                        if app.activeControll.blur != nil:    
-                            app.activeControll.blur(app.activeControll) 
+                        if app.activeControll.blur != nil:
+                            app.activeControll.blur(app.activeControll)
                             app.activeControll.drawit(app.activeControll, false)
 
                         app.activeControll = app.activePage.controlls[newTabStop]
 
-                        if app.activeControll.focus != nil:    
+                        if app.activeControll.focus != nil:
                             app.activeControll.focus(app.activeControll)
                             app.activeControll.drawit(app.activeControll, false) ]#
-                    
+
                     if app.activeControll != nil:
                         focusFWD(app)
-                            
+
                         result = true
                     else:
                         discard
@@ -1796,7 +1797,7 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
                 else: discard
 
         else: discard
-        
+
 #------------------------------------------------------------------------
 
 ###############################################################################
@@ -1830,10 +1831,14 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
             if eventTarget.onClick != nil:
                 eventTarget.onClick(eventTarget, event)
 
+        if event.evType == "Release" :
+            if not isNil(eventTarget.onRelease) :
+                eventTarget.onRelease(eventTarget, event)
+
         if event.evType == "Drag" and app.dragSource == nil #[ and app.activeControll != nil ]#:
             if app.activeControll != eventTarget: #! patch - if dragged controll is not the activecontroll
                 app.activate(eventTarget)
-                
+
             app.dragSource = app.activeControll
             if app.dragSource.onDrag != nil: app.dragSource.onDrag(eventTarget, event)
 
@@ -1883,7 +1888,7 @@ proc trigger*(controll:Controll, evtname:string )=
             for j in 0..controll.listeners[i].actions.high:
                 controll.listeners[i].actions[j](controll)
 
-#[ # should work but... ??? 
+#[ # should work but... ???
 proc trigger*[T](obj:T, evtname:string )=
     for i in 0..obj.listeners.high:
         if obj.listeners[i].name == evtname:
@@ -1911,7 +1916,7 @@ proc removeEventListener*(app:App, evtname:string, fun:proc():void)=
             for j in 0..app.listeners[i].actions.high:
                 if app.listeners[i].actions[j] == fun:
                     app.listeners[i].actions.del(j)
-                
+
 proc trigger*(app:App, evtname:string )=
     for i in 0..app.listeners.high:
         if app.listeners[i].name == evtname:

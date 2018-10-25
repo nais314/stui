@@ -569,15 +569,17 @@ proc newTextArea*(win:Window, label: string, width:string, heigth:string): TextA
 
 
 
-proc newStaticTextArea*(win:Window, label: string, width:int=20, heigth:int=20): TextArea =
+proc newStaticTextArea*(win:Window, label: string, width:int=20, heigth:int=5): TextArea =
     result = newTextArea(win, label, width, heigth)
     
     var styleNormal: StyleSheetRef = new StyleSheetRef
     styleNormal.deepcopy win.styles["window"]
     styleNormal.border="solid"
-    result.styles.add("input",styleNormal)    
-    result.activeStyle = result.styles["input"]
-    result.styles.add("input:focus",styleNormal)
-    result.styles.add("input:drag",styleNormal)
-    result.styles.add("input:disabled",styleNormal)
+    result.styles["input"].deepCopy styleNormal
+    #result.activeStyle = result.styles["input"]
+    result.styles["input:focus"].deepCopy styleNormal
+    result.styles["input:drag"].deepCopy styleNormal
+    result.styles["input:disabled"].deepCopy styleNormal
+
+    result.setDisabled()
    

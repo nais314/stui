@@ -414,3 +414,46 @@ echo "       [label              ]"
 echo "       [avg:               ]"
 echo "       [max:               ]"
 echo "       [min:               ] \e[0m"
+
+
+
+echo "\n\n"
+echo " \e[34m\e[40m▐\e[44m\e[30m││││││\e[34m\e[40m▌││││   \e[0m"
+echo " \e[34m\e[40m▐\e[44m\e[30m││││││\e[34m\e[40m▌││││   \e[0m"
+echo "\n"
+
+echo " \e[40m\e[34m████▍▏▏▏▏▏▏▏▏\e[0m"
+echo " \e[40m\e[34m████▍▏▏▏▏▏▏▏▏\e[0m"
+echo "\n"
+
+echo " \e[40m\e[36m▉▉▉▉▉▉▉▉\e[34m▏▏▏▏▏▏▏▏\e[0m"
+echo " \e[40m\e[36m▉▉▉▉▉▉▉▉\e[34m▏▏▏▏▏▏▏▏\e[0m"
+echo "\n"
+
+echo " \e[40m\e[34m▉▉▉▉▉▉▉▏▏▏▏▏▏▏\e[0m"
+echo " \e[40m\e[34m▉▉▉▉▉▉▉▏▏▏▏▏▏▏\e[0m"
+
+echo "\n\n"
+
+
+
+
+
+echo "\e[0m[⬒] Plant water level:"
+echo "      \e[34m▁▁▁▁▁▁▁▁▁"
+echo "  \e[37m>100\e[34m├\e[32m▄▄▂▂\e[34m▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▏"
+echo "    \e[37m90\e[34m├\e[32m██▓▓\e[34m▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▏"
+echo "    \e[37m70\e[34m├\e[32m██▓▓\e[34m▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▏"
+echo "    \e[37m50\e[34m├\e[32m██▓▓██▓▓\e[34m▁\e[32m███\e[34m▁\e[32m▓▓▓\e[34m▁\e[32m██\e[34m▁\e[32m▓▓▏"
+echo "    \e[37m30\e[34m├\e[32m██▓▓██▓▓\e[34m▁\e[32m███\e[34m▁\e[32m▓▓▓\e[34m▁\e[32m██\e[34m▁\e[32m▓▓▏"
+echo "    \e[37m10\e[34m├\e[32m██▓▓██▓▓\e[34m▁\e[32m███\e[34m▁\e[32m▓▓▓\e[34m▁\e[32m██\e[34m▁\e[32m▓▓▏"
+echo "      \e[37m▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔"
+echo "       1 2 3 4   5   6  7  8 \n"
+
+echo "       ◀ 1/99▶ ▲1X▼"
+echo "       [label              ]"
+echo "       [avg:               ]"
+echo "       [max:               ]"
+echo "       [min:               ] \e[0m"
+echo " width, gap, character, even/odd,"
+

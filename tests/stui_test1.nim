@@ -665,6 +665,12 @@ for i in 0..1:
 
 #discard app.activeWindow.newTextBox("dummy")
 
+
+let statt = app.activeWindow.newStaticTextArea("static text")
+statt.value= "Welcome to the Page of new Developments :)"
+
+
+
 import ui_fileselect
 
 let fch1 = app.activeWindow.newFileSelect("FileSelect1 fch1")

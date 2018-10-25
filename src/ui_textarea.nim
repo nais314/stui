@@ -566,3 +566,18 @@ proc newTextArea*(win:Window, label: string, width:string, heigth:string): TextA
     result = newTextArea(win, label)
     discard width.parseInt(result.width_value)
     discard heigth.parseInt(result.heigth_value)
+
+
+
+proc newStaticTextArea*(win:Window, label: string, width:int=20, heigth:int=20): TextArea =
+    result = newTextArea(win, label, width, heigth)
+    
+    var styleNormal: StyleSheetRef = new StyleSheetRef
+    styleNormal.deepcopy win.styles["window"]
+    styleNormal.border="solid"
+    result.styles.add("input",styleNormal)    
+    result.activeStyle = result.styles["input"]
+    result.styles.add("input:focus",styleNormal)
+    result.styles.add("input:drag",styleNormal)
+    result.styles.add("input:disabled",styleNormal)
+   

@@ -10,17 +10,18 @@
 # done: WS: switch ok, recalc ok
 # todo: window rightclick
 # done: controll.header.inc.nim
-# todo: tss.nim
+# todo: tss.nim - openTSS, readTSS, withTSS,...
 #? todo: setDragdata()
 # todo: ui_splash
-# todo: ui_filechooser (dir, fname, exists) ▲ ▣ ■ 
+# doing: ui_filechooser (dir, fname, exists) ▲ ▣ ■ 
 # todo: ui_ table columns, ???
 # todo: setEnabled(this:Controll) ?: set style to what?
 # todo: CTRL+C, CTRL+V HELP!
 # todo: ui_switchbtn, ui_intbox, ui_floatbox, ui_scale, ui_datepicker
 # todo: ui_bargraph
 # todo: ui_banner? ui_checkbox?
-#? progressbar to show value?
+# done/doing progressbar to show value?
+#? todo: progbar block character if RGB/16C/256C
 #! page style is useless
 ################################################################################
 

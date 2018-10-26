@@ -12,6 +12,8 @@ from nim 0.19
 setting colors are handled by ANSI escape sequences,
 for GC safety, see: colors_extra.setForegroundColor
 
+if you use the standard 8/16 colors, its appereance will vary depending on the terminal emulator you use :)
+
 
 **Styles**
 

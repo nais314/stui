@@ -1,6 +1,6 @@
 see stui.nim, textbox.nim
 
-Controll is a ui element.
+**Controll** is a ui element.  
 
 app.activeControll: set this if focus changes  
 
@@ -18,21 +18,28 @@ drawit(): maybe methods would be better, but methods cannot be FWD declared (? n
 
 activeStyle: from the controlls styles the currently active one - for draw
 
+**Layout:**  
 
-Event flow, automatic KM events: (Keyboard & Mouse)  
+    layout automatcally calculated, see stui.nim recalc procs  
+    you may override it with adding recalc proc to the Controll  
+      
+    recalc can use fixed width/heigth, or percent based width/heigth, depending on constructor (fixed uses int 100, relative uses string params "100")
+
+
+**Event flow, automatic KM events: (Keyboard & Mouse)**  
 
     see mainloop.inc.nim  
   
-    than stui.nim mouseEventHandler:
-        eventTarget.onClick(eventTarget, event)
-        eventTarget.onScroll(eventTarget, event)
-        app.dragSource.onDrag(eventTarget, event)
-        eventTarget.onDrop(eventTarget, event)
+    than stui.nim mouseEventHandler:  
+        eventTarget.onClick(eventTarget, event)  
+        eventTarget.onScroll(eventTarget, event)  
+        app.dragSource.onDrag(eventTarget, event)  
+        eventTarget.onDrop(eventTarget, event)  
 
-    key events:
-        if KeyPgUp, KeyPgDown trigger controlls proc first then apps
-        else: trigger apps cb first, then controlls
-
+    key events:  
+        if KeyPgUp, KeyPgDown trigger controlls proc first then apps  
+        else: trigger apps cb first, then controlls  
+  
 
 **Window**
 

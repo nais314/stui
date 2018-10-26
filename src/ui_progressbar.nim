@@ -9,16 +9,10 @@ type ProgressBar* = ref object of Controll
     size*:int # of input
     showValue*:bool
 
+    runeBlock*, runeEmpty*:string
 
 
-#[ proc leftX(this: Controll) : int = 
-    this.x1 + this.activeStyle.margin.left + this.borderWidth()
 
-#[ proc rightX(this: Controll) : int =
-    (this.x2 - this.activeStyle.margin.right - this.borderWidth()) ]#
-
-proc bottomY(this: Controll) : int =
-    this.y2 - this.activeStyle.margin.bottom - this.borderWidth() ]#
 
 
 proc draw*(this: ProgressBar, updateOnly: bool = false) =
@@ -61,13 +55,14 @@ proc draw*(this: ProgressBar, updateOnly: bool = false) =
 
         if size > 0 :
             #stdout.write $size
-            stdout.write "▓" * size
-            stdout.write " " * (this.width - size)
+            stdout.write this.runeBlock * size #"▓" * size
+            stdout.write this.runeEmpty * (this.width - size) #" " * (this.width - size)
             stdout.write '\n'
         else:
             #stdout.write $size
             stdout.write " " * this.width
             stdout.write '\n'
+
 
         if this.showValue :
             terminal_extra.setCursorPos(this.x2 - this.activeStyle.margin.right - 4,
@@ -175,6 +170,8 @@ proc newProgressBar*(win:Window, label: string, width:int=20, showValue: bool = 
     result = new ProgressBar
     result.label=label
     result.showValue = showValue
+    result.runeBlock = "▓"
+    result.runeEmpty = " "
 
     result.visible = false
     result.disabled = false

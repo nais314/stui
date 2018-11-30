@@ -1,0 +1,46 @@
+[mark-positive]
+bgColor16 = "bgBlack"
+bgColor256 = "black"
+bgColorRGB = "black"
+fgColor16 = "fgWhite"
+fgColor256 = "green"
+fgColorRGB = "green"
+border = "none"
+
+[mark-negative]
+bgColor16 = "bgBlack"
+bgColor256 = "black"
+bgColorRGB = "black"
+fgColor16 = "fgBlue"
+fgColor256 = "slateblue"
+fgColorRGB = "slateblue"
+border = "none"
+
+[graph-positive]
+bgColor16 = "bgBlack"
+bgColor256 = "black"
+bgColorRGB = "black"
+fgColor16 = "fgGreen"
+fgColor256 = "lime"
+fgColorRGB = "lime"
+border = "none"
+
+[graph-negative]
+bgColor16 = "bgBlack"
+bgColor256 = "black"
+bgColorRGB = "black"
+fgColor16 = "fgCyan"
+fgColor256 = "dodgerblue"
+fgColorRGB = "dodgerblue"
+border = "none"
+
+
+[graph-selected]
+bgColor16 = "bgBlack"
+bgColor256 = "black"
+bgColorRGB = "black"
+fgColor16 = "fgYellow"
+fgColor256 = "orange"
+fgColorRGB = "orange"
+border = "none"
+

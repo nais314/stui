@@ -6,10 +6,10 @@ type ProgressBar* = ref object of Controll
     val*:int
     preval*:int # undo
 
-    size*:int # of input
+    #size*:int # of input
     showValue*:bool
 
-    runeBlock*, runeEmpty*:string
+    runeBlock*, runeEmpty*:string # what will be printed on screen
 
 
 
@@ -178,15 +178,11 @@ proc newProgressBar*(win:Window, label: string, width:int=20, showValue: bool = 
 
     result.width = width
     result.heigth = 2
-    result.styles = newTable[string, StyleSheetRef](8)
+    result.styles = newStyleSheets() #newTable[string, StyleSheetRef](8)
 
     var styleNormal: StyleSheetRef = new StyleSheetRef
     styleNormal.deepcopy win.app.styles["input:inverse"]
     result.styles.add("input",styleNormal)
-    #[ styleNormal.deepcopy win.app.styles["input"]
-    result.styles.add("input",styleNormal)
-    styleNormal.fgColor = styleNormal.bgColor
-    styleNormal.bgColor = win.app.styles["window"].bgColor ]#
    
     var styleFocused: StyleSheetRef = new StyleSheetRef
     styleFocused.deepcopy win.app.styles["input:focus"]

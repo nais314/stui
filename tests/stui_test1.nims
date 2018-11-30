@@ -5,6 +5,6 @@ switch("path", "$projectDir/../src")
 #--gc:boehm
 #--gc:v2
 #--threadanalysis:off
---debuginfo
---linedir:on
+#--debuginfo
+#--linedir:on
 --app:console

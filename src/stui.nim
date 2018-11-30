@@ -179,6 +179,7 @@ type
         disabled*:   bool # only copy, no events
 
         onClick*:     proc(this_elem: Controll, event: KMEvent):void
+        onDoubleClick*:     proc(this_elem: Controll, event: KMEvent):void
         onRelease*:   proc(this_elem: Controll, event: KMEvent):void
         onScroll*:    proc(this_elem: Controll, event: KMEvent):void
         onDrag*:      proc(this_elem: Controll, event: KMEvent):void # set style
@@ -324,6 +325,11 @@ proc del*[T](x: var seq[T], y: T) =
         if x[i] == y:
             x.del(i)
 
+proc is_odd*(x:int): bool = return if (x and 1) == 1: true else: false
+
+template is_even*(x:int): bool =
+    return not is_odd(x)
+
 #---------------------------------------------
 ###        ######  ######## ##    ## ##       ########
 ###       ##    ##    ##     ##  ##  ##       ##
@@ -363,7 +369,7 @@ proc resetColors*()=
 
 
 proc setForegroundColor*(app:App, style:StyleSheetRef)=
-    # should be in colors_extra, but that is more generic, and should be (?)
+    #? should be in colors_extra, but that is more generic, and should be (?)
     case app.colorMode:
         of 0,1:
             #colors_extra.setBackgroundColor(Color16(style.bgColor[app.colorMode]))
@@ -430,6 +436,32 @@ proc changeFGColor*(this: Controll, stylename: string, colors: StyleColor)=
 proc changeFGColor*(this: Controll, stylename: string, colorname: string) =
     for iCM in 0..3:
         this.styles[stylename].fgColor[iCM] = colors_extra.parseColor(colorname, iCM)
+
+
+proc swapFGBGColors*(style: StyleSheetRef)=
+    var styleBuffer: StyleSheetRef = new StyleSheetRef
+    
+    styleBuffer.deepcopy style
+
+    style.fgColor = style.bgColor
+
+    # 8colors mode needs special care
+    if style.fgColor[0] > 39: 
+        if style.fgColor[0] > 99: 
+            style.fgColor[0] -= (60 + 10)
+        else:
+            style.fgColor[0] -= 10
+
+    if style.fgColor[1] > 39: 
+        if style.fgColor[1] > 99: 
+            style.fgColor[1] -= (60 + 10)
+        else:
+            style.fgColor[1] -= 10
+
+    style.bgColor = styleBuffer.fgColor
+
+    style.bgColor[0] += 10 # simpler than fgColor :)
+    style.bgColor[1] += 10
 
 #---------------------------------------------
 
@@ -1038,7 +1070,7 @@ proc newApp*(): App =
 
 
 proc outerHeigth(this: Controll): int {.inline.} =
-    if this.heigth_value > 0: # relative heigth used
+    if this.heigth_value > 0: # relative heigth used (percent)
 
         if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
             this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) -
@@ -1131,7 +1163,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                 this.controlls[iC].tabStop = tabStop
                 page.controlls.add(this.controlls[iC])
                 tabStop += 1
-                availH -= this.controlls[iC].outerHeigth() #??????
+                availH -= this.controlls[iC].outerHeigth() #?????? can be useful -;)
             else: # if values for width, heigth added - by int or percentage:
                 # if relative width used:
                 if this.controlls[iC].width_value != 0: # 0 by default == look for heigth prop
@@ -1834,6 +1866,11 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
         if event.evType == "Release" :
             if not isNil(eventTarget.onRelease) :
                 eventTarget.onRelease(eventTarget, event)
+
+
+        if event.evType == "DoubleClick" :
+            if not isNil(eventTarget.onDoubleClick) :
+                eventTarget.onDoubleClick(eventTarget, event)                
 
         if event.evType == "Drag" and app.dragSource == nil #[ and app.activeControll != nil ]#:
             if app.activeControll != eventTarget: #! patch - if dragged controll is not the activecontroll

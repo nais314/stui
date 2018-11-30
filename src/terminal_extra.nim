@@ -77,13 +77,20 @@ proc enableCanon*()=
 proc setReversed*()=
     stdout.write "\e[7m"
 
-proc resetTerminal*() = 
-    ## Reset all terminal settings to default
-    stdout.write "\ec"
+proc setDimmed*()=
+    stdout.write "\e[2m"
+
+proc setUnderline*()=
+    stdout.write "\e[4m"
 
 proc resetStyle*()=
     ## Reset all attributes
     stdout.write "\e[0m"
+
+proc resetTerminal*() = 
+    ## Reset all terminal settings to default
+    stdout.write "\ec"
+
 
 proc clearScreen*()=
     ## Erases the screen with the background colour and moves the cursor to home.

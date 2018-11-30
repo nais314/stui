@@ -141,7 +141,7 @@ block LOOP:
             kmEvent = KMEvent(^kmloopFlowVar) # it stops here anyway...
 
             case kmEvent.evType:
-                of "Click","Release","Drag","Drop", "ScrollUp","ScrollDown":
+                of "Click","Release","Drag","Drop", "ScrollUp","ScrollDown", "DoubleClick":
                     app.mouseEventHandler(kmEvent)
 
 

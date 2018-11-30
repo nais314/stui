@@ -22,7 +22,7 @@ Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
 
 Please help the development with your feedback. :)
 
-News: DoubleClick enabled, LineGraph controll first alpha release =) 
+**News: DoubleClick enabled, LineGraph controll first alpha release =) **  
 
 
 It can Tile the screen vertically, 
@@ -106,11 +106,11 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
     Mouse:
         Wheel "Scrolls": Window->Page; TextArea, LineGraph
 
-![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)  
 ![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)  
 ![FileSelect](doc/FileSelect_Screenshot_2018-10-20_13-35-40.png)  
 ![LineGraph1](doc/LineGraph1.png)  
 ![LineGraph2](doc/LineGraph2.png)
+![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)  
 
 
   [on colors](doc/Colors.md)  

@@ -20,9 +20,9 @@ Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
 
 ![Screenshot_stui_test1.nim](doc/Screenshot_2018-10-03_15-23-40.png)
 
-Please help the development with your feedback. :)
+Please help the development with your feedback. :)  
 
-**News: DoubleClick enabled, LineGraph controll first alpha release =) **  
+**News: DoubleClick enabled, LineGraph controll first alpha release =)**  
 
 
 It can Tile the screen vertically, 

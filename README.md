@@ -88,7 +88,8 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 * ui_togglebutton: on or off :)
 * ui_shdbutton: button with drop shadow - just like in the good old times...
 * **ui_fileselect (beta): <NEW><DEVEL>** well it is also a sandbox for testing Controll reusability and combined controlls
-* **ui_linegraph (alpha): <NEW><DEVEL>** a "bargraph", paging, scrolling works, **TODO: make GENERIC...HELP**  
+* **ui_linegraph (alpha): <NEW><DEVEL>** a "bargraph", paging, scrolling works, **TODO: make GENERIC...HELP**
+ok...maybe ui_linegraph is a little bit complicated, maybe i will fork a quick&dirty version from it
 
 **Demo / test file is stui_test1.nim**
 

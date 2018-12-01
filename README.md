@@ -76,6 +76,8 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 **App template: template_simpleapp.nim**
 
 **Dependency: like Deja-Vu TTF - a font with large unicode character set**
+![nerd fonts](https://github.com/ryanoasis/nerd-fonts/wiki)
+
 
 * ui_textbox: text input, 1 line heigh
 * ui_button: .

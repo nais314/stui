@@ -807,6 +807,8 @@ for i in 1 .. lg3MaxItems:
         discard FloatDataset2D(lg3.dataset).add(($i,rand(100).float))
         #discard FloatDataset2D(lg1.dataset).add(($i,i.float)) ]#
 
+
+#...........................
 proc lg3sim(lg3Ptr: ptr) {.gcsafe.} =
     # lot of work because add is not gcsafe !?
     #discard FloatDataset2D(lg3.dataset).add(("added from thread", 25.float))
@@ -828,6 +830,13 @@ proc lg3sim(lg3Ptr: ptr) {.gcsafe.} =
 
 let lg3Ptr: ptr = addr lg3
 spawn lg3sim(addr lg3)
+#..........................
+
+lg3.activeStyle.fgColor[0] = colors_extra.parseColor("fgGreen",1)
+lg3.activeStyle.fgColor[1] = colors_extra.parseColor("fgGreen",1)
+lg3.activeStyle.fgColor[2] = colors_extra.parseColor("lime",2)
+lg3.activeStyle.fgColor[3] = colors_extra.parseColor("lime",3)
+lg3.activeStyle.setTextStyle("styleBright")
 
 ################################################################################
 ################################################################################

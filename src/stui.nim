@@ -1604,7 +1604,7 @@ proc initTerminal*(app:App)=
     echo "\e[?1002h\e[?1006h" # mouse enable + mode
     echo "\e%G" # ? set UTF8
     echo "\e[?7l" # dont wrap
-    switchToAlternateBuffer()
+    switchToAlternateBuffer() ##### COMMENT ME FOR BETTER DEBUGGING ######################
     enableCanon()
     hideCursor()
 

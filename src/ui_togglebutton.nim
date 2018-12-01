@@ -79,7 +79,7 @@ proc draw*(this: ToggleButton, updateOnly: bool = false)=
                 this.paddingH = (this.width - this.label.runeLen) div 2
                 stdout.write(" " * this.paddingH)
                 stdout.write(this.label)
-                stdout.write(" " * this.paddingH)#(this.width - this.label.runeLen - (this.paddingH * 2)) )
+                stdout.write(" " * (this.width - this.label.runeLen - this.paddingH))#(this.width - this.label.runeLen - (this.paddingH * 2)) )
             else: # exactly:
                 terminal_extra.setCursorPos(this.leftX, cLine )
                 stdout.write(" " * this.paddingH)

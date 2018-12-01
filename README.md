@@ -24,6 +24,8 @@ Please help the development with your feedback. :)
 
 **News: DoubleClick enabled, LineGraph controll first alpha release =)**
 
+**Future changes: enable Style inheritance; testing for isNil may replaced with dummy procs for GC safety**
+
 
 It can Tile the screen vertically, 
 Tiles can have relative "50%" or exact "100ch" width.
@@ -83,10 +85,10 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 * ui_progressbar
 * ui_fineprogressbar: uses unicode block characters; can be colored by level (normal, warn, err)
 * ui_selectbox: (multi) selectbox - it is a combined controll
-* **ui_fileselect: <NEW><DEVEL>** well it is also a sandbox for testing Controll reusability and combined controlls
 * ui_togglebutton: on or off :)
 * ui_shdbutton: button with drop shadow - just like in the good old times...
-* **ui_linegraph: <NEW><DEVEL>** a "bargraph", paging, scrolling works, **TODO: scaling**  
+* **ui_fileselect (beta): <NEW><DEVEL>** well it is also a sandbox for testing Controll reusability and combined controlls
+* **ui_linegraph (alpha): <NEW><DEVEL>** a "bargraph", paging, scrolling works, **TODO: make GENERIC...HELP**  
 
 **Demo / test file is stui_test1.nim**
 

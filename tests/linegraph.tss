@@ -12,8 +12,8 @@ bgColor16 = "bgBlack"
 bgColor256 = "black"
 bgColorRGB = "black"
 fgColor16 = "fgBlue"
-fgColor256 = "slateblue"
-fgColorRGB = "slateblue"
+fgColor256 = "royalblue"
+fgColorRGB = "royalblue"
 border = "none"
 
 [graph-positive]

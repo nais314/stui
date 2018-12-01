@@ -108,7 +108,7 @@ proc draw*(this: ToggleButton, updateOnly: bool = false)=
 
             stdout.write(" " * this.paddingH)
             stdout.write(this.label)
-            stdout.write(" " * this.paddingH)#(this.width - this.label.runeLen - (this.paddingH * 2)) )
+            stdout.write(" " * (this.width - this.label.runeLen - this.paddingH))#(this.width - this.label.runeLen - (this.paddingH * 2)) )
 
         #this.app.parkCursor()
         this.app.setCursorPos()

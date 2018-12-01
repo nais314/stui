@@ -96,6 +96,28 @@ type LineGraph* = ref object of Controll
 
 
 
+import parsecfg
+proc loadStylesFromFile(this: LineGraph, filename: string) =
+    var
+        lineGraphTss = loadConfig(filename)
+    
+    this.styles.del("mark:positive")
+    this.styles.del("mark:negative")
+    this.styles.del("graph:positive")
+    this.styles.del("graph:negative")
+    this.styles.del("graph:selected")
+
+    this.styles.add("mark:positive", styleSheetRef_fromConfig(lineGraphTss,"mark-positive"))
+    this.styles.add("mark:negative", styleSheetRef_fromConfig(lineGraphTss,"mark-negative"))
+    this.styles.add("graph:positive", styleSheetRef_fromConfig(lineGraphTss,"graph-positive"))
+    this.styles.add("graph:negative", styleSheetRef_fromConfig(lineGraphTss,"graph-negative"))
+    this.styles.add("graph:selected", styleSheetRef_fromConfig(lineGraphTss,"graph-selected"))
+    
+
+
+
+
+
 
 ####      ########  ########     ###    ##      ## 
 ####      ##     ## ##     ##   ## ##   ##  ##  ## 
@@ -669,47 +691,52 @@ proc scaleDown(this: LineGraph) =
 proc onClick(this_elem: Controll, event: KMEvent) =
     let this = LineGraph(this_elem)
 
-    #"◀ 1/99▶ ▲  1X▼"
-    if event.y == this.scaleControllsY:
-        if event.x == this.leftX: # >:) maybe a good idea?
-            if this.rightReading: 
-                onPgUp(this)
-            else: 
-                onPgDown(this)
-        elif event.x == this.leftX + 6:
-            if this.rightReading: 
-                onPgDown(this)
-            else:
-                onPgUp(this)
-        elif event.x == this.leftX + 8: scaleDown(this)
-        elif event.x == this.leftX + 13: scaleUp(this)
-
-    #if a bar clicked .................................
-    if event.y < this.scaleControllsY and
-        event.x >= this.rightX - this.graphWidth:
-            if this.scale == 1:
-                if this.rightReading:
-                    this.dataSet.selected = this.offset + (this.rightX - event.x)
+    if event.btn == 0:
+        #"◀ 1/99▶ ▲  1X▼"
+        if event.y == this.scaleControllsY:
+            if event.x == this.leftX: # >:) maybe a good idea?
+                if this.rightReading: 
+                    onPgUp(this)
+                else: 
+                    onPgDown(this)
+            elif event.x == this.leftX + 6:
+                if this.rightReading: 
+                    onPgDown(this)
                 else:
-                    this.dataSet.selected = this.offset + (event.x - (this.leftX + this.markLen + 1))
-                
-                if this.dataSet.selected > FloatDataset2D(this.dataSet).values.high:
-                    this.dataSet.selected = FloatDataset2D(this.dataSet).values.high
-                this.draw(false)
-            else:
-                if this.rightReading:
-                    this.dataSet.selected = this.offset + 
-                        ((this.rightX - event.x) * this.scale)
+                    onPgUp(this)
+            elif event.x == this.leftX + 8: scaleDown(this)
+            elif event.x == this.leftX + 13: scaleUp(this)
+
+        #if a bar clicked .................................
+        if event.y < this.scaleControllsY and
+            event.x >= this.rightX - this.graphWidth:
+                if this.scale == 1:
+                    if this.rightReading:
+                        this.dataSet.selected = this.offset + (this.rightX - event.x)
+                    else:
+                        this.dataSet.selected = this.offset + (event.x - (this.leftX + this.markLen + 1))
+                    
+                    if this.dataSet.selected > FloatDataset2D(this.dataSet).values.high:
+                        this.dataSet.selected = FloatDataset2D(this.dataSet).values.high
+                    this.draw(false)
                 else:
-                    this.dataSet.selected = this.offset + 
-                        ((event.x - (this.leftX + this.markLen + 1)) * this.scale)
+                    if this.rightReading:
+                        this.dataSet.selected = this.offset + 
+                            ((this.rightX - event.x) * this.scale)
+                    else:
+                        this.dataSet.selected = this.offset + 
+                            ((event.x - (this.leftX + this.markLen + 1)) * this.scale)
 
-                if this.dataSet.selected > FloatDataset2D(this.dataSet).values.high:
-                    #echo this.dataSet.selected, " ", this.offset, ",", event.x
-                    this.dataSet.selected = FloatDataset2D(this.dataSet).values.high - this.scale
+                    if this.dataSet.selected > FloatDataset2D(this.dataSet).values.high:
+                        #echo this.dataSet.selected, " ", this.offset, ",", event.x
+                        this.dataSet.selected = FloatDataset2D(this.dataSet).values.high - this.scale
 
-                this.draw(false)
-        
+                    this.draw(false)
+
+    elif event.btn == 2: # right click
+        ## maximize
+        discard
+            
 
 
 ####      ######   ######  ########   #######  ##       ##       

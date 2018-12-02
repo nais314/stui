@@ -9,7 +9,7 @@ import sequtils
 
 ## on fileselect:
 ##    its displayed liker the selectbox,
-##    
+##
 ##    when clicked on, it shows a new window
 ##    with Controlls (TextBox, Menu, Button)
 ##
@@ -22,8 +22,8 @@ import sequtils
 
 # %userprofile%
 
-type 
-    
+type
+
     FileSelect* = ref object of Controll
         ## uses ui_textbox, ui_menu.inlineMenu
         ## triggers "change" on blur or chooser change
@@ -33,14 +33,14 @@ type
         path*,filename*:string
         #options*: OptionListRef # seq[ tuple[name, value:string, selected:bool]  ]
         preval*:  tuple[val, path, filename: string] # well... #string # undo
-        
+
         #multiSelect:bool # an advanced table/tree controll will be used instead
 
         #width*:int # of input
-        
+
         offset_h*:int
         #cursor_pos*:int
-        
+
 
 #[ proc `value=`*(this: FileSelect, str:string) =
     this.val = str
@@ -51,7 +51,7 @@ proc draw*(this: FileSelect, updateOnly: bool = false) #FWD
 
 
 proc `value`*(this:FileSelect): string =
-    ## returns /path/filename string 
+    ## returns /path/filename string
     return this.val
 
 proc `value=`*(this:FileSelect, val:string) =
@@ -84,7 +84,7 @@ proc basename*(file: string): string =
 proc filename*(file: string): string =
     if file.rfind(DirSep) == -1 :
         result = file
-    else:    
+    else:
         result = file.substr(file.rfind(DirSep) + 1) # +1 DirSep
 
 #[ proc prevDir*(path:string): string {.inline.} =
@@ -115,7 +115,7 @@ proc draw*(this: FileSelect, updateOnly: bool = false) =
             stdout.write this.label
 
             # draw border
-            drawBorder(this.activeStyle.border, 
+            drawBorder(this.activeStyle.border,
                        this.x1 + this.activeStyle.margin.left,
                        this.y1 + this.activeStyle.margin.top + 1 #[ +1 label]#,
                        this.x2 - this.activeStyle.margin.right,
@@ -124,7 +124,7 @@ proc draw*(this: FileSelect, updateOnly: bool = false) =
             #...
 
         setColors(this.app, this.activeStyle[])
-        terminal_extra.setCursorPos(this.leftX(), 
+        terminal_extra.setCursorPos(this.leftX(),
                               this.bottomY())
 
         let btnLen = 3
@@ -172,7 +172,7 @@ proc cancel(this: Controll)=
 
 #-------------------------------------------------------------------------------
 
-    
+
 
 proc fileMenuRecalc(this:Controll)=
 
@@ -204,18 +204,18 @@ proc fsNodeLoader(cwd:string, menuNode:MenuNode )=
             #echo path
             # todo if path == /
 
-            case kind : 
-                of PathComponent.pcFile: 
+            case kind :
+                of PathComponent.pcFile:
                     var nCh = fileNodes.addChild(" " & filename(path), filename(path), nil)
                     nCh.customType = int(PathComponent.pcFile)
 
-                of PathComponent.pcLinkToFile: 
+                of PathComponent.pcLinkToFile:
                     var nCh =  fileNodes.addChild("↦" & filename(path), filename(path), nil) # ^
                     nCh.customType = int(PathComponent.pcLinkToFile)
-                of PathComponent.pcDir: 
+                of PathComponent.pcDir:
                     var nCh =  dirNodes.addChild("├" & filename(path) & DirSep, filename(path), nil) # "\\"
                     nCh.customType = int(PathComponent.pcDir)
-                of PathComponent.pcLinkToDir: 
+                of PathComponent.pcLinkToDir:
                     var nCh =  dirNodes.addChild("⇒" & filename(path), filename(path), nil)
                     nCh.customType = int(PathComponent.pcLinkToDir)
 
@@ -234,11 +234,11 @@ proc fsNodeLoader(cwd:string, menuNode:MenuNode )=
         for nC in menuNode.childs:
             nC.parent = menuNode
 
-        #if menuNode.childs.len == 0 : echo "--\n--ERR\n--ERR\n", cwd 
+        #if menuNode.childs.len == 0 : echo "--\n--ERR\n--ERR\n", cwd
 
 
 proc childLoader(menu: Menu, menuNode: MenuNode) =
-    
+
     let fs = FileSelect(menu.prevActiveControll)
     #withLock menu.app.termlock : echo "childLoader", fs.path, "\n"
 
@@ -261,7 +261,7 @@ proc childLoader(menu: Menu, menuNode: MenuNode) =
         else:
             menu.currentNode = menu.currentNode.parent
 
-        TextBox(fs.app.activeWindow.controlls[0]).value= fs.path 
+        TextBox(fs.app.activeWindow.controlls[0]).value= fs.path
         TextBox(fs.app.activeWindow.controlls[2]).value= ""
         fs.filename = ""
 
@@ -276,7 +276,7 @@ proc childLoader(menu: Menu, menuNode: MenuNode) =
         TextBox(fs.app.activeWindow.controlls[0]).value= fs.path
         TextBox(fs.app.activeWindow.controlls[2]).value= ""
         fs.filename = ""
-        
+
         #echo fs.path, "\n"
 
 
@@ -342,7 +342,7 @@ proc onClick(this:Controll, event:KMEvent)=
 
     if not this.disabled:
         let fs = FileSelect(this)
-        
+
         if event.btn > 0: # clear, reset
             fs.val = ""
             fs.preval = ("","","")
@@ -360,18 +360,18 @@ proc onClick(this:Controll, event:KMEvent)=
             var parentWin = fs.app.activeWindow
             var win = fs.app.activeTile.newWindow()
             var page = win.newPage()
-            
+
             win.x1 = parentWin.x1
             win.y1 = parentWin.y1 + 1 # +1 cascade
             win.x2 = parentWin.x2
             win.y2 = parentWin.y2
             win.width = parentWin.width # win.x2 - win.x1
             win.heigth = win.y2 - win.y1
-            
+
 
             var styleNormal: StyleSheetRef = new StyleSheetRef
             styleNormal.deepcopy win.app.styles["dock"]
-            win.styles["window"] = styleNormal    
+            win.styles["window"] = styleNormal
             win.activeStyle = win.styles["window"]
 
             win.label = fs.label
@@ -402,13 +402,13 @@ proc onClick(this:Controll, event:KMEvent)=
             filenameTB.value = fs.filename
             filenameTB.preval = fs.filename
 
-            
+
             let cancelBtn = win.newButton("cancel", paddingH = 1)
             cancelBtn.setMargin("left", 2)
             addEventListener(Controll(cancelBtn), "click", cancelClick)
 
             discard win.newColumnBreak()
-            
+
             let okBtn = win.newButton("OK", paddingH = 2)
             okBtn.setMargin("left", 2)
             Controll(okBtn).addEventListener("click", commit)
@@ -464,15 +464,15 @@ proc newFileSelect*(win:Window, label: string, width:int=20): FileSelect =
     var styleNormal: StyleSheetRef = new StyleSheetRef
     styleNormal.deepcopy win.app.styles["input"]
     styleNormal.border="none"
-    result.styles.add("input",styleNormal)    
+    result.styles.add("input",styleNormal)
     result.activeStyle = result.styles["input"]
-    
+
     result.app = win.app
     result.win = win
 
     result.listeners = @[]
     result.addEventListener("change", fileSelectOnChange)
-  
+
     var styleFocused: StyleSheetRef = new StyleSheetRef
     styleFocused.deepcopy win.app.styles["input:focus"]
     result.styles.add("input:focus",styleFocused)
@@ -496,7 +496,7 @@ proc newFileSelect*(win:Window, label: string, width:int=20): FileSelect =
 
     result.path = getEnv("HOME") #InitialDir # todo new....
 
-    
+
     win.controlls.add(result)
 
 

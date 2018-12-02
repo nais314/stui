@@ -74,28 +74,28 @@ proc enableCanon*()=
     discard fd.tcsetattr(TCSANOW, cur.addr)
 
 
-proc setReversed*()=
+proc setReversed*(){.inline.}=
     stdout.write "\e[7m"
 
-proc setDimmed*()=
+proc setDimmed*(){.inline.}=
     stdout.write "\e[2m"
 
-proc setUnderline*()=
+proc setUnderline*(){.inline.}=
     stdout.write "\e[4m"
 
-proc resetStyle*()=
+proc resetStyle*(){.inline.}=
     ## Reset all attributes
     stdout.write "\e[0m"
 
-proc resetTerminal*() = 
+proc resetTerminal*() {.inline.}= 
     ## Reset all terminal settings to default
     stdout.write "\ec"
 
 
-proc clearScreen*()=
+proc clearScreen*(){.inline.}=
     ## Erases the screen with the background colour and moves the cursor to home.
     stdout.write "\e[2J"
 
-proc cursorForward*(n:int=1)=
+proc cursorForward*(n:int=1){.inline.}=
     ## Move Cursor to the right with n characters
     stdout.write "\e[" & $n & "C"

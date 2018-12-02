@@ -32,6 +32,7 @@ activeStyle: from the controlls styles the currently active one - for draw
   
     than stui.nim mouseEventHandler:  
         eventTarget.onClick(eventTarget, event)  
+        eventTarget.onDoubleClick(eventTarget, event)  
         eventTarget.onScroll(eventTarget, event)  
         app.dragSource.onDrag(eventTarget, event)  
         eventTarget.onDrop(eventTarget, event)  
@@ -43,4 +44,4 @@ activeStyle: from the controlls styles the currently active one - for draw
 
 **Window**
 
-"menu" event fired when clicked on titlebar menu button
+"menu" event triggered when clicked on titlebar menu button

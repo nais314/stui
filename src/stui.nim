@@ -20,7 +20,7 @@
 ]#
 
 #[
-    Requires: Deja-Vu or other Font with good range of unicode character support
+    Requires: Deja-Vu or other Font with good range of unicode character support (nerd fonts?)
 ]#
 
 #[
@@ -364,8 +364,9 @@ template is_even*(x:int): bool =
         result = 3
  ]#
 
+#[ #! DEPRECATED
 proc resetColors*()=
-    stdout.write "\e[0m"
+    stdout.write "\e[0m" ]#
 
 
 proc setForegroundColor*(app:App, style:StyleSheetRef)=
@@ -440,20 +441,20 @@ proc changeFGColor*(this: Controll, stylename: string, colorname: string) =
 
 proc swapFGBGColors*(style: StyleSheetRef)=
     var styleBuffer: StyleSheetRef = new StyleSheetRef
-    
+
     styleBuffer.deepcopy style
 
     style.fgColor = style.bgColor
 
     # 8colors mode needs special care
-    if style.fgColor[0] > 39: 
-        if style.fgColor[0] > 99: 
+    if style.fgColor[0] > 39:
+        if style.fgColor[0] > 99:
             style.fgColor[0] -= (60 + 10)
         else:
             style.fgColor[0] -= 10
 
-    if style.fgColor[1] > 39: 
-        if style.fgColor[1] > 99: 
+    if style.fgColor[1] > 39:
+        if style.fgColor[1] > 99:
             style.fgColor[1] -= (60 + 10)
         else:
             style.fgColor[1] -= 10
@@ -1073,14 +1074,32 @@ proc outerHeigth(this: Controll): int {.inline.} =
     if this.heigth_value > 0: # relative heigth used (percent)
 
         if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
-            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) -
-                this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2
+            if this.heigth_value == 100:
+                this.heigth = this.win.heigth - 1 -
+                    this.win.activeStyle.padding.top -
+                    this.win.activeStyle.padding.bottom -
+                    this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2 # 2->border
+            else:
+                this.heigth = int(((this.win.heigth - 1 -
+                    this.win.activeStyle.padding.top -
+                    this.win.activeStyle.padding.bottom).float / 100.0) *   this.heigth_value.float) -
+                    this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2 # 2->border
 
         else: # no border
-            this.heigth = int((this.win.heigth.float / 100.0) * this.heigth_value.float) -
-                this.activeStyle.margin.top - this.activeStyle.margin.bottom
+            if this.heigth_value == 100:
+                this.heigth = this.win.heigth - 1 -
+                    this.win.activeStyle.padding.top -
+                    this.win.activeStyle.padding.bottom -
+                    this.activeStyle.margin.top - this.activeStyle.margin.bottom
+            else:
+                this.heigth = int(((this.win.heigth - 1 - 
+                    this.win.activeStyle.padding.top -
+                    this.win.activeStyle.padding.bottom).float / 100.0) *   this.heigth_value.float) -
+                    this.activeStyle.margin.top - this.activeStyle.margin.bottom
 
-        return this.heigth + 1 #int((this.win.heigth.float / 100.0) * this.heigth_value.float)
+        return this.heigth +
+            this.activeStyle.margin.top +
+            this.activeStyle.margin.bottom
 
     else:
         if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
@@ -1121,7 +1140,8 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
         # others change maxX - the starter column
         #TODO maxAvailH
         if maxAvailH == 0:
-            result = this.heigth - this.activeStyle.padding.top
+            result = this.heigth - this.activeStyle.padding.top -
+                this.activeStyle.padding.bottom
         else:
             result = maxAvailH #this.heigth - this.activeStyle.padding.top - (maxAvailH - this.y1)
 
@@ -1132,6 +1152,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
         maxAvailH = 0
         availH = calcAvailH()
         tabStop = 0
+
 
     proc newColumn()=
         xC = maxX + 1 # +1: next column, not the x2 of this controll!
@@ -1172,7 +1193,9 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                         this.controlls[iC].width = (this.width) -
                             (this.controlls[iC].activeStyle.margin.left +
                             this.controlls[iC].activeStyle.margin.right +
-                            this.controlls[iC].borderWidth() * 2) - 1
+                            this.controlls[iC].borderWidth() * 2) -
+                            this.activeStyle.padding.left -
+                            this.activeStyle.padding.right
 
                     else:
                         this.controlls[iC].width = int((this.width.float / 100) *
@@ -1195,7 +1218,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                     this.controlls[iC].activeStyle.margin.left +
                     this.controlls[iC].activeStyle.margin.right #!X2
 
-                if this.controlls[iC].outerHeigth() >= availH  or this.controlls[iC].x2 > this.x2:
+                if this.controlls[iC].outerHeigth() >= availH or this.controlls[iC].x2 > this.x2:
                     # if room on the right: new column
                     if maxX + 1 + this.controlls[iC].width +
                         this.controlls[iC].activeStyle.margin.left +
@@ -1207,6 +1230,8 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                         availH = calcAvailH()
                     else: # new page
                         newPage()
+                        #[ echo "NEWPAGE: ", this.controlls[iC].outerHeigth(), " vs ", $(availH )
+                        discard stdin.readLine() ]#
 
                         this.controlls[iC].x2 = xC + (this.controlls[iC].width - 1) +
                             (this.controlls[iC].borderWidth() * 2) +
@@ -1214,8 +1239,8 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                             this.controlls[iC].activeStyle.margin.right #!X2
 
                         # todo: rethink error MSG
-                        if this.controlls[iC].outerHeigth() >= availH + 1 or this.controlls[iC].x2 > this.x2:
-                            echo "ERR Controll cannot be placed on screen!"
+                        if this.controlls[iC].outerHeigth() > availH or this.controlls[iC].x2 > this.x2:
+                            echo "ERR Controll cannot be placed on screen! PRESS ENTER! ", this.controlls[iC].outerHeigth(), " vs ", $(availH + 1)
                             discard stdin.readLine()
                             continue
                 #...............................................................
@@ -1870,7 +1895,7 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
 
         if event.evType == "DoubleClick" :
             if not isNil(eventTarget.onDoubleClick) :
-                eventTarget.onDoubleClick(eventTarget, event)                
+                eventTarget.onDoubleClick(eventTarget, event)
 
         if event.evType == "Drag" and app.dragSource == nil #[ and app.activeControll != nil ]#:
             if app.activeControll != eventTarget: #! patch - if dragged controll is not the activecontroll

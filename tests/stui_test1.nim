@@ -762,6 +762,8 @@ let lg2 = newLineGraph( win = app.activeWindow,
                         showScale = true, 
                         showDetail = true, 
                         dataType = 'f',
+                        fullLineRune = "█", # █
+                        halfLineRune = "▄", # ▄
                         floatPrecision = 2,
                         rightReading = false)
 

@@ -1,6 +1,6 @@
 import uiext_maximize
 include "controll.inc.nim"
-import math
+import math, typetraits
 
 # todo:
 
@@ -19,66 +19,59 @@ const
     ScalerWidth = 14
 
 type
-    Dataset2D = ref object of RootObj
+    Dataset2D*[T] = ref object of RootObj
         selected*:int
         maxItems*:int
+        values*: seq[tuple[name:string, value:T]] #name for visuals,detail,, like date, time
+        maxValue*, minValue*: T # todo proc add
+        conditionalStyler*: proc (this: Dataset2D[T], val: T)
+        lock*: Lock
 
 
-    IntDataset2D* = ref object of Dataset2D
-        values*: seq[tuple[name:string, value:int]] #name for visuals,detail,, like date, time
-        maxValue*, minValue*: int # todo proc add
-        conditionalStyler*: proc (this: IntDataset2D, val: int)
-
-    FloatDataset2D* = ref object of Dataset2D
-        values*: seq[tuple[name:string, value:float]] #name for visuals,detail,, like date, time
-        maxValue*, minValue*: float # todo proc add
-        conditionalStyler*: proc (this: FloatDataset2D, val: float)
+# todo? add time to values? or either time or name?
+proc dummy_conditionalStyler_F(this: Dataset2D[float], val: float) = discard
+proc dummy_conditionalStyler_I(this: Dataset2D[int], val: int) = discard
+proc dummy_conditionalStyler[T](this: Dataset2D[T], val: T) = discard
 
 
-    # todo? add time to values? or either time or name?
-proc dummy_conditionalStyler_F(this: FloatDataset2D, val: float) = discard
-proc dummy_conditionalStyler_I(this: IntDataset2D, val: int) = discard
+proc `[]`*[T](dataset:Dataset2D[T], i: Natural): T =
+    dataset.values[i].value
 
-
-proc `[]`*(dataset:FloatDataset2D, i: Natural): float =
-    return dataset.values[i].value
-
-proc selected*(dataset:FloatDataset2D): tuple[name:string, value:float] =
+proc selected*[T](dataset:Dataset2D[T]): tuple[name:string, value:T] =
     return dataset.values[dataset.selected]
 
-proc high*(dataset:Dataset2D): int =
-    if dataset of IntDataset2D:
-        return IntDataset2D(dataset).values.high
-    else:
-        return FloatDataset2D(dataset).values.high
+proc high*[T](dataset:Dataset2D[T]): int =
+    dataset.values.high
 
 
-proc add*(this: FloatDataset2D, val: tuple[name:string, value:float] ): bool = # bool is a hassle, but maybe in the future..ahhh =)
-    this.values.add(val)
-    if this.maxValue < val.value : this.maxValue = val.value
-    if this.minValue > val.value : this.minValue = val.value
 
-    if this.selected == this.values.high - 1 :
-        this.selected = this.values.high #? =)
-        #visuals:
-        #scroll linegraph like perfmon
+proc add*[T](this: Dataset2D[T], val: tuple[name:string, value:T] ): bool = #? bool for Future
+    withLock this.lock:
+        this.values.add(val)
+        if this.maxValue < val.value : this.maxValue = val.value
+        if this.minValue > val.value : this.minValue = val.value
 
-    if this.maxItems < this.values.len and this.maxItems > 0: this.values.delete(0)
+        if this.selected == this.values.high - 1 : this.selected = this.values.high #? =) lock on last item, END, rightReading
+        if this.selected == 1 : this.selected = 0 # lock on HOME - leftReading
+
+        if this.maxItems < this.values.len and this.maxItems > 0: 
+            this.values.delete(0)
+            if this.selected != 0 and this.selected != this.values.high: this.selected -= 1 # lock on selected
 
 
-type LineGraph* = ref object of MaximizableControll
+type LineGraph*[T] = ref object of MaximizableControll
     offset*:int # num-lines scrolled
     cursor_pos*:int
     scale*: int # zoom-zoom
 
     showMarks*, showScale*, showDetail*:bool #for draw
     marklen*:int # if showMarks, the length of marks
-    scaleControllsY: int # to handle onclicks 'faster' ◀ 1/99▶┈▲1X▼
+    scaleControllsY*: int # to handle onclicks 'faster' ◀ 1/99▶┈▲1X▼
     lockOnNew*:bool # always show last item, no scroll, doubleclick to change
 
     rightReading*:bool
 
-    dataSet*: Dataset2D
+    dataSet*: Dataset2D[T]
     floatPrecision*: int # number of decimal places for display
     yLineHeigth*: float
 
@@ -88,6 +81,7 @@ type LineGraph* = ref object of MaximizableControll
     posGraphHeigth*, negGraphHeigth*: int # store to speed up redraw
 
     tickMarkRune* : string # = "├"
+    tickLineRune* : string # ┈
     fullLineRune* : string #= "┃"
     halfLineRune* : string #= "╻"
     negativeFullLineRune* : string
@@ -129,446 +123,484 @@ proc loadStylesFromFile(this: LineGraph, filename: string) =
 ####      ########  ##     ## ##     ##  ###  ###
 
 
-proc drawFromOffset_floatDataset(this: LineGraph, updateOnly: bool = false)=
+proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false)=
     ## offset is independent of zoom/scale
     ## but must be dividable by zoom/scale
 
-    block MAIN:
-        var minMaxProportion: float
+    block MAIN: # DEPRECATED block for break
+        withLock this.dataSet.lock:
 
-        #block RECALC:
-        #if this.graphHeigth == 0 or this.graphHeigth != this.prevGraphHeigth : #cache
-        if updateOnly == false:
-            #block RECALC:
+            if updateOnly == false:
 
-            this.prevGraphHeigth = this.graphHeigth #!
+                this.prevGraphHeigth = this.graphHeigth #!
 
-            # calc number of lines for positive and negative side
+                # calc number of lines for positive and negative side
+                if this.graphHeigth == 1:
+                    discard #todo
+                else:
+
+                    this.yLineHeigth = (this.dataSet.maxValue.float + abs(this.dataSet.minValue.float)) / this.graphHeigth.float
+
+                    if this.yLineHeigth == 0: break MAIN #todo
+
+                    this.posGraphHeigth = int(ceil(this.dataSet.maxValue.float / this.yLineHeigth))
+                    this.negGraphHeigth = int(ceil(abs(this.dataSet.minValue).float / this.yLineHeigth))
+
+                    # make sure we fit into the area...:
+                    while this.posGraphHeigth + this.negGraphHeigth > this.graphHeigth:
+                        this.yLineHeigth = this.yLineHeigth * 1.05 #? 1.05 ?
+                        this.posGraphHeigth = int(ceil(this.dataSet.maxValue.float / this.yLineHeigth))
+                        this.negGraphHeigth = int(ceil(abs(this.dataSet.minValue).float / this.yLineHeigth))
+
+
+
+
+            # MARKS
+
+            #    #   ##   #####  #    #  ####  
+            ##  ##  #  #  #    # #   #  #      
+            # ## # #    # #    # ####    ####  
+            #    # ###### #####  #  #        # 
+            #    # #    # #   #  #   #  #    # 
+            #    # #    # #    # #    #  ####  
+
             if this.graphHeigth == 1:
+                ## no room for negative values.. or maybe there is... ╵│
                 discard #todo
             else:
-                #[ minMaxProportion = FloatDataset2D(this.dataSet).maxValue / abs(FloatDataset2D(this.dataSet).minValue) ]#
+                #terminal_extra.setCursorPos(this.leftX, cline)
 
-                this.yLineHeigth = (FloatDataset2D(this.dataSet).maxValue + abs(FloatDataset2D(this.dataSet).minValue)) / this.graphHeigth.float
-
-                if this.yLineHeigth == 0: break MAIN #todo
-
-                this.posGraphHeigth = int(ceil(FloatDataset2D(this.dataSet).maxValue / this.yLineHeigth))
-                this.negGraphHeigth = int(ceil(abs(FloatDataset2D(this.dataSet).minValue) / this.yLineHeigth))
-
-                # make sure we fit into the area...:
-                while this.posGraphHeigth + this.negGraphHeigth > this.graphHeigth:
-                    this.yLineHeigth = this.yLineHeigth * 1.05 #? 1.05 ?
-                    this.posGraphHeigth = int(ceil(FloatDataset2D(this.dataSet).maxValue / this.yLineHeigth))
-                    this.negGraphHeigth = int(ceil(abs(FloatDataset2D(this.dataSet).minValue) / this.yLineHeigth))
-
-
-
-
-        # MARKS
-        #var markLen: int
-
-        if this.graphHeigth == 1:
-            ## no room for negative values.. or maybe there is... ╵│
-            discard #todo
-        else:
-            #terminal_extra.setCursorPos(this.leftX, cline)
-
-            var dataset: FloatDataset2D = FloatDataset2D(this.dataSet)
-
-            # what is the widest mark?
-            if dataset.maxValue.formatFloat(ffDecimal, this.floatPrecision).len >
-                dataset.minValue.formatFloat(ffDecimal, this.floatPrecision).len:
-                    this.marklen = dataset.maxValue.formatFloat(ffDecimal, this.floatPrecision).len
-            else:
-                this.marklen = dataset.minValue.formatFloat(ffDecimal, this.floatPrecision).len
-
-            #!
-            this.graphWidth = if this.showMarks: this.width - (this.marklen + 1) else: this.width
-            this.prevGraphWidth  = this.graphWidth #!
-
-
-            var cline = (this.topY + 1) + this.posGraphHeigth#!
-
-            if this.showMarks and this.width > 4: #? 4?
-                #positive...........................
-                #style:
-                if this.styles.hasKey("mark:positive"):
-                    setColors(this.app, this.styles["mark:positive"])
+                # what is the widest mark?
+                if this.dataSet.maxValue.float.formatFloat(ffDecimal, this.floatPrecision).len >
+                    this.dataSet.minValue.float.formatFloat(ffDecimal, this.floatPrecision).len:
+                        this.marklen = this.dataSet.maxValue.float.formatFloat(ffDecimal, this.floatPrecision).len
                 else:
-                    terminal_extra.setDimmed()
-                #draw:
-                for li in 1 .. this.posGraphHeigth :
-                    cline -= 1
-                    terminal_extra.setCursorPos(this.leftX, cline)
-                    stdout.write ( (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision).align(this.marklen)
-                    stdout.write this.tickMarkRune
-                    stdout.write "┈" * (this.width - this.marklen - 1)
+                    this.marklen = this.dataSet.minValue.float.formatFloat(ffDecimal, this.floatPrecision).len
 
-                #negative...........................
-                #style:
-                if this.styles.hasKey("mark:negative"):
-                    setColors(this.app, this.styles["mark:negative"])
+                #!
+                this.graphWidth = if this.showMarks: this.width - (this.marklen + 1) else: this.width
+                this.prevGraphWidth  = this.graphWidth #!
+
+
+                var cline = (this.topY + 1) + this.posGraphHeigth#! line cursor - cline
+                                        
+
+                                                
+                if this.showMarks and this.graphWidth > 0: #this.showMarks and this.width > 4: #? 4?
+                    #positive...........................
+                    #style:
+                    if this.styles.hasKey("mark:positive"):
+                        setColors(this.app, this.styles["mark:positive"])
+                    else:
+                        terminal_extra.setDimmed() # not working on RGB :[
+                    #draw:
+                    for li in 1 .. this.posGraphHeigth :
+                        cline -= 1
+                        terminal_extra.setCursorPos(this.leftX, cline)
+                        stdout.write ( (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision).align(this.marklen)
+                        stdout.write this.tickMarkRune
+                        stdout.write this.tickLineRune * (this.width - this.marklen - 1)
+
+                    #negative...........................
+                    #style:
+                    if this.styles.hasKey("mark:negative"):
+                        setColors(this.app, this.styles["mark:negative"])
+                    else:
+                        terminal_extra.setReversed()
+                        terminal_extra.setDimmed()
+                    #draw:
+                    cline = (this.topY + 1) + this.posGraphHeigth - 1#!
+                    for li in 1..this.negGraphHeigth :
+                        cline += 1
+                        terminal_extra.setCursorPos(this.leftX, cline)
+                        stdout.write (0 - (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision).align(this.marklen)
+                        stdout.write this.tickMarkRune
+                        stdout.write this.tickLineRune * (this.width - this.marklen - 1)
+
+
+
+
+                else: # no marks, horizontal lines only:
+                    #style:
+                    if this.styles.hasKey("mark:positive"):
+                        setColors(this.app, this.styles["mark:positive"])
+                    #draw:
+                    cline = (this.topY + 1) #!
+                    for li in 0..this.posGraphHeigth - 1:
+                        terminal_extra.setCursorPos(this.leftX, cline)
+                        stdout.write this.tickLineRune * this.width
+                        cline += 1
+                    #style:
+                    if this.styles.hasKey("mark:negative"):
+                        setColors(this.app, this.styles["mark:negative"])
+                    else:
+                        terminal_extra.setReversed()
+                    #draw:
+                    for li in 1..this.negGraphHeigth :
+                        terminal_extra.setCursorPos(this.leftX, cline)
+                        stdout.write this.tickLineRune * this.width
+                        cline += 1
+
+
+                #-----graph ready to be drawed------#
+
+                if this.lockOnNew:
+                    if this.scale == 1:
+                        if this.dataSet.values.len > this.graphWidth:
+                            this.offset = this.dataSet.values.len - this.graphWidth
+                    else:
+                        if this.dataSet.values.len > this.scale * this.graphWidth:
+                            this.offset = this.dataSet.values.len -
+                                (this.graphWidth * this.scale)
+
+
+                var
+                    cx: int # = if this.showMarks: this.leftX + this.marklen + 1 else: this.leftX
+                    graphLeftX = if this.showMarks: this.leftX + this.marklen + 1 else: this.leftX
+                    cy = this.topY + 1
+                    cval:T=0 # for draw
+                    #cvalMin, cvalMax :float=0 # for draw scaled # not implemented
+                    cursor = this.offset # to walk
+                    lineLen = 0
+
+                if this.rightReading:
+                    cx = this.rightX
                 else:
-                    terminal_extra.setReversed()
-                    terminal_extra.setDimmed()
-                #draw:
-                cline = (this.topY + 1) + this.posGraphHeigth - 1#!
-                for li in 1..this.negGraphHeigth :
-                    cline += 1
-                    terminal_extra.setCursorPos(this.leftX, cline)
-                    stdout.write (0 - (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision).align(this.marklen)
-                    stdout.write this.tickMarkRune
-                    stdout.write "┈" * (this.width - this.marklen - 1)
+                    cx = graphLeftX
 
+                # from offset, step=scale
+                                
+                #####  #####    ##   #    # 
+                #    # #    #  #  #  #    # 
+                #    # #    # #    # #    # 
+                #    # #####  ###### # ## # 
+                #    # #   #  #    # ##  ## 
+                #####  #    # #    # #    # ####################
+                                
+                while cx <= this.rightX and cx >= graphLeftX and
+                    cursor <= this.dataSet.values.high:
 
-
-
-            else: # no marks:
-                #style:
-                if this.styles.hasKey("mark:positive"):
-                    setColors(this.app, this.styles["mark:positive"])
-                #draw:
-                cline = (this.topY + 1) #!
-                for li in 0..this.posGraphHeigth - 1:
-                    terminal_extra.setCursorPos(this.leftX, cline)
-                    stdout.write "┈" * this.width
-                    cline += 1
-                #style:
-                if this.styles.hasKey("mark:negative"):
-                    setColors(this.app, this.styles["mark:negative"])
-                else:
-                    terminal_extra.setReversed()
-                #draw:
-                for li in 1..this.negGraphHeigth :
-                    terminal_extra.setCursorPos(this.leftX, cline)
-                    stdout.write "┈" * this.width
-                    cline += 1
-
-
-            #-----graph ready to be drawed------#
-
-            if this.lockOnNew:
-                if this.scale == 1:
-                    if FloatDataset2D(this.dataSet).values.len > this.graphWidth:
-                        this.offset = FloatDataset2D(this.dataSet).values.len - this.graphWidth
-                else:
-                    if FloatDataset2D(this.dataSet).values.len > this.scale * this.graphWidth:
-                        this.offset = FloatDataset2D(this.dataSet).values.len -
-                            (this.graphWidth * this.scale)
-
-
-            var
-                cx: int # = if this.showMarks: this.leftX + this.marklen + 1 else: this.leftX
-                graphLeftX = if this.showMarks: this.leftX + this.marklen + 1 else: this.leftX
-                cy = this.topY + 1
-                cval:float=0 # for draw
-                #cvalMin, cvalMax :float=0 # for draw scaled
-                cursor = this.offset # to walk
-                lineLen = 0
-
-            if this.rightReading:
-                cx = this.rightX
-            else:
-                cx = graphLeftX
-
-            # from offset, step=scale
-            while cx <= this.rightX and cx >= graphLeftX and
-                cursor <= FloatDataset2D(this.dataset).values.high:
-
-                lineLen = 0 # amount of | , RESET
-                #style
-                if this.styles.hasKey("graph:positive"):
-                    setColors(this.app, this.styles["graph:positive"])
-                else:
-                    setColors(this.app, this.activeStyle[]) # style reset
-
-
-                #draw------------------------------------------
-
-                if this.scale == 1:
-                    cval = FloatDataset2D(this.dataset)[cursor]
-                else: # calc avg if scaled
-                    if (cursor + this.scale - 1) < FloatDataset2D(this.dataset).values.high:
-                        for cv in cursor .. (cursor + this.scale - 1):
-                            cval += FloatDataset2D(this.dataset)[cv]
-                        cval = cval / this.scale.float
-                        if cval > FloatDataset2D(this.dataset).maxValue: cval = FloatDataset2D(this.dataset).maxValue
-                        if cval < FloatDataset2D(this.dataset).minValue: cval = FloatDataset2D(this.dataset).minValue
-                    #[ if (cursor + this.scale - 1) < FloatDataset2D(this.dataset).values.high:
-                        for cv in cursor .. (cursor + this.scale - 1):
-                            if abs(FloatDataset2D(this.dataset)[cv]) > cval:
-                                cval = FloatDataset2D(this.dataset)[cv] ]#
-
-                #style
-                if cval > 0:
+                    lineLen = 0 # amount of | , RESET
+                    #style
                     if this.styles.hasKey("graph:positive"):
                         setColors(this.app, this.styles["graph:positive"])
-                elif cval < 0:
-                    if this.styles.hasKey("graph:negative"):
-                        setColors(this.app, this.styles["graph:negative"])
                     else:
-                        terminal_extra.setReversed() #!
+                        setColors(this.app, this.activeStyle[]) # style reset
 
-                #conditional styling hook
-                #[ if not FloatDataset2D(this.dataset).conditionalStyler.isNil :
-                    FloatDataset2D(this.dataset).conditionalStyler(FloatDataset2D(this.dataset), cval) ]#
-                FloatDataset2D(this.dataset).conditionalStyler(FloatDataset2D(this.dataset), cval)
 
-                #style of selected
-                if this.scale == 1:
-                    if cursor == FloatDataset2D(this.dataset).selected:
-                        #colors_extra.setForegroundColor("orange")
-                        if this.styles.hasKey("graph:selected"):
-                            setColors(this.app, this.styles["graph:selected"])
+                    #draw------------------------------------------
+
+                    if this.scale == 1:
+                        cval = this.dataSet[cursor]
+                    else: # calc avg if scaled
+                        if (cursor + this.scale - 1) < this.dataSet.values.high:
+                            for cv in cursor .. (cursor + this.scale - 1):
+                                cval += this.dataSet[cv]
+                            
+                            cval = T(cval.float / this.scale.float)
+
+                            if cval > this.dataSet.maxValue: cval = this.dataSet.maxValue
+                            if cval < this.dataSet.minValue: cval = this.dataSet.minValue
                         else:
-                            setColors(this.app, this.styles["input:focus"])
-                            terminal_extra.setReversed()
-                else:
-                    if cursor in FloatDataset2D(this.dataset).selected .. (FloatDataset2D(this.dataset).selected + this.scale - 1):
-                        #colors_extra.setForegroundColor("orange")
-                        if this.styles.hasKey("graph:selected"):
-                            setColors(this.app, this.styles["graph:selected"])
+                            cval = this.dataSet.values[this.dataSet.values.high].value
+
+                        #[ if (cursor + this.scale - 1) < this.dataSet.values.high:
+                            for cv in cursor .. (cursor + this.scale - 1):
+                                if abs(this.dataSet[cv]) > cval:
+                                    cval = this.dataSet[cv] ]#
+
+                    #style
+                    if cval > 0:
+                        if this.styles.hasKey("graph:positive"):
+                            setColors(this.app, this.styles["graph:positive"])
+                    elif cval < 0:
+                        if this.styles.hasKey("graph:negative"):
+                            setColors(this.app, this.styles["graph:negative"])
                         else:
-                            setColors(this.app, this.styles["input:focus"])
-                            terminal_extra.setReversed()
+                            terminal_extra.setReversed() #!
 
-                #stderr.write cval
-                if cval != 0: # something to show
-                    if cval > 0: # ------ POSITIVE VALUE -------
+                    #conditional styling hook
+                    #[ if not this.dataSet.conditionalStyler.isNil :
+                        this.dataSet.conditionalStyler(this.dataSet, cval) ]#
+                    #! the approach will be dummy procs vs isNil testing: for GC safety
+                    this.dataSet.conditionalStyler(this.dataSet, cval)
 
-                        cy = (this.topY ) + this.posGraphHeigth # y first line
-
-                        if cval < this.yLineHeigth / 2:
-                            terminal_extra.setCursorPos(cx, cy)
-                            stdout.write "_"
-                        else:
-
-                            lineLen = int(cval / this.yLineHeigth)
-
-                            for i in 1..lineLen:
-                                terminal_extra.setCursorPos(cx, cy)
-                                stdout.write(this.fullLineRune)
-                                cy -= 1
-
-                            #if lineLen.float * this.yLineHeigth < cval: # :)
-                            #[ if cval - lineLen.float * this.yLineHeigth >= this.yLineHeigth / 4 :
-                                terminal_extra.setCursorPos(cx, cy)
-                                stdout.write(",") ]#
-                            if cval - lineLen.float * this.yLineHeigth >= this.yLineHeigth / 2 :
-                                terminal_extra.setCursorPos(cx, cy)
-                                stdout.write(this.halfLineRune)
-
-
-                    elif cval < 0: # ------ NEGATIVE VALUE -------
-
-                        cy = (this.topY ) + this.posGraphHeigth + 1 # y first negative line
-
-                        if abs(cval) < this.yLineHeigth / 2:
-                            terminal_extra.setCursorPos(cx, cy - 1)
-                            stdout.write "_"
-                        else:
-
-                            lineLen = int(abs(cval) / this.yLineHeigth)
-
-                            for i in 1..lineLen:
-                                terminal_extra.setCursorPos(cx, cy)
-                                stdout.write(this.negativeFullLineRune)
-                                cy += 1
-
-                            #if lineLen.float * this.yLineHeigth < cval: # :)
-                            #[ if abs(cval + lineLen.float * this.yLineHeigth) >= this.yLineHeigth / 4 :
-                                terminal_extra.setCursorPos(cx, cy)
-                                stdout.write("'") ]#
-                            if abs(cval + lineLen.float * this.yLineHeigth) >= this.yLineHeigth / 2 :
-                                terminal_extra.setCursorPos(cx, cy)
-                                stdout.write(this.negativeHalfLineRune)
-
-
-                else: # cval == 0
-                    cy = (this.topY ) + this.posGraphHeigth
-                    terminal_extra.setCursorPos(cx, cy)
-                    stdout.write "_"
-
-
-                if this.scale == 1:
-                    cursor += 1
-                else:
-                    if this.scale + cursor > FloatDataset2D(this.dataSet).values.high:
-                        echo "."
-                        break
+                    #style of selected
+                    if this.scale == 1:
+                        if cursor == this.dataSet.selected:
+                            #colors_extra.setForegroundColor("orange")
+                            if this.styles.hasKey("graph:selected"):
+                                setColors(this.app, this.styles["graph:selected"])
+                            else:
+                                setColors(this.app, this.styles["input:focus"])
+                                terminal_extra.setReversed()
                     else:
-                        cursor += this.scale
+                        if this.dataSet.selected in cursor .. (cursor + this.scale - 1) and
+                            ( cursor + (this.scale - 1) < this.dataSet.values.high or
+                            cursor == this.dataSet.values.high):
+                                #colors_extra.setForegroundColor("orange")
+                                if this.styles.hasKey("graph:selected"):
+                                    setColors(this.app, this.styles["graph:selected"])
+                                else:
+                                    setColors(this.app, this.styles["input:focus"])
+                                    terminal_extra.setReversed()
 
-                #end draw------------------------------------------
+                    #stderr.write cval
+                    if cval != 0: # something to show
+                        if cval > 0: # ------ POSITIVE VALUE -------
 
-                # next row:
-                cx = if this.rightReading: cx - 1 else: cx + 1
-            #ENDWHILE-----------------------------------------------------------
+                            cy = (this.topY ) + this.posGraphHeigth # y first line
+
+                            if cval.float < this.yLineHeigth / 2:
+                                terminal_extra.setCursorPos(cx, cy)
+                                stdout.write "_"
+                            else:
+
+                                lineLen = int(cval.float / this.yLineHeigth)
+
+                                for i in 1..lineLen:
+                                    terminal_extra.setCursorPos(cx, cy)
+                                    stdout.write(this.fullLineRune)
+                                    cy -= 1
+
+                                #if lineLen.float * this.yLineHeigth < cval: # :)
+                                #[ if cval - lineLen.float * this.yLineHeigth >= this.yLineHeigth / 4 :
+                                    terminal_extra.setCursorPos(cx, cy)
+                                    stdout.write(",") ]#
+                                if cval.float - lineLen.float * this.yLineHeigth >= this.yLineHeigth / 2 :
+                                    terminal_extra.setCursorPos(cx, cy)
+                                    stdout.write(this.halfLineRune)
 
 
-            #echo "\e[0m"
+                        elif cval < 0: # ------ NEGATIVE VALUE -------
 
-            if this.showScale and this.width > ScalerWidth: # 14 = scaler width
-                cline += 1
+                            cy = (this.topY ) + this.posGraphHeigth + 1 # y first negative line
 
-                if this.styles.hasKey("mark:negative"):
-                    setColors(this.app, this.styles["mark:negative"])
-                else:
+                            if abs(cval.float) < this.yLineHeigth / 2:
+                                terminal_extra.setCursorPos(cx, cy - 1)
+                                stdout.write "_"
+                            else:
+
+                                lineLen = int(abs(cval.float) / this.yLineHeigth)
+
+                                for i in 1..lineLen:
+                                    terminal_extra.setCursorPos(cx, cy)
+                                    stdout.write(this.negativeFullLineRune)
+                                    cy += 1
+
+                                #if lineLen.float * this.yLineHeigth < cval: # :)
+                                #[ if abs(cval + lineLen.float * this.yLineHeigth) >= this.yLineHeigth / 4 :
+                                    terminal_extra.setCursorPos(cx, cy)
+                                    stdout.write("'") ]#
+                                if abs(cval.float + lineLen.float * this.yLineHeigth) >= this.yLineHeigth / 2 :
+                                    terminal_extra.setCursorPos(cx, cy)
+                                    stdout.write(this.negativeHalfLineRune)
+
+
+                    else: # cval == 0
+                        cy = (this.topY ) + this.posGraphHeigth
+                        terminal_extra.setCursorPos(cx, cy)
+                        stdout.write "_"
+
+
+                    if this.scale == 1:
+                        cursor += 1
+                    else:
+                        if this.scale + cursor > this.dataSet.values.high and
+                            cursor != this.dataSet.values.high:
+                            echo "."
+                            #break
+                            cursor = this.dataSet.values.high
+                        else:
+                            cursor += this.scale
+
+                    #end draw------------------------------------------
+
+                    # next row:
+                    cx = if this.rightReading: cx - 1 else: cx + 1
+                #ENDWHILE-----------------------------------------------------------
+
+
+                #echo "\e[0m"
+
+                if this.showScale and this.width > ScalerWidth: # 14 = scaler width
+                    cline += 1
+
+                    if this.styles.hasKey("mark:negative"):
+                        setColors(this.app, this.styles["mark:negative"])
+                    else:
+                        setColors(this.app, this.activeStyle[])
+                    terminal_extra.setReversed()
+
+                    this.scaleControllsY = cline # cache linu number for onclicks
+
+                    terminal_extra.setCursorPos(this.leftX, cline)
+                    #echo "◀ 1/99▶ ▲1X▼"
+
+                    stdout.write "◀"
+
+                    var cpage = int(this.offset / this.graphWidth) + 1 # +1 to omit 0
+                    stdout.write if cpage < 10: " " & $cpage else: $cpage
+                    stdout.write "/"
+
+                    var numpages = int(this.dataSet.values.len / this.graphWidth) + 1 # +1 to omit 0
+                    if numpages < 10:
+                        stdout.write " ", $numpages
+                    elif numpages < 100:
+                        stdout.write $numpages
+                    else:
+                        stdout.write " ∞"
+
+                    stdout.write "▶ ▼"
+                    if this.scale < 10:
+                        stdout.write "  " , $this.scale, "X▲"
+                    elif this.scale < 100:
+                        stdout.write " " , $this.scale, "X▲"
+                    else :
+                        stdout.write $this.scale, "X▲"
+
+                    #fill line
+                    if this.width > 14: stdout.write " " * (this.width - 14)
+
+                else: this.scaleControllsY = this.topy + this.graphHeigth + 1
+
+
+
+
+
+
+                #  ####  #    #  ####  #    #    #####  ###### #####   ##   # #       ####
+                # #      #    # #    # #    #    #    # #        #    #  #  # #      #
+                #  ####  ###### #    # #    #    #    # #####    #   #    # # #       ####
+                #      # #    # #    # # ## #    #    # #        #   ###### # #           #
+                # #    # #    # #    # ##  ##    #    # #        #   #    # # #      #    #
+                #  ####  #    #  ####  #    #    #####  ######   #   #    # # ######  ####
+
+                if this.showDetail and this.heigth > 4:
                     setColors(this.app, this.activeStyle[])
-                terminal_extra.setReversed()
 
-                this.scaleControllsY = cline # cache linu number for onclicks
+                    terminal_extra.setUnderline()
+                    terminal_extra.setDimmed()
 
-                terminal_extra.setCursorPos(this.leftX, cline)
-                #echo "◀ 1/99▶ ▲1X▼"
-
-                stdout.write "◀"
-
-                var cpage = int(this.offset / this.graphWidth) + 1 # +1 to omit 0
-                stdout.write if cpage < 10: " " & $cpage else: $cpage
-                stdout.write "/"
-
-                var numpages = int(FloatDataset2D(this.dataSet).values.len / this.graphWidth) + 1 # +1 to omit 0
-                if numpages < 10:
-                    stdout.write " ", $numpages
-                elif numpages < 100:
-                    stdout.write $numpages
-                else:
-                    stdout.write " ∞"
-
-                stdout.write "▶ ▼"
-                if this.scale < 10:
-                    stdout.write "  " , $this.scale, "X▲"
-                elif this.scale < 100:
-                    stdout.write " " , $this.scale, "X▲"
-                else :
-                    stdout.write $this.scale, "X▲"
-
-                #fill line
-                if this.width > 14: stdout.write " " * (this.width - 14)
-
-            else: this.scaleControllsY = this.topy + this.graphHeigth + 1
-
-
-
-
-
-
-            #  ####  #    #  ####  #    #    #####  ###### #####   ##   # #       ####
-            # #      #    # #    # #    #    #    # #        #    #  #  # #      #
-            #  ####  ###### #    # #    #    #    # #####    #   #    # # #       ####
-            #      # #    # #    # # ## #    #    # #        #   ###### # #           #
-            # #    # #    # #    # ##  ##    #    # #        #   #    # # #      #    #
-            #  ####  #    #  ####  #    #    #####  ######   #   #    # # ######  ####
-
-            if this.showDetail and this.heigth > 4:
-                setColors(this.app, this.activeStyle[])
-
-                terminal_extra.setUnderline()
-                terminal_extra.setDimmed()
-
-                cline += 1
-                terminal_extra.setCursorPos(this.leftX, cline)
-                #echo LABEL ::::::::::
-                if this.scale == 1:
-                    if selected(FloatDataset2D(this.dataSet)).name.runeLen <= this.width - 2: # "‧"
-                        stdout.write "⒩ ",
-                            selected(FloatDataset2D(this.dataSet)).name,
-                            " " * ((this.width - 2) - selected(FloatDataset2D(this.dataSet)).name.runeLen)
+                    cline += 1
+                    terminal_extra.setCursorPos(this.leftX, cline)
+                    
+                    
+                    # NAME ...........................................
+                    
+                    if this.scale == 1:
+                        if selected(this.dataSet).name.runeLen <= this.width - 2: # "‧"
+                            stdout.write "⒩ ",
+                                selected(this.dataSet).name,
+                                " " * ((this.width - 2) - selected(this.dataSet).name.runeLen)
+                        else:
+                            stdout.write "⒩ ",
+                                "[", runeSubStr(selected(this.dataSet).name, 0, this.width - 4), "]"
                     else:
-                        stdout.write "⒩ ",
-                            "[", runeSubStr(selected(FloatDataset2D(this.dataSet)).name, 0, this.width - 4), "]"
-                else:
-                    var name: string
-                    for si in FloatDataset2D(this.dataSet).selected .. (FloatDataset2D(this.dataSet).selected + this.scale - 1):
-                        if si < FloatDataset2D(this.dataSet).values.high:
-                            name &= FloatDataset2D(this.dataSet).values[si].name & " "
+                        var name: string
+                        # if-else for boundaries checks
+                        if this.dataSet.selected + this.scale <= this.dataSet.values.high:
+                            for si in this.dataSet.selected .. (this.dataSet.selected + this.scale - 1):
+                                if si <= this.dataSet.values.high:
+                                    name &= this.dataSet.values[si].name & " "
 
-                    if name.runeLen <= this.width - 2: # "‧"
-                        stdout.write "⒩ ",
-                            name,
-                            " " * ((this.width - 2) - name.runeLen)
-                    else:
-                        stdout.write "⒩ ",
-                            runeSubStr(name, 0, this.width - 3), "…"
+                            if name.runeLen <= this.width - 2:
+                                stdout.write "⒩ ",
+                                    name,
+                                    " " * ((this.width - 2) - name.runeLen)
+                            else:
+                                stdout.write "⒩ ",
+                                    runeSubStr(name, 0, this.width - 3), "…"
 
+                        else:
+                            for si in this.dataSet.values.high - (this.scale - 1) .. this.dataSet.values.high:
+                                if si <= this.dataSet.values.high:
+                                    name &= this.dataSet.values[si].name & " "
 
-
-
-                #echo VALUE ::::::::::::::::::::::::::::::::::::::::::::
-                #echo "[avg:               ]"
-                #terminal_extra.setCursorPos(this.leftX, cline + 3)
-                #echo "[max:               ]"
-                #terminal_extra.setCursorPos(this.leftX, cline + 4)
-                #echo "[min:               ] \e[0m"
-                cline += 1
-                terminal_extra.setCursorPos(this.leftX, cline)
-                var value: string
-                if this.scale == 1:
-                    value = $(selected(FloatDataset2D(this.dataSet)).value)
-                    if len(value) <= this.width - 2:
-                        stdout.write "⒱ ",
-                            value,
-                            " " * ((this.width - 2) - len(value))
-                    else:
-                        stdout.write "⒱ ",
-                            value.runeSubStr(0, this.width - 3), "…"
+                            if name.runeLen <= this.width - 2:
+                                stdout.write "⒩ ",
+                                    name,
+                                    " " * ((this.width - 2) - name.runeLen)
+                            else:
+                                stdout.write "⒩ ",
+                                    runeSubStr(name, 0, this.width - 3), "…"
 
 
-                else:
-                    if FloatDataset2D(this.dataSet).selected + this.scale - 1 <= FloatDataset2D(this.dataSet).values.high:
-                        var min, max, avg: float
-                        min = selected(FloatDataset2D(this.dataSet)).value
-                        max = min
 
-                        for si in FloatDataset2D(this.dataSet).selected .. (FloatDataset2D(this.dataSet).selected + this.scale - 1):
-                            avg += FloatDataset2D(this.dataSet)[si]
-                            if min > FloatDataset2D(this.dataSet)[si]:
-                                min = FloatDataset2D(this.dataSet)[si]
-                            elif max < FloatDataset2D(this.dataSet)[si]:
-                                max = FloatDataset2D(this.dataSet)[si]
-                        avg = avg / this.scale.float
-
-
-                        #cline += 1
-                        terminal_extra.setCursorPos(this.leftX, cline)
-                        value = $(avg)
+                    # VALUE ...........................................
+                    #echo "[avg:               ]"
+                    #terminal_extra.setCursorPos(this.leftX, cline + 3)
+                    #echo "[max:               ]"
+                    #terminal_extra.setCursorPos(this.leftX, cline + 4)
+                    #echo "[min:               ] \e[0m"
+                    cline += 1
+                    terminal_extra.setCursorPos(this.leftX, cline)
+                    var value: string
+                    if this.scale == 1:
+                        value = $(selected(this.dataSet).value)
                         if len(value) <= this.width - 2:
-                            stdout.write "⒜ ",
+                            stdout.write "⒱ ",
                                 value,
                                 " " * ((this.width - 2) - len(value))
                         else:
-                            stdout.write "⒜ ",
-                                value.runeSubStr(0, this.width - 3), "…"
-
-                        cline += 1
-                        terminal_extra.setCursorPos(this.leftX, cline)
-                        value = $(min)
-                        if len(value) <= this.width - 2:
-                            stdout.write "⒧ ",
-                                value,
-                                " " * ((this.width - 2) - len(value))
-                        else:
-                            stdout.write "⒧ ",
-                                value.runeSubStr(0, this.width - 3), "…"
-
-                        cline += 1
-                        terminal_extra.setCursorPos(this.leftX, cline)
-                        value = $(max)
-                        if len(value) <= this.width - 2:
-                            stdout.write "⒣ ",
-                                value,
-                                " " * ((this.width - 2) - len(value))
-                        else:
-                            stdout.write "⒣ ",
+                            stdout.write "⒱ ",
                                 value.runeSubStr(0, this.width - 3), "…"
 
 
+                    else: # IF SCALED -----------------------
+                        if this.dataSet.selected + this.scale - 1 <= this.dataSet.values.high:
+                            var 
+                                min, max : T
+                                avg: float
 
-        #? setColors
+                            min = selected(this.dataSet).value
+                            max = min
 
-        # write y marks, from max to min
+                            for si in this.dataSet.selected .. (this.dataSet.selected + this.scale - 1):
+                                avg += this.dataSet[si].float
+                                if min > this.dataSet[si]:
+                                    min = this.dataSet[si]
+                                elif max < this.dataSet[si]:
+                                    max = this.dataSet[si]
+                            avg = avg / this.scale.float
+
+
+                            #cline += 1
+                            terminal_extra.setCursorPos(this.leftX, cline)
+                            value = $(avg)
+                            if len(value) <= this.width - 2:
+                                stdout.write "⒜ ",
+                                    value,
+                                    " " * ((this.width - 2) - len(value))
+                            else:
+                                stdout.write "⒜ ",
+                                    value.runeSubStr(0, this.width - 3), "…"
+
+                            cline += 1
+                            terminal_extra.setCursorPos(this.leftX, cline)
+                            value = $(min)
+                            if len(value) <= this.width - 2:
+                                stdout.write "⒧ ",
+                                    value,
+                                    " " * ((this.width - 2) - len(value))
+                            else:
+                                stdout.write "⒧ ",
+                                    value.runeSubStr(0, this.width - 3), "…"
+
+                            cline += 1
+                            terminal_extra.setCursorPos(this.leftX, cline)
+                            value = $(max)
+                            if len(value) <= this.width - 2:
+                                stdout.write "⒣ ",
+                                    value,
+                                    " " * ((this.width - 2) - len(value))
+                            else:
+                                stdout.write "⒣ ",
+                                    value.runeSubStr(0, this.width - 3), "…"
+                    # END VALUE  ...........................................
+
+
+
 
 
 
@@ -587,7 +619,7 @@ proc drawFromOffset_floatDataset(this: LineGraph, updateOnly: bool = false)=
 ########
 
 
-proc draw*(this: LineGraph, updateOnly: bool = false) =
+proc draw*[T](this: LineGraph[T], updateOnly: bool = false) =
     if this.visible:
         acquire(this.app.termlock)
 
@@ -618,8 +650,8 @@ proc draw*(this: LineGraph, updateOnly: bool = false) =
                 if not this.isMaximized:
                     this.graphHeigth = this.heigth - 1 #label
                 else:
-                    this.graphHeigth = this.heigth
-                    this.y1 = this.win.y1 + 1
+                    this.graphHeigth = this.win.heigth - 1 #this.heigth + 1
+                    this.y1 = this.win.y1
                     
                 if this.showScale and (this.graphHeigth > 1) and this.heigth > 4: this.graphHeigth -= 1
                 if this.showDetail and (this.graphHeigth > 4) and this.scale == 1 and this.heigth > 4: this.graphHeigth -= 2
@@ -627,20 +659,27 @@ proc draw*(this: LineGraph, updateOnly: bool = false) =
 
         #setColors(this.app, this.activeStyle[])
 
-        if this.dataSet of IntDataset2D:
-            discard
-        else:
-            drawFromOffset_floatDataset(this, updateOnly)
+        drawFromOffset_floatDataset(this, updateOnly)
 
         this.app.setCursorPos()
         release(this.app.termlock)
 
+        if not updateOnly:
+            if this.isMaximized:
+                if this.lockOnNew: 
+                    this.win.label = "🔒" & this.label
+                else:
+                    this.win.label = this.label
+                this.win.drawTitle()
+
 
 ### MANDATORY ###
 proc drawit(this: Controll, updateOnly: bool = false) =
-    draw(LineGraph(this), updateOnly)
-
-
+    #draw(LineGraph(this), updateOnly)
+    #var lg : LineGraph[float] = cast[LineGraph[float]](this)
+    if this.genericType == "float": draw(LineGraph[float](this), updateOnly)
+    if this.genericType == "int"  : draw(LineGraph[int](this), updateOnly)
+    #echo "\n\n", $this.type, " : ", this.genericType
 
 
 
@@ -652,13 +691,13 @@ proc drawit(this: Controll, updateOnly: bool = false) =
 ##   ######   ##   ###### #    #   #      #    # #    # #    # #####  ###### ###### #    #  ####
 
 
-proc onEnd(this: LineGraph) =
+proc onEnd[T](this: LineGraph[T]) =
     discard
 
-proc onHome(this: LineGraph) =
+proc onHome[T](this: LineGraph[T]) =
     discard
 
-proc onPgUp(this: LineGraph) =
+proc onPgUp[T](this: LineGraph[T]) =
     #[ this.offset += this.graphWidth
     if this.offset > this.dataSet.high:
         this.offset = this.dataSet.high - this.graphWidth + 1
@@ -668,18 +707,18 @@ proc onPgUp(this: LineGraph) =
 
     this.draw(false)
 
-proc onPgDown(this: LineGraph) =
+proc onPgDown[T](this: LineGraph[T]) =
     this.offset -= this.graphWidth
 
     if this.offset < 0: this.offset = 0
 
     this.draw(false)
 
-proc scaleUp(this: LineGraph) =
+proc scaleUp[T](this: LineGraph[T]) =
     this.scale += 1
     this.draw(false)
 
-proc scaleDown(this: LineGraph) =
+proc scaleDown[T](this: LineGraph[T]) =
     if this.scale > 1:
         this.scale -= 1
         this.draw(false)
@@ -695,63 +734,78 @@ proc scaleDown(this: LineGraph) =
 #######     ##     ## ##   ###    ##    ## ##        ##  ##    ## ##   ##
 #######      #######  ##    ##     ######  ######## ####  ######  ##    ##
 
+proc onClickHelper[T](this: LineGraph[T], event: KMEvent) =
+    
+        if event.btn == 0:
+            #"◀ 1/99▶ ▲  1X▼"
+            if event.y == this.scaleControllsY:
+                if event.x == this.leftX: # >:) maybe a good idea?
+                    if this.rightReading:
+                        onPgUp(this)
+                    else:
+                        onPgDown(this)
+                elif event.x == this.leftX + 6:
+                    if this.rightReading:
+                        onPgDown(this)
+                    else:
+                        onPgUp(this)
+                elif event.x == this.leftX + 8: scaleDown(this)
+                elif event.x == this.leftX + 13: scaleUp(this)
+
+            #if a bar clicked .................................
+            if event.y < this.scaleControllsY and
+                event.x >= this.rightX - this.graphWidth:
+
+                    if this.scale == 1:
+                        if this.rightReading:
+                            this.dataSet.selected = this.offset + (this.rightX - event.x)
+                        else:
+                            this.dataSet.selected = this.offset + (event.x - (this.leftX + this.markLen + 1))
+
+                        if this.dataSet.selected > this.dataSet.values.high:
+                            this.dataSet.selected = this.dataSet.values.high
+                        this.draw(false)
+                    else: # SCALED --------------------------
+                        if this.rightReading:
+                            this.dataSet.selected = this.offset +
+                                ((this.rightX - event.x) * this.scale)
+                            echo this.dataSet.selected, " / ", this.dataSet.values.high
+                        else:
+                            this.dataSet.selected = this.offset +
+                                ((event.x - (this.leftX + this.markLen + 1)) * this.scale)
+
+                        if this.dataSet.selected > this.dataSet.values.high:
+                            this.dataSet.selected = this.dataSet.values.high
+
+
+                        this.draw(false)
+
+
+        elif event.btn == 2: # right click
+            ## maximize
+            if not this.isMaximized:
+                maximize(this)
+            else:
+                unMaximize(this)
+
+
+
+
 proc onClick(this_elem: Controll, event: KMEvent) =
-    let this = LineGraph(this_elem)
+    if this_elem.genericType == "float": onClickHelper(LineGraph[float](this_elem), event)
+    if this_elem.genericType == "int"  : onClickHelper(LineGraph[int](this_elem), event)
 
-    if event.btn == 0:
-        #"◀ 1/99▶ ▲  1X▼"
-        if event.y == this.scaleControllsY:
-            if event.x == this.leftX: # >:) maybe a good idea?
-                if this.rightReading:
-                    onPgUp(this)
-                else:
-                    onPgDown(this)
-            elif event.x == this.leftX + 6:
-                if this.rightReading:
-                    onPgDown(this)
-                else:
-                    onPgUp(this)
-            elif event.x == this.leftX + 8: scaleDown(this)
-            elif event.x == this.leftX + 13: scaleUp(this)
-
-        #if a bar clicked .................................
-        if event.y < this.scaleControllsY and
-            event.x >= this.rightX - this.graphWidth:
-                if this.scale == 1:
-                    if this.rightReading:
-                        this.dataSet.selected = this.offset + (this.rightX - event.x)
-                    else:
-                        this.dataSet.selected = this.offset + (event.x - (this.leftX + this.markLen + 1))
-
-                    if this.dataSet.selected > FloatDataset2D(this.dataSet).values.high:
-                        this.dataSet.selected = FloatDataset2D(this.dataSet).values.high
-                    this.draw(false)
-                else:
-                    if this.rightReading:
-                        this.dataSet.selected = this.offset +
-                            ((this.rightX - event.x) * this.scale)
-                    else:
-                        this.dataSet.selected = this.offset +
-                            ((event.x - (this.leftX + this.markLen + 1)) * this.scale)
-
-                    if this.dataSet.selected > FloatDataset2D(this.dataSet).values.high:
-                        #echo this.dataSet.selected, " ", this.offset, ",", event.x
-                        this.dataSet.selected = FloatDataset2D(this.dataSet).values.high - this.scale
-
-                    this.draw(false)
-
-    elif event.btn == 2: # right click
-        ## maximize
-        if not this.isMaximized:
-            maximize(this)
-        else:
-            unMaximize(this)
+            
 
 
+proc onDoubleClickHelper[T](this: LineGraph[T], event: KMEvent):void =
+    this.lockOnNew = not this.lockOnNew
 
 
-proc onDoubleClick(this_elem: Controll, event: KMEvent):void =
-    LineGraph(this_elem).lockOnNew = not LineGraph(this_elem).lockOnNew
+proc onDoubleClick(this_elem: Controll, event: KMEvent) =
+    if this_elem.genericType == "float": onDoubleClickHelper(LineGraph[float](this_elem), event)
+    if this_elem.genericType == "int"  : onDoubleClickHelper(LineGraph[int](this_elem), event)
+
 
 ####      ######   ######  ########   #######  ##       ##
 ####     ##    ## ##    ## ##     ## ##     ## ##       ##
@@ -761,22 +815,25 @@ proc onDoubleClick(this_elem: Controll, event: KMEvent):void =
 ####     ##    ## ##    ## ##    ##  ##     ## ##       ##
 ####      ######   ######  ##     ##  #######  ######## ########
 
-proc onScroll(this:Controll, event:KMEvent)=
+proc onScrollHelper[T](this:LineGraph[T], event:KMEvent)=
+
     case event.evType:
         of "ScrollUp":
-            if LineGraph(this).rightReading:
-                LineGraph(this).onPgDown()
+            if this.rightReading:
+                this.onPgDown()
             else:
-                LineGraph(this).onPgUp()
+                this.onPgUp()
 
         of "ScrollDown":
-            if LineGraph(this).rightReading:
-                LineGraph(this).onPgUp()
+            if this.rightReading:
+                this.onPgUp()
             else:
-                LineGraph(this).onPgDown()
+                this.onPgDown()
         else: discard
 
-
+proc onScroll(this_elem: Controll, event: KMEvent) =
+    if this_elem.genericType == "float": onScrollHelper(LineGraph[float](this_elem), event)
+    if this_elem.genericType == "int"  : onScrollHelper(LineGraph[int](this_elem), event)
 
 
 ##    ## ######## ##    ## ########  ########  ########  ######   ######
@@ -787,8 +844,8 @@ proc onScroll(this:Controll, event:KMEvent)=
 ##   ##  ##          ##    ##        ##    ##  ##       ##    ## ##    ##
 ##    ## ########    ##    ##        ##     ## ########  ######   ######
 
-proc onKeyPress(this: Controll, event: KMEvent)=
-    let lg = LineGraph(this)
+proc onKeyPressHelper[T](this: LineGraph[T], event: KMEvent)=
+
     if not this.disabled:
         if event.evType == "FnKey":
             case event.key:
@@ -813,10 +870,10 @@ proc onKeyPress(this: Controll, event: KMEvent)=
                     discard
 
                 of KeyPgDown:
-                    lg.onPgDown()
+                    this.onPgDown()
 
                 of KeyPgUp:
-                    lg.onPgUp()
+                    this.onPgUp()
 
                 else: discard
 
@@ -849,8 +906,11 @@ proc onKeyPress(this: Controll, event: KMEvent)=
                     #CLIPBOARD
                 else:
                     discard
+                    
 
-
+proc onKeyPress(this_elem: Controll, event: KMEvent)=
+    if this_elem.genericType == "float": onKeyPressHelper(LineGraph[float](this_elem), event)
+    if this_elem.genericType == "int"  : onKeyPressHelper(LineGraph[int](this_elem), event)
 
 
 
@@ -863,25 +923,26 @@ proc onKeyPress(this: Controll, event: KMEvent)=
 #           ##   ### ##       ##  ##  ##
 #           ##    ## ########  ###  ###
 
-proc newLineGraph*( win: Window,
+proc newLineGraph*[T]( win: Window,
                     label:string,
                     width:int=20, heigth:int=20,
                     showMarks:bool=true,
                     showScale:bool= true,
                     showDetail:bool= true,
                     dataType:char= 'f',
-                    floatPrecision = 2,
+                    floatPrecision:int = 2,
                     rightReading:bool=false,
-                    tickMarkRune = "├",
-                    fullLineRune = "┃", # █
-                    halfLineRune = "╻", # ▄
-                    negativeFullLineRune = "┃", # █ │
-                    negativeHalfLineRune = "╹", # ▀ ╵
+                    tickMarkRune:string = "├",
+                    tickLineRune:string = "┈",
+                    fullLineRune:string = "┃", # █
+                    halfLineRune:string = "╻", # ▄
+                    negativeFullLineRune:string = "┃", # █ │
+                    negativeHalfLineRune:string = "╹", # ▀ ╵
                     maxItems:int = 0,
                     lockOnNew:bool=false
-                    ): LineGraph =
+                    ): LineGraph[T] =
 
-    result = new LineGraph
+    result = new LineGraph[T]
     result.win = win
     result.app = win.app
     result.offset = 0
@@ -891,6 +952,7 @@ proc newLineGraph*( win: Window,
 
     result.label = label
     result.tickMarkRune = tickMarkRune
+    result.tickLineRune = tickLineRune
     result.fullLineRune = fullLineRune
     result.halfLineRune = halfLineRune
     result.negativeFullLineRune = negativeFullLineRune
@@ -926,29 +988,19 @@ proc newLineGraph*( win: Window,
 
     result.activeStyle = result.styles["input"]
 
-
-
     result.drawit = drawit
     result.onClick = onClick
     result.onDoubleClick = onDoubleClick
     result.onKeyPress = onKeyPress
     result.onScroll = onScroll
 
-
-
     result.floatPrecision = floatPrecision
 
-    case dataType:
-        of 'i':
-            result.dataSet = new IntDataset2D # IntDataset2D()
-            IntDataset2D(result.dataSet).conditionalStyler = dummy_conditionalStyler_I
-        of 'f':
-            result.dataSet = new FloatDataset2D #FloatDataset2D()
-            FloatDataset2D(result.dataSet).conditionalStyler = dummy_conditionalStyler_F
-        else: discard
+    result.dataSet = new Dataset2D[T]
+    result.genericType = result.dataSet.maxValue.type.name
+    result.dataSet.conditionalStyler = dummy_conditionalStyler
 
     result.dataSet.maxItems = maxItems
-
 
     result.heigth = heigth
     if heigth > 0:
@@ -961,25 +1013,26 @@ proc newLineGraph*( win: Window,
 
 
 ### RELATIVE W ###
-proc newLineGraph*( win: Window,
+proc newLineGraph*[T]( win: Window,
     label:string,
     width:string, heigth:int=20,
     showMarks:bool=true,
     showScale:bool= true,
     showDetail:bool= true,
     dataType:char= 'f',
-    floatPrecision = 2,
+    floatPrecision:int = 2,
     rightReading:bool=false,
-    tickMarkRune = "├",
-    fullLineRune = "┃", # █
-    halfLineRune = "╻", # ▄
-    negativeFullLineRune = "┃", # █ │
-    negativeHalfLineRune = "╹", # ▀ ╵
+    tickMarkRune:string = "├",
+    tickLineRune:string = "┈",
+    fullLineRune:string = "┃", # █
+    halfLineRune:string = "╻", # ▄
+    negativeFullLineRune:string = "┃", # █ │
+    negativeHalfLineRune:string = "╹", # ▀ ╵
     maxItems:int = 0,
     lockOnNew:bool=false
-    ): LineGraph =
+    ): LineGraph[T] =
 
-    result = newLineGraph( win,
+    result = newLineGraph[T]( win,
         label,
         width = 0, heigth,
         showMarks,
@@ -989,6 +1042,7 @@ proc newLineGraph*( win: Window,
         floatPrecision,
         rightReading,
         tickMarkRune,
+        tickLineRune,
         fullLineRune,
         halfLineRune ,
         negativeFullLineRune,
@@ -1004,7 +1058,7 @@ proc newLineGraph*( win: Window,
 
 
 ### RELATIVE W,H ###
-proc newLineGraph*( win: Window,
+proc newLineGraph*[T]( win: Window,
     label:string,
     width:string, heigth:string,
     showMarks:bool=true,
@@ -1014,28 +1068,25 @@ proc newLineGraph*( win: Window,
     floatPrecision = 2,
     rightReading:bool=false,
     tickMarkRune = "├",
+    tickLineRune = "┈",
     fullLineRune = "┃", # █
     halfLineRune = "╻", # ▄
     negativeFullLineRune = "┃", # █ │
     negativeHalfLineRune = "╹", # ▀ ╵
     maxItems:int = 0,
     lockOnNew:bool=false
-    ): LineGraph =
+    ): LineGraph[T] =
 
-    result = newLineGraph( win,
+    result = newLineGraph[T]( win,
         label,
         width = 0, heigth = 0,
-        showMarks,
-        showScale,
-        showDetail,
+        showMarks, showScale, showDetail,
         dataType,
         floatPrecision,
         rightReading,
-        tickMarkRune,
-        fullLineRune,
-        halfLineRune ,
-        negativeFullLineRune,
-        negativeHalfLineRune,
+        tickMarkRune, tickLineRune,
+        fullLineRune, halfLineRune ,
+        negativeFullLineRune, negativeHalfLineRune,
         maxItems,
         lockOnNew
         )

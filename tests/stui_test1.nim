@@ -200,6 +200,8 @@ sb2.options[].add(opt)
 opt = (name:"RGB Colors", value: "3", selected: true)
 sb2.options[].add(opt)
 
+sb2.text = "RGB Colors"
+
 proc changeColorMode(source:Controll)=
     discard parseInt(sb2.value, source.app.colorMode)
     source.app.draw()
@@ -714,7 +716,7 @@ tglbtn3.setMargin("left",1)
 #...............................................................................
 import ui_linegraph
 
-let lg1 = newLineGraph( win = app.activeWindow,
+let lg1 = newLineGraph[float]( win = app.activeWindow,
                         label = "LineGraph 1",
                         width = 23, heigth = 20,
                         showMarks = true,
@@ -726,21 +728,21 @@ let lg1 = newLineGraph( win = app.activeWindow,
 
 for i in 1 .. 50:
     if i mod 3 == 0:
-        discard FloatDataset2D(lg1.dataset).add(($i, (rand(30).float * -1)))
+        discard lg1.dataset.add(($i, (rand(30).float * -1)))
         #discard FloatDataset2D(lg1.dataset).add(($i,i.float * -1))
     else:
-        discard FloatDataset2D(lg1.dataset).add(($i,rand(30).float))
+        discard lg1.dataset.add(($i,rand(30).float))
         #discard FloatDataset2D(lg1.dataset).add(($i,i.float))
 
 #[ for i in 0 .. 6:
     discard FloatDataset2D(lg1.dataset).add(($(i * -1), (i.float * -1))) ]#
 
-proc lg1_conditionalFormat(this: FloatDataset2D, val:float)=
+proc lg1_conditionalFormat(this: DataSet2D[float], val:float)=
     if val == this.maxValue or val == this.minValue:
         #stdout.write "\e[31m\e[1m" # for max compatibility, 8 colors mode >:)
         colors_extra.setForegroundColor("red") # 256c or RGB
 
-FloatDataset2D(lg1.dataSet).conditionalStyler = lg1_conditionalFormat
+lg1.dataSet.conditionalStyler = lg1_conditionalFormat
 
 var
     lineGraphTss = loadConfig("linegraph.tss")
@@ -755,9 +757,9 @@ lg1.styles.add("graph:selected", styleSheetRef_fromConfig(lineGraphTss,"graph-se
 #...............................................
 
 
-let lg2 = newLineGraph( win = app.activeWindow,
+let lg2 = newLineGraph[int]( win = app.activeWindow,
                         label = "LineGraph 2",
-                        width = "25", heigth = 12,
+                        width = "25", heigth = 10,
                         showMarks = true,
                         showScale = true, 
                         showDetail = true, 
@@ -769,10 +771,10 @@ let lg2 = newLineGraph( win = app.activeWindow,
 
 for i in 1 .. 50:
     if i mod 3 == 0:
-        discard FloatDataset2D(lg2.dataset).add(($i, (rand(30).float * -1)))
+        discard lg2.dataset.add(($i, (rand(30).int * -1)))
         #discard FloatDataset2D(lg1.dataset).add(($i,i.float * -1))
     else:
-        discard FloatDataset2D(lg2.dataset).add(($i,rand(30).float))
+        discard lg2.dataset.add(($i,rand(30).int))
         #discard FloatDataset2D(lg1.dataset).add(($i,i.float))
 
 lg2.setMargin("all", 1)
@@ -781,7 +783,7 @@ lg2.setMargin("all", 1)
 
 let lg3MaxItems = 100
 
-var lg3 = newLineGraph( win = app.activeWindow,
+var lg3 = newLineGraph[float]( win = app.activeWindow,
         label = "LineGraph 3",
         width = "50", heigth = "50",
         showMarks = true,
@@ -795,13 +797,13 @@ var lg3 = newLineGraph( win = app.activeWindow,
 lg3.lockOnNew = true
 lg3.setMargin("all", 1)
 
-proc lg3DoubleClick(this_elem: Controll, event: KMEvent):void =
+#[ proc lg3DoubleClick(this_elem: Controll, event: KMEvent):void =
     LineGraph(this_elem).lockOnNew = not LineGraph(this_elem).lockOnNew
 
-lg3.onDoubleClick = lg3DoubleClick
+lg3.onDoubleClick = lg3DoubleClick ]#
 
 for i in 1 .. lg3MaxItems:
-    discard FloatDataset2D(lg3.dataset).add(($i,rand(50).float))
+    discard lg3.dataset.add(($i,  rand(100).float))
     #[ if i mod 3 == 0:
         discard FloatDataset2D(lg3.dataset).add(($i, (rand(100).float * -1)))
         #discard FloatDataset2D(lg1.dataset).add(($i,i.float * -1))
@@ -811,22 +813,23 @@ for i in 1 .. lg3MaxItems:
 
 
 #...........................
-proc lg3sim(lg3Ptr: ptr) {.gcsafe.} =
-    # lot of work because add is not gcsafe !?
-    #discard FloatDataset2D(lg3.dataset).add(("added from thread", 25.float))
-    var r:float
+proc lg3sim(lg3Ptr: ptr LineGraph[float]) {.gcsafe.} =
+    var 
+        r:float
+        c:int
     while true:
-        #FloatDataset2D(lg3Ptr.dataset).values.add(("added from thread", 25.float))
+        #lg3Ptr.dataset.values.add(("added from thread", 25.float))
+        c += 1
         r = rand([5,10,20,30,40,50,60,70,80,100]).float
-        FloatDataset2D(lg3Ptr.dataset).values.add(("added from thread", r))
+        discard lg3Ptr.dataset.add(("from thread [" & $c & "]", r))
         
-        if FloatDataset2D(lg3Ptr.dataset).maxValue < r : 
-            FloatDataset2D(lg3Ptr.dataset).maxValue = r
-        if FloatDataset2D(lg3Ptr.dataset).minValue > r : 
-            FloatDataset2D(lg3Ptr.dataset).minValue = r
+        #[ if lg3Ptr.dataset.maxValue < r : 
+            lg3Ptr.dataset.maxValue = r
+        if lg3Ptr.dataset.minValue > r : 
+            lg3Ptr.dataset.minValue = r ]#
         
-        if FloatDataset2D(lg3Ptr.dataset).values.len > lg3Ptr.dataset.maxItems :
-            FloatDataset2D(lg3Ptr.dataset).values.delete(0)
+        #[ if lg3Ptr.dataset.values.len > lg3Ptr.dataset.maxItems :
+            lg3Ptr.dataset.values.delete(0) ]#
         LineGraph(lg3Ptr[]).draw(false)
         sleep(1000)
 

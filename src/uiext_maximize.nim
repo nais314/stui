@@ -3,6 +3,7 @@ include "controll.inc.nim"
 
 type
     MaximizableControll* = ref object of Controll
+        prev_win*: Window
         prev_x1*,prev_y1*,prev_x2*,prev_y2*, prev_width*,prev_heigth*:int # incl margins & borders!
 
         prev_width_unit*: string # used (by Tile) to store width unit: %, auto, ch(aracter)
@@ -30,6 +31,7 @@ proc unMaximize*(this:MaximizableControll):void=
     this.visible = this.prev_visible
     this.width_value = this.prev_width_value
     this.heigth_value = this.prev_heigth_value
+    this.win = this.prev_win
 
     this.isMaximized = false
 
@@ -42,23 +44,24 @@ proc maximize*(this: MaximizableControll)=
     ## code xtracted from ui_fileselect
 
     ## create new window in current tile:
-    var parentWin = this.app.activeWindow
-    var win = this.app.activeTile.newWindow()
-    #var page = win.newPage()
+    #var parentWin = this.app.activeWindow
+    this.prev_win = this.win
+    this.win = this.app.activeTile.newWindow()
+    #var page = this.win.newPage()
 
-    win.x1 = parentWin.x1
-    win.y1 = parentWin.y1 + 1 # +1 cascade
-    win.x2 = parentWin.x2
-    win.y2 = parentWin.y2
-    win.width = parentWin.width
-    win.heigth = win.y2 - win.y1
+    this.win.x1 = this.prev_win.x1
+    this.win.y1 = this.prev_win.y1 + 1 # +1 cascade
+    this.win.x2 = this.prev_win.x2
+    this.win.y2 = this.prev_win.y2
+    this.win.width = this.prev_win.width
+    this.win.heigth = this.win.y2 - this.win.y1
 
     var styleNormal: StyleSheetRef = new StyleSheetRef
-    styleNormal.deepcopy win.app.styles["dock"]
-    win.styles["window"] = styleNormal
-    win.activeStyle = win.styles["window"]
+    styleNormal.deepcopy this.win.app.styles["dock"]
+    this.win.styles["window"] = styleNormal
+    this.win.activeStyle = this.win.styles["window"]
 
-    win.label = this.label
+    this.win.label = this.label
     this.isMaximized = true
 
     #.................................................
@@ -83,10 +86,10 @@ proc maximize*(this: MaximizableControll)=
 
 
     ## add controlls
-    win.controlls.add(this)
+    this.win.controlls.add(this)
 
 
-    win.addEventListener("menu", proc(c:Controll) = unMaximize(this))
+    this.win.addEventListener("menu", proc(c:Controll) = unMaximize(this))
 
 
     this.app.redraw()

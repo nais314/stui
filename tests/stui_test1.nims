@@ -2,7 +2,7 @@ switch("path", "$projectDir/../src")
 --threads:on
 --deadCodeElim:on
 --app:console
---opt:speed
+#--opt:speed
 #--debuginfo
 #--linedir:on
 #--gc:boehm

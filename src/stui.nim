@@ -141,7 +141,7 @@ type
 
     TTUI* = ref object of RootObj
         id*:string
-        #???
+        genericType*: string
 
 #............................
     Event* = ref object of RootObj
@@ -1241,7 +1241,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
                         # todo: rethink error MSG
                         if this.controlls[iC].outerHeigth() > availH or this.controlls[iC].x2 > this.x2:
                             echo "ERR Controll cannot be placed on screen! PRESS ENTER! ", this.controlls[iC].outerHeigth(), " vs ", $(availH + 1)
-                            discard stdin.readLine()
+                            #discard stdin.readLine()
                             continue
                 #...............................................................
 
@@ -1629,7 +1629,7 @@ proc initTerminal*(app:App)=
     echo "\e[?1002h\e[?1006h" # mouse enable + mode
     echo "\e%G" # ? set UTF8
     echo "\e[?7l" # dont wrap
-    switchToAlternateBuffer() ##### COMMENT ME FOR BETTER DEBUGGING ######################
+    switchToAlternateBuffer() #####! COMMENT ME FOR BETTER DEBUGGING ######################
     enableCanon()
     hideCursor()
 

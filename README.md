@@ -14,9 +14,10 @@ releases:
 (manjaro linux, visual stuido code [better comments])  
   
 
-Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
+Status: usable alpha. missing: widgets, banners, splash; docs, cleanup  
   see: stui_test1.nim  
   copy&use: template_simpleapp.nim  
+  tested on xfce4terminal, gnome-terminal  
 
 ![Screenshot_stui_test1.nim](doc/Screenshot_2018-10-03_15-23-40.png)
 
@@ -75,7 +76,7 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 
 **App template: template_simpleapp.nim**
 
-**Dependency: like Deja-Vu TTF - a font with large unicode character set**  
+**Dependency: like Deja-Vu TTF - a font with large unicode character set & terminal, like xfce4 terminal**  
 ![nerd fonts](https://github.com/ryanoasis/nerd-fonts/wiki)  
 
 

@@ -41,11 +41,14 @@ proc `value`*(this:SelectBox): string =
             else:
                 result.add("," & this.options[i].value)
 
+proc selectBoxOnChange*(this: Controll) #FWD
+
 proc `value=`*(this:SelectBox, val:string) =
     for word in split(val, ','):
         for i in 1..this.options[].high:
             if this.options[i].value == word: 
                 this.options[i].selected = true
+    selectBoxOnChange(Controll(this))
     this.draw(true)
 
 proc `value2`*(this:SelectBox): string = `value`(this)

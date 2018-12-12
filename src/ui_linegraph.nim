@@ -197,7 +197,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                     for li in 1 .. this.posGraphHeigth :
                         cline -= 1
                         terminal_extra.setCursorPos(this.leftX, cline)
-                        stdout.write ( (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision).align(this.marklen)
+                        stdout.write unicode.align((this.yLineHeigth * li.float).formatFloat(ffDecimal, this.floatPrecision),this.marklen)
                         stdout.write this.tickMarkRune
                         stdout.write this.tickLineRune * (this.width - this.marklen - 1)
 
@@ -213,7 +213,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                     for li in 1..this.negGraphHeigth :
                         cline += 1
                         terminal_extra.setCursorPos(this.leftX, cline)
-                        stdout.write (0 - (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision).align(this.marklen)
+                        stdout.write unicode.align((0 - (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision), this.marklen)
                         stdout.write this.tickMarkRune
                         stdout.write this.tickLineRune * (this.width - this.marklen - 1)
 

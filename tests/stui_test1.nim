@@ -197,10 +197,10 @@ opt = (name:"16 Colors", value: "1", selected: false)
 sb2.options[].add(opt)
 opt = (name:"256 Colors", value: "2", selected: false)
 sb2.options[].add(opt)
-opt = (name:"RGB Colors", value: "3", selected: true)
+opt = (name:"RGB Colors", value: "3", selected: false)
 sb2.options[].add(opt)
 
-sb2.text = "RGB Colors"
+#sb2.text = "RGB Colors"
 
 proc changeColorMode(source:Controll)=
     discard parseInt(sb2.value, source.app.colorMode)

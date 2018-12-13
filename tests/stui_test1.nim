@@ -190,9 +190,7 @@ var sb2 = app.activeWindow.newSelectBox("ColorMode Changer :)",false,20)
 sb2.setMargin("bottom", 1)
 sb2.setMargin("left", 1)
 sb2.setBorder("solid")
-#[ for i in 1..5:
-    opt = (name:"name-" & $i, value: $i, selected:false)
-    sb2.options[].add(opt) ]#
+
 opt = (name:"16 Colors", value: "1", selected: false)
 sb2.options[].add(opt)
 opt = (name:"256 Colors", value: "2", selected: false)
@@ -200,7 +198,6 @@ sb2.options[].add(opt)
 opt = (name:"RGB Colors", value: "3", selected: false)
 sb2.options[].add(opt)
 
-#sb2.text = "RGB Colors"
 
 proc changeColorMode(source:Controll)=
     discard parseInt(sb2.value, source.app.colorMode)
@@ -302,7 +299,6 @@ proc prog1test(pbPtr: ptr, app: ptr)=
         (pbPTR[]).val += 5
         if (pbPTR[]).val > 100: (pbPTR[]).val = 0
         ui_progressbar.draw(pbPTR[], true)
-        #withLock app[].termlock : app[].setCursorPos()
         sleep(rand(750))
 
 spawn prog1test(addr prog1, addr app)
@@ -316,15 +312,14 @@ prog2.val = 0
 prog2.setMargin("left", 1)
 
 
-proc prog2test(pbPtr: ptr, app: ptr)=
+proc prog2test(pbPtr: ptr)=
     while true:
         (pbPTR[]).val += 10
         if (pbPTR[]).val > 100: (pbPTR[]).val = 0
         ui_progressbar.draw(pbPTR[], true)
-        #withLock app[].termlock : app[].setCursorPos()
         sleep(rand(2500))
 
-spawn prog2test(addr prog2, addr app)
+spawn prog2test(addr prog2)
 
 
 

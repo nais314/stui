@@ -6,8 +6,8 @@ This is my first app in Nim - it covers pretty much anything i need to learn >:)
 **STUI is a drag&drop aware, responsive layout, themeable, ANSI terminal UI. (currently for linux terminals...)**  
 
 branches:
-* master: usable alpha, revised for nim v0.19, devel
-
+* master: usable alpha, revised for **nim v0.19.9**, devel - *stable has no unicode.align == compile error; delete unicode. for nim 0.19.0 stable*  
+  
 releases:
 * nim 0.18 version archived as release
 
@@ -80,8 +80,8 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 ![nerd fonts](https://github.com/ryanoasis/nerd-fonts/wiki)  
 
 
-* ui_textbox: text input, 1 line heigh
-* ui_button: .
+* ui_textbox: text input, 1 line 
+* ui_button  
 * ui_textarea: multi line textbox, editable, scrollable
 * ui_menu: full screen hierarchial menu - breadcrumbs in window
 * ui_stringlistbox: like a listbox, items having actions, not for (multi)selection (will continue)

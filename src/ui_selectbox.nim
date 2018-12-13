@@ -31,6 +31,13 @@ type
 proc draw*(this: SelectBox, updateOnly: bool = false) #FWD
 
 
+
+
+proc clear*(this:SelectBox)=
+    for i in 1..this.options[].high: this.options[i].selected = false
+    this.options[0].selected = true
+
+
 proc `value`*(this:SelectBox): string =
     ## returns string with 1 option or comma separated string of values
     result = ""
@@ -44,6 +51,7 @@ proc `value`*(this:SelectBox): string =
 proc selectBoxOnChange*(this: Controll) #FWD
 
 proc `value=`*(this:SelectBox, val:string) =
+    this.clear()
     for word in split(val, ','):
         for i in 1..this.options[].high:
             if this.options[i].value == word: 
@@ -62,9 +70,12 @@ proc `values`*(this:SelectBox): seq[string] =
         if this.options[i].selected: result.add(this.options[i].value)
 
 proc `values=`*(this:SelectBox, selected: seq[string]) =
+    this.clear()
     for c in 0..selected.high:
         for i in 1..this.options[].high:
             if this.options[i].value == selected[c]: this.options[i].selected = true
+    selectBoxOnChange(Controll(this))
+    this.draw(true)
 
 
 ################ these functions working with NAME prop!!! ################
@@ -79,9 +90,12 @@ proc `names`*(this:SelectBox): string =
                 result.add("," & this.options[i].name)
 
 proc `names=`*(this:SelectBox, val:string) =
+    this.clear()
     for word in split(val, ','):
         for i in 1..this.options[].high:
             if this.options[i].name == word: this.options[i].selected = true
+    selectBoxOnChange(Controll(this))
+    this.draw(true)
 
 proc `names2`*(this:SelectBox): seq[string] =
     ## returns a seq of selected option NAMEs
@@ -90,9 +104,12 @@ proc `names2`*(this:SelectBox): seq[string] =
         if this.options[i].selected: result.add(this.options[i].name)
 
 proc `names2=`*(this:SelectBox, selected: seq[string]) =
+    this.clear()
     for c in 0..selected.high:
         for i in 1..this.options[].high:
-            if this.options[i].name == selected[c]: this.options[i].selected = true            
+            if this.options[i].name == selected[c]: this.options[i].selected = true
+    selectBoxOnChange(Controll(this))
+    this.draw(true)
 
 
 

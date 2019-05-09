@@ -28,9 +28,9 @@
 #! page style is useless
 ################################################################################
 
-import stui, terminal, colors, colors_extra, terminal_extra, kmloop, threadpool, os, tables, locks
+import stui, terminal, colors, stui/[colors_extra, terminal_extra, kmloop], threadpool, os, tables, locks
 
-import ui_textbox, ui_button, ui_textarea, ui_stringlistbox
+import stui/[ui_textbox, ui_button, ui_textarea, ui_stringlistbox]
 
 import strformat, unicode, strutils, parseutils
 
@@ -167,7 +167,7 @@ tA1.setMargin("left", 1)
 
 #-------------------------------------------------------------------------------
 
-import ui_selectbox
+import stui/ui_selectbox
 
 echo "selectbox"
 echo "A"
@@ -230,7 +230,7 @@ addEventListener(Controll(btn), "click", btnClick)
 
 #-------------------------------------------------------------------------------
 
-import ui_menu
+import stui/ui_menu
 
 
 # MENU -------------------------------------------------------------------------
@@ -285,7 +285,7 @@ app.addEventListener(KeyF2, proc() = menu1.show())
 
 #-------------------------------------------------------------------------------
 
-import ui_progressbar
+import stui/ui_progressbar
 
 #-----------------
 
@@ -327,7 +327,7 @@ spawn prog2test(addr prog2)
 
 
 #-------------------------------------------------------------------------------
-import ui_fineprogressbar
+import stui/ui_fineprogressbar
 
 var fineprog = app.activeWindow.newFineProgressBar("fine progbar1")
 
@@ -467,7 +467,7 @@ status_styles.add("info", styleSheetRef_fromConfig(statusTss,"info"))
 status_styles.add("success", styleSheetRef_fromConfig(statusTss,"success"))
 
 
-proc statusTss_test(pbPtr: ptr, app: ptr, sty: ptr)=
+proc statusTss_test(pbPtr: ptr, app: ptr, sty: ptr){.gcsafe.}=
     randomize()
     if pbPtr != nil and app != nil and sty != nil:
         while true:
@@ -493,7 +493,7 @@ proc statusTss_test(pbPtr: ptr, app: ptr, sty: ptr)=
                             (pbPTR[]).controlls[i].styles["input"].fgColor = (app[]).styles["input"].fgColor
                             (pbPTR[]).controlls[i].styles["input"].bgColor = (app[]).styles["input"].bgColor
 
-                    (pbPTR[]).controlls[i].drawit(((pbPTR[]).controlls[i]), true)
+                    #(pbPTR[]).controlls[i].drawit(((pbPTR[]).controlls[i]), true)
                 
 
             withLock app[].termlock : app[].setCursorPos()
@@ -672,7 +672,7 @@ statt.value= "Welcome to the Page of new Developments :)"
 
 
 
-import ui_fileselect
+import stui/ui_fileselect
 
 let fch1 = app.activeWindow.newFileSelect("FileSelect1 fch1")
 fch1.setMargin("top",1)
@@ -680,7 +680,7 @@ fch1.setMargin("left",1)
 
 
 
-import ui_shdbutton
+import stui/ui_shdbutton
 
 let shdbtn1 = app.activeWindow.newShdButton("shdbtn1")
 shdbtn1.setMargin("top",1)
@@ -692,7 +692,7 @@ shdbtn2.setMargin("left",1)
 
 
 
-import ui_togglebutton
+import stui/ui_togglebutton
 
 let tgbtn1 = app.activeWindow.newToggleButton("tgbtn1", "on", "off")
 tgbtn1.setMargin("top",1)
@@ -709,7 +709,7 @@ tglbtn3.setMargin("left",1)
 
 
 #...............................................................................
-import ui_linegraph
+import stui/ui_linegraph
 
 let lg1 = newLineGraph[float]( win = app.activeWindow,
                         label = "LineGraph 1",
@@ -732,7 +732,7 @@ for i in 1 .. 50:
 #[ for i in 0 .. 6:
     discard FloatDataset2D(lg1.dataset).add(($(i * -1), (i.float * -1))) ]#
 
-proc lg1_conditionalFormat(this: DataSet2D[float], val:float)=
+proc lg1_conditionalFormat(this: DataSet2D[float], val:float){.gcsafe.}=
     if val == this.maxValue or val == this.minValue:
         #stdout.write "\e[31m\e[1m" # for max compatibility, 8 colors mode >:)
         colors_extra.setForegroundColor("red") # 256c or RGB
@@ -825,7 +825,7 @@ proc lg3sim(lg3Ptr: ptr LineGraph[float]) {.gcsafe.} =
         
         #[ if lg3Ptr.dataset.values.len > lg3Ptr.dataset.maxItems :
             lg3Ptr.dataset.values.delete(0) ]#
-        LineGraph(lg3Ptr[]).draw(false)
+        LineGraph(lg3Ptr[]).draw(false) #TODO gcsafe
         sleep(1000)
 
 let lg3Ptr: ptr = addr lg3
@@ -850,7 +850,7 @@ lg3.activeStyle.setTextStyle("styleBright")
 #                                                                  
 #
 #
-include "mainloop.inc.nim"
+include "stui/mainloop.inc.nim"
 #
 #
 #

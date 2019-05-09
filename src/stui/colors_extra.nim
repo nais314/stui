@@ -4,7 +4,7 @@ import os, osproc
 
 #type ColorTable = array[int, tuple[name: string, color:int]]
 
-var colorNames16* = [
+const colorNames16* = [
     ("fgBlack",30),
     ("fgRed",31),
     ("fgGreen",32),
@@ -105,8 +105,7 @@ else:
 result = 3 ]#
 
 
-
-proc parseColor*(colorName: string, colorMode: int): int =
+proc parseColor*(colorName: string, colorMode: int): int {.gcsafe.}=
     ## searches for colors int value by name
     ## you better search for valid color names... ;)
     case colorMode:
@@ -115,8 +114,11 @@ proc parseColor*(colorName: string, colorMode: int): int =
             result = searchColorTable(colorNames256, colorName) #colorNames256[ searchColorTable(colorNames256, colorName) ][1]
             if result == -1:
                 result = searchColorTable(colorNamesRGBto256, colorName)
-        of 3: result = int(colors.parseColor( toLowerAscii(colorName)))
-
+        of 3:
+                try:
+                    result = int(colors.parseColor( toLowerAscii(colorName)))
+                except:
+                    result = 0
         else: result = 0
 
 proc parseColor*(colorName: string): int = parseColor(colorName, getColorMode())
@@ -184,7 +186,7 @@ proc setBackgroundColor*(col: PackedRGB) =
 
 #................................
 
-proc setForegroundColor*(colorname: string) =
+proc setForegroundColor*(colorname: string){.gcsafe.} =
     let cmode = getColorMode()
     let color = colors_extra.parseColor(colorname, cmode)
     case cmode:

@@ -35,7 +35,7 @@
 ]#
 
 
-import unicode, terminal, colors, colors256, colors_extra, terminal_extra
+import unicode, terminal, colors, stui/[colors256, colors_extra, terminal_extra]
 import os, osproc, locks, threadpool
 import parseutils, parsecfg, strutils, strformat, unicode
 import tables
@@ -1011,7 +1011,7 @@ proc newApp*(): App =
         # _Terminal_Style_Sheet
         var
             dict = loadConfig("theme.tss")
-
+        
         # default background colors:
 
         # window background

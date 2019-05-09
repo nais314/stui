@@ -1,4 +1,4 @@
-var colorNamesRGBto256* = [
+const colorNamesRGBto256* = [
     ("aliceblue", 195),
     ("antiquewhite", 223),
     ("aquamarine", 49),

@@ -17,7 +17,7 @@ import strformat, unicode, strutils, parseutils, random, times
 
 #! app init defaults <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 var app: MyApp ## (i) from your myappbasetypes
-app = newApp(splitPath(currentSourcePath()).head )
+app = newApp(splitPath(currentSourcePath()).head ) # (path to themes)
 
 app.threadId = 0  ## convention.
                   ## replaced getThreadId(), because a Thread does not knows it, 
@@ -39,7 +39,6 @@ proc checkTerminalResized()=
         for iw in it.windows:
           if iw.currentPage > iw.pages.high: iw.currentPage = iw.pages.high
     app.draw()
-#.............
 
 var 
   rT:TimedAction=(
@@ -56,8 +55,9 @@ app.timers.add(rT)
 #-------------------------------------------------------------------------------
 
 #! INITIALIZE EVENT HANDLERS HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-#! SIMPLE InterCom - thread to main communication:
-debugEcho "\n-------------------\n", getCurrentDir(), "\n-------------------\n"
+#!  appbase.mainloop calls Channels handlers see appbase folder for templates
+#!  SIMPLE InterCom - thread to main communication:
+
 when defined mainChannelString_enabled: include "appbase/mainChannelString.inc.nim"
 #-------------------------------------------------------------------------------
 when defined mainChannelInt_enabled: include "appbase/mainChannelInt.inc.nim"
@@ -66,58 +66,50 @@ when defined mainChannelIntChecked_enabled: include "appbase/mainChannelIntCheck
 #-------------------------------------------------------------------------------
 when defined mainChannelIntTalkback_enabled: include "appbase/mainChannelIntTalkback.inc.nim"
 #-------------------------------------------------------------------------------
-#! INTERCOM - inter-thread capable communication:
+#!  INTERCOM - inter-thread capable communication:
 when defined mainChannelJsonChecked_enabled: 
-    import json
-    include "appbase/mainChannelJson.inc.nim"
+  import json
+  include "appbase/mainChannelJson.inc.nim"
 #-------------------------------------------------------------------------------
 
 
-#! MAIN LOOP--------------------------------------------------------------------
-#[ type InputLoopEvent = object of EventRoot #! replace this with your type
-        quit: bool ]#
-var inputLoopEvent: InputLoopEvent # (i) from myappbasetypes
-var inputLoopEventFlowVar: FlowVar[InputLoopEvent]
+
+#! INCLUDE GUI INIT HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+include "main.inc.nim"
 
 
-#! MAIN LOOP STARTS HERE:
-when defined inputEventLoop_enabled:
-    inputLoopEventFlowVar = spawn kmLoop() #! REPLACE PROC WITH YOURS #1/2 <<<<<
+#! a good place to add some tests -------------------------------------------<<<
+#! end of a good place to add some tests --------------------------------------- 
 
 
 
-#! a good place to add some tests ----------------------------------------------
- 
-app.activeWorkSpace = app.newWorkSpace("firstWS")
-app.activeTile = app.activeWorkSpace.newTile("auto")
-app.activeTile.id = "TILE ID" # == app.workSpaces[0].tiles[0].id = "TILE ID"
-
-discard app.activeTile.newWindow()
-app.activeTile.windows[0].styles["window"].padding.left = 1
-app.activeTile.windows[0].styles["window"].padding.top = 1
-app.activeTile.windows[0].label = "Unnamed Document 1"
-
-discard app.workSpaces[0].newTile("24ch") # 24 char wide tile
-var ws1_W2 = app.workSpaces[0].tiles[1].newWindow()
-ws1_W2.styles.add("dock", app.styles["dock"])
-ws1_W2.activeStyle = ws1_W2.styles["dock"]
-ws1_W2.label = "dock"
-
-
-
-
-#! a good place to add some tests ---------------------------------------------- 
-
-
-
-
+#! RUN ☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰
 #! terminal init and app starts to run here
+#! create gui controlls BEFORE this
 
 app.initTerminal()
 app.recalc()
 app.draw()
 
+
+
+
+#! MAIN LOOP--------------------------------------------------------------------
+
+var inputLoopEvent: InputLoopEvent #! (i) from myappbasetypes
+var inputLoopEventFlowVar: FlowVar[InputLoopEvent]
+
+
+#! MAIN LOOP STARTS HERE:
+when defined inputEventLoop_enabled:
+  inputLoopEventFlowVar = spawn kmLoop() #! REPLACE PROC WITH YOURS #1/2 <<<<<<<
+
+        
+
+
 app.mainLoop:
+  ##! appbase.mainloop calls Channels handlers see above ^ 
+  ## ...........................................................................
   ## GET EVENT OBJECT: (only runs if inputLoopEventFlowVar.isReady)
   inputLoopEvent = InputLoopEvent(^inputLoopEventFlowVar) # it stops here anyway...
 

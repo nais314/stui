@@ -982,7 +982,7 @@ proc newWorkSpace*(app: var App, id:string="default"): WorkSpace =
 # FWD
 proc appOnKeypress*(app:App, event: KMEvent):bool
 
-proc newApp*(appDir: string): App =
+proc newApp*(appDir: string): App = # appDir for themes
     result = new App
 
     initLock(result.termlock)

@@ -1,0 +1,156 @@
+## template for appbase library
+## copy-paste, save-as, customize :-)
+
+import appbase, appbase/myappbasetypes, threadpool, tables, os
+## on appbase/myappbasetypes: here, appbase is the subdirectory, not the pkg!
+
+#-------------------------------------------------------------------------------
+#! ADD imports HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+import stui, terminal, colors, threadpool, os, ospaths, tables, locks, parsecfg
+
+import stui/[colors_extra, terminal_extra, kmloop]
+import stui/[ui_textbox, ui_button, ui_textarea, ui_stringlistbox]
+
+import strformat, unicode, strutils, parseutils, random, times
+#-------------------------------------------------------------------------------
+
+#! app init defaults <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+var app: MyApp ## (i) from your myappbasetypes
+app = newApp(splitPath(currentSourcePath()).head )
+
+app.threadId = 0  ## convention.
+                  ## replaced getThreadId(), because a Thread does not knows it, 
+                  ## and app is not GCsafe to get it from...
+
+
+
+#-------------------------------------------------------------------------------    
+
+proc checkTerminalResized()=
+  ## used as/via TimedAction action
+  ## used internally
+  if app.terminalHeight != terminalHeight() or app.terminalWidth != terminalWidth():
+    app.terminalHeight = terminalHeight()
+    app.terminalWidth  = terminalWidth()
+    app.recalc()
+    for iws in app.workSpaces:
+      for it in iws.tiles:
+        for iw in it.windows:
+          if iw.currentPage > iw.pages.high: iw.currentPage = iw.pages.high
+    app.draw()
+#.............
+
+var 
+  rT:TimedAction=(
+    name:"termresize",
+    interval: 2.float,
+    action: nil, #O.o: adding checkTerminalResized here results error
+    lastrun:epochTime()
+    )
+
+rT.action = checkTerminalResized
+app.timers.add(rT)
+
+
+#-------------------------------------------------------------------------------
+
+#! INITIALIZE EVENT HANDLERS HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#! SIMPLE InterCom - thread to main communication:
+debugEcho "\n-------------------\n", getCurrentDir(), "\n-------------------\n"
+when defined mainChannelString_enabled: include "appbase/mainChannelString.inc.nim"
+#-------------------------------------------------------------------------------
+when defined mainChannelInt_enabled: include "appbase/mainChannelInt.inc.nim"
+#-------------------------------------------------------------------------------
+when defined mainChannelIntChecked_enabled: include "appbase/mainChannelIntChecked.inc.nim"
+#-------------------------------------------------------------------------------
+when defined mainChannelIntTalkback_enabled: include "appbase/mainChannelIntTalkback.inc.nim"
+#-------------------------------------------------------------------------------
+#! INTERCOM - inter-thread capable communication:
+when defined mainChannelJsonChecked_enabled: 
+    import json
+    include "appbase/mainChannelJson.inc.nim"
+#-------------------------------------------------------------------------------
+
+
+#! MAIN LOOP--------------------------------------------------------------------
+#[ type InputLoopEvent = object of EventRoot #! replace this with your type
+        quit: bool ]#
+var inputLoopEvent: InputLoopEvent # (i) from myappbasetypes
+var inputLoopEventFlowVar: FlowVar[InputLoopEvent]
+
+
+#! MAIN LOOP STARTS HERE:
+when defined inputEventLoop_enabled:
+    inputLoopEventFlowVar = spawn kmLoop() #! REPLACE PROC WITH YOURS #1/2 <<<<<
+
+
+
+#! a good place to add some tests ----------------------------------------------
+ 
+app.activeWorkSpace = app.newWorkSpace("firstWS")
+app.activeTile = app.activeWorkSpace.newTile("auto")
+app.activeTile.id = "TILE ID" # == app.workSpaces[0].tiles[0].id = "TILE ID"
+
+discard app.activeTile.newWindow()
+app.activeTile.windows[0].styles["window"].padding.left = 1
+app.activeTile.windows[0].styles["window"].padding.top = 1
+app.activeTile.windows[0].label = "Unnamed Document 1"
+
+discard app.workSpaces[0].newTile("24ch") # 24 char wide tile
+var ws1_W2 = app.workSpaces[0].tiles[1].newWindow()
+ws1_W2.styles.add("dock", app.styles["dock"])
+ws1_W2.activeStyle = ws1_W2.styles["dock"]
+ws1_W2.label = "dock"
+
+
+
+
+#! a good place to add some tests ---------------------------------------------- 
+
+
+
+
+#! terminal init and app starts to run here
+
+app.initTerminal()
+app.recalc()
+app.draw()
+
+app.mainLoop:
+  ## GET EVENT OBJECT: (only runs if inputLoopEventFlowVar.isReady)
+  inputLoopEvent = InputLoopEvent(^inputLoopEventFlowVar) # it stops here anyway...
+
+  #! PROCESS MESSAGE HERE -- case inputLoopEvent, of x: etc
+
+  case inputLoopEvent.evType:
+    of "Click","Release","Drag","Drop", "ScrollUp","ScrollDown", "DoubleClick":
+      app.mouseEventHandler(inputLoopEvent)
+
+    of "FnKey","CtrlKey", "Char": # vscode terminal middle mouse click triggers this too...
+      # KeyPgUp, KeyPgDown trigger controlls cb first then apps
+      if inputLoopEvent.key in [KeyPgUp, KeyPgDown]:
+        if app.activeControll != nil and app.activeControll.onKeypress != nil:
+          app.activeControll.onKeypress(app.activeControll, inputLoopEvent)
+        else:
+          if app.onKeypress != nil: 
+            discard app.onKeypress(app, inputLoopEvent)
+      else: # trigger apps cb first, then controlls
+        if app.onKeypress != nil and app.onKeypress(app, inputLoopEvent) == false:
+          if app.activeControll != nil and app.activeControll.onKeypress != nil:
+            app.activeControll.onKeypress(app.activeControll, inputLoopEvent)
+
+    of "EXIT":
+      if app.activeControll != nil:
+        try:
+          if app.activeControll.cancel != nil:
+            app.activeControll.cancel(app.activeControll)
+          app.activeControll = nil
+        except:
+          break # == quit
+      else:
+        break # == quit
+    else: discard
+
+  ##! RESTART LOOP:
+  inputLoopEventFlowVar = spawn kmLoop() #! REPLACE PROC WITH YOURS #2/2 <<<<<<<

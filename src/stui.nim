@@ -41,7 +41,7 @@ import parseutils, parsecfg, strutils, strformat, unicode
 import tables
 import random, times
 
-
+import stui/appbase/appbasetypes #! the new base types coming from
 
 
 
@@ -233,8 +233,8 @@ type
 
 
     #App:------------------------------
-    TimedAction* = tuple[name:string,interval:float,action:proc():void,lastrun:float] # epochTime:float
-    App* = ref object of RootObj
+    #TimedAction* = tuple[name:string,interval:float,action:proc():void,lastrun:float] # epochTime:float
+    App* = ref object of AppBase
         colorMode*:int
         terminalWidth*:int
         terminalHeight*:int
@@ -263,8 +263,8 @@ type
 
         termlock*: Lock
 
-        listeners*: seq[tuple[name:string, actions: seq[proc():void]]]
-        timers*: seq[TimedAction] #seq[tuple[name:string,interval:float,action:proc()]]
+        #listeners*: seq[tuple[name:string, actions: seq[proc():void]]]
+        #timers*: seq[TimedAction] #seq[tuple[name:string,interval:float,action:proc()]]
 
         itc*: ptr Channel[string] # TODO inter thread comm to app
 
@@ -982,7 +982,7 @@ proc newWorkSpace*(app: var App, id:string="default"): WorkSpace =
 # FWD
 proc appOnKeypress*(app:App, event: KMEvent):bool
 
-proc newApp*(): App =
+proc newApp*(appDir: string): App =
     result = new App
 
     initLock(result.termlock)
@@ -1009,8 +1009,9 @@ proc newApp*(): App =
     block LOAD_TSS:
 
         # _Terminal_Style_Sheet
+        #debugEcho getCurrentDir()
         var
-            dict = loadConfig("theme.tss")
+            dict = loadConfig(appDir & DirSep & "stui" & DirSep & "theme.tss")
         
         # default background colors:
 
@@ -1082,7 +1083,7 @@ proc outerHeigth(this: Controll): int {.inline.} =
             else:
                 this.heigth = int(((this.win.heigth - 1 -
                     this.win.activeStyle.padding.top -
-                    this.win.activeStyle.padding.bottom).float / 100.0) *   this.heigth_value.float) -
+                    this.win.activeStyle.padding.bottom).float / 100.0) * this.heigth_value.float) -
                     this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2 # 2->border
 
         else: # no border
@@ -1094,7 +1095,7 @@ proc outerHeigth(this: Controll): int {.inline.} =
             else:
                 this.heigth = int(((this.win.heigth - 1 - 
                     this.win.activeStyle.padding.top -
-                    this.win.activeStyle.padding.bottom).float / 100.0) *   this.heigth_value.float) -
+                    this.win.activeStyle.padding.bottom).float / 100.0) * this.heigth_value.float) -
                     this.activeStyle.margin.top - this.activeStyle.margin.bottom
 
         return this.heigth +
@@ -1563,8 +1564,9 @@ proc draw*(this: App) =
     #...
     #this.setColors( this.activeStyle[])
     #hideCursor()
-    for i_tiles in 0..this.activeWorkSpace.tiles.high :
-        this.activeWorkSpace.tiles[i_tiles].draw()
+    if not isNil this.activeWorkSpace: # if anything to show
+        for i_tiles in 0..this.activeWorkSpace.tiles.high:
+            this.activeWorkSpace.tiles[i_tiles].draw()
 
     #this.setColors (this.activeStyle[])
     #showCursor()

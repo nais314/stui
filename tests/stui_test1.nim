@@ -850,7 +850,7 @@ lg3.activeStyle.setTextStyle("styleBright")
 #                                                                  
 #
 #
-include "stui/mainloop.inc.nim"
+include "mainloop.inc.nim"
 #
 #
 #

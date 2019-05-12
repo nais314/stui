@@ -21,11 +21,11 @@ mainChannelIntTalkback[].open()
 import appbase/intchannelutils
 
 proc handleMainChannelIntTalkback()= #! OVERWRITE THIS
-  when defined(debugTrace_enabled): debugEcho "---=== mainChannelIntTalkback[].peek()> ", mainChannelIntTalkback[].peek()
+  when defined(logger_enabled): debug "---=== mainChannelIntTalkback[].peek()> ", mainChannelIntTalkback[].peek()
   block: #for iMsg in 0..1: #? anti flood
     var inbox = tryRecv( (mainChannelIntTalkback[]) ) #tuple[dataAvailable: bool, msg: TMsg]
     if inbox.dataAvailable:
-        when defined(debugInfo_enabled): debugEcho "---=== handleMainChannelIntTalkback recv> ", inbox.msg[]
+        when defined(logger_enabled): debug "---=== handleMainChannelIntTalkback recv> ", inbox.msg[]
         case inbox.msg[]:
             of 1:
                 echo "---=== Hello handleMainChannelIntTalkback!"
@@ -34,11 +34,11 @@ proc handleMainChannelIntTalkback()= #! OVERWRITE THIS
             of 256..int.high:
                 echo "---=== Hello handleMainChannelIntTalkback!"
                 var msg = unpackIntMsg(inbox.msg[].uint)
-                debugEcho "---=== handleMainChannelIntTalkback msg> ", msg
+                when defined(logger_enabled): notice "---=== handleMainChannelIntTalkback msg> ", msg
                 atomicInc(inbox.msg[])
 
             else:
-                when defined(debugInfo_enabled): debugEcho "---=== handleMainChannelIntTalkback> else"
+                when defined(logger_enabled): debug "---=== handleMainChannelIntTalkback> else"
                 app.trigger($ inbox.msg[])
                 atomicInc(inbox.msg[])
     else: break

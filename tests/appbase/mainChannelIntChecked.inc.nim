@@ -11,10 +11,10 @@ proc handleMainChannelIntChecked()= #! OVERWRITE THIS
     var inbox = tryRecv( (mainChannelIntChecked[]) ) #tuple[dataAvailable: bool, msg: TMsg]
     if inbox.dataAvailable:
         inbox.msg.chan[].open()
-        when defined(debugInfo_enabled): debugEcho "::: handleMainChannelIntChecked recv> ", inbox.msg.val
+        when defined(logger_enabled): debug "::: handleMainChannelIntChecked recv> ", inbox.msg.val
         case inbox.msg.val:
             of 1:
-                echo "::: Hello MainChannelIntChecked!"
+                when defined(logger_enabled): debug "::: Hello MainChannelIntChecked!"
                 
                 inbox.msg.chan[].send(4)
 
@@ -22,7 +22,7 @@ proc handleMainChannelIntChecked()= #! OVERWRITE THIS
                 quit()
                 #inbox.msg.chan.send(0)
             else:
-                when defined(debugInfo_enabled): debugEcho "::: handleMainChannelIntChecked> else"
+                when defined(logger_enabled): debug "::: handleMainChannelIntChecked> else"
                 app.trigger($ inbox.msg.val)
     else: break
     sleep(0)

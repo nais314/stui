@@ -64,7 +64,7 @@ proc draw*(this: TextBox, updateOnly: bool = false) =
 
 
 ### MANDATORY ###
-proc drawit(this: Controll, updateOnly: bool = false) =
+proc drawit(this: Controll, updateOnly: bool = false){.gcsafe.} =
     TextBox(this).draw(updateOnly)
 
 

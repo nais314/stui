@@ -1677,6 +1677,8 @@ proc runTimers*(this:App)=
     activate is useful to pass focus to other controll like selectbox->chooser
 ]#
 proc activate*(app: App, controll:Controll)=
+    ## activate the selected controll
+    ## controll should be visible for now - TODO
     if app.activeControll != nil:
         if app.activeControll.blur != nil:
             app.activeControll.blur(app.activeControll)

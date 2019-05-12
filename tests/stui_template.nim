@@ -4,7 +4,11 @@
 import appbase, appbase/myappbasetypes, threadpool, tables, os
 ## on appbase/myappbasetypes: here, appbase is the subdirectory, not the pkg!
 
-#-------------------------------------------------------------------------------
+when defined logger_enabled:
+  #! it declares a logger - override it as needed <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  include "appbase/logger.inc.nim"
+
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #! ADD imports HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 import stui, terminal, colors, threadpool, os, ospaths, tables, locks, parsecfg
@@ -13,19 +17,17 @@ import stui/[colors_extra, terminal_extra, kmloop]
 import stui/[ui_textbox, ui_button, ui_textarea, ui_stringlistbox]
 
 import strformat, unicode, strutils, parseutils, random, times
-#-------------------------------------------------------------------------------
 
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #! app init defaults <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 var app: MyApp ## (i) from your myappbasetypes
 app = newApp(splitPath(currentSourcePath()).head ) # (path to themes)
 
 app.threadId = 0  ## convention.
                   ## replaced getThreadId(), because a Thread does not knows it, 
                   ## and app is not GCsafe to get it from...
-
-
-
-#-------------------------------------------------------------------------------    
+#...............................................................................    
 
 proc checkTerminalResized()=
   ## used as/via TimedAction action
@@ -51,8 +53,7 @@ var
 rT.action = checkTerminalResized
 app.timers.add(rT)
 
-
-#-------------------------------------------------------------------------------
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #! INITIALIZE EVENT HANDLERS HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #!  appbase.mainloop calls Channels handlers see appbase folder for templates
@@ -70,18 +71,18 @@ when defined mainChannelIntTalkback_enabled: include "appbase/mainChannelIntTalk
 when defined mainChannelJsonChecked_enabled: 
   import json
   include "appbase/mainChannelJson.inc.nim"
-#-------------------------------------------------------------------------------
 
-
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #! INCLUDE GUI INIT HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 include "main.inc.nim"
 
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-#! a good place to add some tests -------------------------------------------<<<
-#! end of a good place to add some tests --------------------------------------- 
+#! a good place to add some tests ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#! end of a good place to add some tests ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
 
-
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #! RUN ☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰☰
 #! terminal init and app starts to run here
@@ -91,26 +92,19 @@ app.initTerminal()
 app.recalc()
 app.draw()
 
-
-
-
 #! MAIN LOOP--------------------------------------------------------------------
 
 var inputLoopEvent: InputLoopEvent #! (i) from myappbasetypes
 var inputLoopEventFlowVar: FlowVar[InputLoopEvent]
 
-
 #! MAIN LOOP STARTS HERE:
 when defined inputEventLoop_enabled:
   inputLoopEventFlowVar = spawn kmLoop() #! REPLACE PROC WITH YOURS #1/2 <<<<<<<
 
-        
-
-
 app.mainLoop:
-  ##! appbase.mainloop calls Channels handlers see above ^ 
+  ##! 'here' appbase.mainloop calls Channels handlers see above ^ 
   ## ...........................................................................
-  ## GET EVENT OBJECT: (only runs if inputLoopEventFlowVar.isReady)
+  ##! GET EVENT OBJECT: (only runs if inputLoopEventFlowVar.isReady)
   inputLoopEvent = InputLoopEvent(^inputLoopEventFlowVar) # it stops here anyway...
 
   #! PROCESS MESSAGE HERE -- case inputLoopEvent, of x: etc

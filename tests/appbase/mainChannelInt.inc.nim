@@ -21,7 +21,8 @@ proc handleMainChannelInt()=
           #when defined(debugInfo_enabled): debugEcho repr(inbox)
           case inbox.msg:
               of 1: #"redraw":
-                  echo "+++++++ Hello MainChannelInt!"
+                  when defined(logger_enabled): debug "+++++++ Hello MainChannelInt!"
+                  discard
               of int(mciQuit): #"quit":
                   quit()
               else:

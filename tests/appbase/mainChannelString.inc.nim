@@ -8,7 +8,7 @@ proc handleMainChannelString()=
           when defined(debugInfo_enabled): debugEcho repr(inbox)
           case inbox.msg:
               of "hello":
-                  echo "     $$$ handleMainChannelString recived> "
+                  when defined(logger_enabled): notice  "     $$$ handleMainChannelString recived> "
               of "quit":
                   quit()
               else:

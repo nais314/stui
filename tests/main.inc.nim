@@ -778,3 +778,75 @@ lg3.activeStyle.fgColor[1] = colors_extra.parseColor("fgGreen",1)
 lg3.activeStyle.fgColor[2] = colors_extra.parseColor("lime",2)
 lg3.activeStyle.fgColor[3] = colors_extra.parseColor("lime",3)
 lg3.activeStyle.setTextStyle("styleBright")
+
+
+
+
+#    #### ##    ## ######## ######## ########   ######   #######  ##     ## 
+#     ##  ###   ##    ##    ##       ##     ## ##    ## ##     ## ###   ### 
+#     ##  ####  ##    ##    ##       ##     ## ##       ##     ## #### #### 
+#     ##  ## ## ##    ##    ######   ########  ##       ##     ## ## ### ## 
+#     ##  ##  ####    ##    ##       ##   ##   ##       ##     ## ##     ## 
+#     ##  ##   ###    ##    ##       ##    ##  ##    ## ##     ## ##     ## 
+#    #### ##    ##    ##    ######## ##     ##  ######   #######  ##     ## 
+
+
+import channeltestmodule
+
+channeltestmodule.app = app
+channeltestmodule.interCom = interCom
+channeltestmodule.mainChannelLog = mainChannelLog
+
+channeltestmodule.testJ1()
+channeltestmodule.testJ3()
+#..............................
+
+channeltestmodule.mainChannelIntTalkback = mainChannelIntTalkback
+testMainChannelIntTalkback()
+#..............................
+
+channeltestmodule.mainChannelString = mainChannelString
+testMainChannelString()
+
+
+
+
+#.........................
+var btnIQ = app.activeWindow.newButton("intChannel send QUIT", 1,1)
+
+btnIQ.setMargin("left", 1)
+btnIQ.setMargin("bottom", 1)
+
+proc btnIQClick(this:Controll)=
+    mainChannelInt[].send(int.high)
+
+addEventListener(Controll(btnIQ), "click", btnIQClick)
+
+#.........................
+var btnIS = app.activeWindow.newButton("stringChannel send QUIT", 1,1)
+
+btnIS.setMargin("left", 1)
+btnIS.setMargin("bottom", 1)
+
+proc btnISClick(this:Controll)=
+    mainChannelString[].send("quit")
+
+addEventListener(Controll(btnIS), "click", btnISClick)
+
+#.........................
+var btnIcomQ = app.activeWindow.newButton("intercom send QUIT", 1,1)
+
+btnIcomQ.setMargin("left", 1)
+btnIcomQ.setMargin("bottom", 1)
+
+proc btnIcomQClick(this:Controll)=
+    notice ">>> btnIcomQClick <<<"
+    var testJson = newJObject()
+    testJson.add("typ", newJInt(1))
+    #testJson.add("from", newJInt(0))
+    testJson.add("feed", newJInt(0))
+    #testJson.add("chanPtr", %(0))
+    interCom[0].sendTo(0, $testJson)
+    notice ">>> btnIcomQClick END <<<"
+
+addEventListener(Controll(btnIcomQ), "click", btnIcomQClick)

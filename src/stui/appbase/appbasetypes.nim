@@ -23,6 +23,11 @@ type
 #TODO  pi2 = cast[ptr int](i2)
 
 #! Base Channels
+when defined mainChannelLog_enabled:
+  type LogChannel* = ref Channel[string]
+  var mainChannelLog = new LogChannel 
+  proc getLogChannel*(): LogChannel = mainChannelLog #! <-- getter ----
+
 when defined mainChannelString_enabled:
   type McsChannel* = ref Channel[string]
   var mainChannelString = new McsChannel 
@@ -117,13 +122,12 @@ when defined mainChannelJsonChecked_enabled:
     for thId, listener in feed:
       if thId == recip:
         open feed[thId][]
-        when defined(debugInfo_enabled): debugEcho getThreadId(), " sendTo > ", recip
+        when defined debugInfo_enabled: debugEcho getThreadId(), " sendTo > ", recip
         feed[thId][].send(msg)
-        when defined(debugInfo_enabled): debugEcho getThreadId(), " peek > ", feed[thId][].peek()
+        when defined debugInfo_enabled: debugEcho getThreadId(), " peek > ", feed[thId][].peek()
         sleep(1)
 
   proc sendTo*(icom: var InterCom, recip:int, msg:string)=
-    ## it searches the whole intercom for recipient
     var chan:ChannelJson # feed is immutable
     for feedname, feed in icom:
       for thId, listener in feed:
@@ -156,7 +160,7 @@ when defined mainChannelJsonChecked_enabled:
 
   #! Intercomm functions; ChannelJson; Main Channel [ msgtyp: int, msg: json ]
   proc addFeed*(icom: var InterCom, feedname:int)=
-    when defined(debugInfo_enabled): debugEcho "addFeed..........", feedname
+    when defined debugInfo_enabled: debugEcho "addFeed..........", feedname
     icom[feedname] = newTable[int, ChannelJson]()
 
   proc subscribe*(feed: var MainChannelJsonFeeds, thId: int, chan: var ChannelJson)=
@@ -170,7 +174,7 @@ when defined mainChannelJsonChecked_enabled:
     testJson.add("feed", newJInt(0))
     testJson.add("chanPtr", %(addr chan))
   
-    when defined(logger_enabled): debug "subscribing to > ", testJson
+    when defined debugInfo_enabled: debugEcho "subscribing to > ", testJson
   
     #var icom = interCom[]
     icom[0].sendTo(0, $testJson) ]#
@@ -183,7 +187,7 @@ when defined mainChannelJsonChecked_enabled:
     testJson.add("feed", newJInt(feed))
     testJson.add("chanPtr", %(addr chan))
   
-    when defined(logger_enabled): debug "subscribing to > ", testJson
+    when defined debugInfo_enabled: debugEcho "subscribing to > ", testJson
   
     #var icom = interCom[]
     icom[0].sendTo(0, $testJson) ]#
@@ -191,7 +195,7 @@ when defined mainChannelJsonChecked_enabled:
   #[
   proc waitForAnswer*(chan: var ChannelJson)=
     while chan[].peek() == 0:
-      when defined(logger_enabled): debug chan[].peek()
+      when defined debugInfo_enabled: debugEcho chan[].peek()
       sleep(1) ]#
 
 
@@ -203,18 +207,18 @@ when defined mainChannelJsonChecked_enabled:
     testJson.add("feed", newJInt(0))
     testJson.add("chanPtr", %(addr chan))
   
-    when defined(debugInfo_enabled): debugEcho "subscribing to > ", testJson
+    when defined debugInfo_enabled: debugEcho "subscribing to > ", testJson
   
     #var icom = interCom[]
     icom[0].sendTo(0, $testJson)
     sleep(1)
 
     while chan[].peek() == 0:
-      when defined(debugInfo_enabled): debugEcho chan[].peek()
+      when defined debugInfo_enabled: debugEcho chan[].peek()
       sleep(1)
 
     var replyJ = chan[].recv()
-    when defined(debugInfo_enabled): debugEcho debugthId, " > ", replyJ
+    when defined debugInfo_enabled: debugEcho thId, " > ", replyJ
     var r = parseJson(replyJ)
     
     return r["r"].getInt()
@@ -229,18 +233,18 @@ when defined mainChannelJsonChecked_enabled:
     testJson.add("feed", newJInt(feed))
     testJson.add("chanPtr", %(addr chan))
   
-    when defined(debugInfo_enabled): debugEcho "subscribing to > ", testJson
+    when defined debugInfo_enabled: debugEcho "subscribing to > ", testJson
   
     #var icom = interCom[]
     icom[0].sendTo(0, $testJson)
     sleep(1)
 
     while chan[].peek() == 0:
-      when defined(debugInfo_enabled): debugEcho chan[].peek()
+      when defined debugInfo_enabled: debugEcho chan[].peek()
       sleep(1)
 
     var replyJ = chan[].recv()
-    when defined(debugInfo_enabled): debugEcho thId, " > ", replyJ
+    when defined debugInfo_enabled: debugEcho thId, " > ", replyJ
     var r = parseJson(replyJ)
     
     return r["r"].getInt()

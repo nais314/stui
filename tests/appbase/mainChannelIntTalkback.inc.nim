@@ -28,17 +28,18 @@ proc handleMainChannelIntTalkback()= #! OVERWRITE THIS
         when defined(logger_enabled): debug "---=== handleMainChannelIntTalkback recv> ", inbox.msg[]
         case inbox.msg[]:
             of 1:
-                echo "---=== Hello handleMainChannelIntTalkback!"
+                when defined(logger_enabled): notice  "---=== Hello handleMainChannelIntTalkback!"
                 atomicInc(inbox.msg[])
 
             of 256..int.high:
-                echo "---=== Hello handleMainChannelIntTalkback!"
+                #when defined(logger_enabled): notice  "---=== Hello handleMainChannelIntTalkback! unpackIntMsg"
                 var msg = unpackIntMsg(inbox.msg[].uint)
-                when defined(logger_enabled): notice "---=== handleMainChannelIntTalkback msg> ", msg
+                when defined(logger_enabled): 
+                    notice "---=== handleMainChannelIntTalkback unpackIntMsg msg> ", msg
                 atomicInc(inbox.msg[])
 
             else:
-                when defined(logger_enabled): debug "---=== handleMainChannelIntTalkback> else"
+                when defined(logger_enabled): notice "---=== handleMainChannelIntTalkback> else"
                 app.trigger($ inbox.msg[])
                 atomicInc(inbox.msg[])
     else: break

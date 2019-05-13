@@ -18,10 +18,9 @@ proc handleMainChannelInt()=
   block: #for iMsg in 0..2: #? anti flood
       var inbox = tryRecv( (mainChannelInt[]) ) #tuple[dataAvailable: bool, msg: TMsg]
       if inbox.dataAvailable:
-          #when defined(debugInfo_enabled): debugEcho repr(inbox)
           case inbox.msg:
               of 1: #"redraw":
-                  when defined(logger_enabled): debug "+++++++ Hello MainChannelInt!"
+                  when defined(logger_enabled): notice "+++++++ Hello MainChannelInt!"
                   discard
               of int(mciQuit): #"quit":
                   quit()

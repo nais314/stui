@@ -1610,30 +1610,31 @@ For color: env TERM=xterm-256color xterm
 include termios
 
 proc closeTerminal() {.noconv.} =
+    echo "\e[12l" # turn back local echo
     echo "\e[?1006l\e[?1002l" # mouse
     echo "\e[?7h" # do wrap
-    #echo "\ec\e[0m" # ? reset
-    #resetAttributes()
-    #echo "\e[?1049l" #switchToNormalBuffer
-    switchToNormalBuffer()
+    echo "\ec\e[0m"
     setCursorStyle(CursorStyle.blinkingBlock)
     showCursor()
-    disableCanon()
+    #disableCanon() #? does it works for somebody?
+    switchToNormalBuffer() #echo "\e[?1049l" #switchToNormalBuffer
+    discard execShellCmd("reset && tput reset") #! HAMMER - as the above may not work...
 
 proc closeTerminal*(app:App)=
-    closeTerminal()
+    withLock app.termlock:
+        closeTerminal()
 
 proc initTerminal*(app:App)=
-    #resetAttributes() #?
     system.addQuitProc(closeTerminal)
-    system.addQuitProc(resetAttributes)
+    #system.addQuitProc(resetAttributes)
+    switchToAlternateBuffer() #####! COMMENT ME FOR BETTER DEBUGGING ######################
     echo "\ec\e[0m" # ? reset
     echo "\e[?1002h\e[?1006h" # mouse enable + mode
     echo "\e%G" # ? set UTF8
     echo "\e[?7l" # dont wrap
-    switchToAlternateBuffer() #####! COMMENT ME FOR BETTER DEBUGGING ######################
-    enableCanon()
+    #enableCanon() #? does it works for somebody?
     hideCursor()
+    echo "\e[12h" # turn off local echo
 
     #if getColorMode() == 3: terminal.enableTrueColors()
     app.terminalHeight = terminalHeight()

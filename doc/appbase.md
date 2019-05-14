@@ -1,7 +1,9 @@
 # APPBASE
 
 Appbase is a core application boilerplate,
-with logging, inter-thread communication, and some support functions.
+with logging, inter-thread communication, and some support functions.  
+
+(Appbase was extracted from stui, extended, genericised, and ported back)
 
 the builded applications nim.cfg controlls wich components are enabled:
 ```

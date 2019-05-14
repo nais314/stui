@@ -13,7 +13,7 @@ if not dirExists(logDir):
 import logging
 var fileLog = newRollingFileLogger(filename = logDir & DirSep & "messages.log",
     fmtStr=verboseFmtStr,
-    levelThreshold = lvlNotice)
+    levelThreshold = lvlDebug)
 logging.addHandler(fileLog)
 
 #!━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

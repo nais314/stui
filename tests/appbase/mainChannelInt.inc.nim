@@ -15,16 +15,13 @@ type mainChannelIntCodes = enum
   mciQuit = int.high
 
 proc handleMainChannelInt()=
-  block: #for iMsg in 0..2: #? anti flood
-      var inbox = tryRecv( (mainChannelInt[]) ) #tuple[dataAvailable: bool, msg: TMsg]
-      if inbox.dataAvailable:
-          case inbox.msg:
-              of 1: #"redraw":
-                  when defined(logger_enabled): notice "+++++++ Hello MainChannelInt!"
-                  discard
-              of int(mciQuit): #"quit":
-                  quit()
-              else:
-                  app.trigger($ inbox.msg)
-      else: break
-      sleep(0)
+  var inbox = tryRecv( (mainChannelInt[]) ) #tuple[dataAvailable: bool, msg: TMsg]
+  if inbox.dataAvailable:
+    case inbox.msg:
+      of 1: #"redraw":
+        when defined(logger_enabled): debug "+++++++ Hello MainChannelInt!"
+        discard
+      of int(mciQuit): #"quit":
+        quit()
+      else:
+        app.trigger($ inbox.msg)

@@ -71,14 +71,30 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
         selectbox2.addEventListener("change", changeColorMode)
 
         proc changeColorMode(source:Controll)=
-        discard parseInt(sb2.value, source.app.colorMode)
-        source.app.draw()
+          discard parseInt(sb2.value, source.app.colorMode)
+          source.app.draw()
 
 
+**New Demo / test file is stui_template.nim** *app template, now with appbase*  
+**Old Demo / test file is stui_test1.nim**  
+use F10 or 2x ESC to Quit
 
-**Demo / test file is stui_test1.nim** - use F10 or 2x ESC to Quit
+    Default Keyboard Shortcuts:
+        F2: menu TODO
+        F5: refresh screen
+        F9: menu TODO
+        F10: quit app
 
-**App template: template_simpleapp.nim**
+        TAB: - add focus to next gui Controll; 
+             - commit changes to Controll (e.g.:TextArea)
+
+        ESC and ESC again: cancel editing, quit app
+
+        PgUP/PgDown: on Window -> change Page; on TextArea: "scroll"
+
+    Mouse:
+        Wheel "Scrolls": Window->Page; TextArea, LineGraph
+
 
 **Dependency: like Deja-Vu TTF - a font with large unicode character set & terminal, like xfce4 terminal**  
 ![nerd fonts](https://github.com/ryanoasis/nerd-fonts/wiki)  
@@ -98,33 +114,15 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 * _ui_linegraph (beta):_ a "bargraph", paging, scrolling works, RIGHT-CLICK TO MAXIMIZE! =) 
 *ok...maybe ui_linegraph is a little bit complicated, maybe some day, on demand i will fork a quick&dirty version from it*
 
-**Demo / test file is stui_test1.nim**
-
-    Default Keyboard Shortcuts:
-        F2: menu TODO
-        F5: refresh screen
-        F9: menu TODO
-        F10: quit app
-
-        TAB: - add focus to next gui Controll; 
-             - commit changes to Controll (e.g.:TextArea)
-
-        ESC and ESC again: cancel editing, quit app
-
-        PgUP/PgDown: on Window -> change Page; on TextArea: "scroll"
-
-    Mouse:
-        Wheel "Scrolls": Window->Page; TextArea, LineGraph
-
 ![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)  
 ![FileSelect](doc/FileSelect_Screenshot_2018-10-20_13-35-40.png)  
 ![LineGraph1](doc/LineGraph1.png)  
-![LineGraph2](doc/LineGraph2.png)
+![LineGraph2](doc/LineGraph2.png)  
 ![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)  
 
 
-  [on colors ...](doc/Colors.md)  
-  [on Controll ...](doc/Controlls.md)  
+[on colors ...](doc/Colors.md)  
+[on Controll ...](doc/Controlls.md)  
 
 
 **APPBASE functions**

@@ -21,26 +21,21 @@ mainChannelIntTalkback[].open()
 import appbase/intchannelutils
 
 proc handleMainChannelIntTalkback()= #! OVERWRITE THIS
-  when defined(logger_enabled): debug "---=== mainChannelIntTalkback[].peek()> ", mainChannelIntTalkback[].peek()
-  block: #for iMsg in 0..1: #? anti flood
-    var inbox = tryRecv( (mainChannelIntTalkback[]) ) #tuple[dataAvailable: bool, msg: TMsg]
-    if inbox.dataAvailable:
-        when defined(logger_enabled): debug "---=== handleMainChannelIntTalkback recv> ", inbox.msg[]
-        case inbox.msg[]:
-            of 1:
-                when defined(logger_enabled): notice  "---=== Hello handleMainChannelIntTalkback!"
-                atomicInc(inbox.msg[])
+  #when defined(logger_enabled): debug "---=== mainChannelIntTalkback[].peek()> ", mainChannelIntTalkback[].peek()
+  var inbox = tryRecv( (mainChannelIntTalkback[]) ) #tuple[dataAvailable: bool, msg: TMsg]
+  if inbox.dataAvailable:
+    case inbox.msg[]:
+      of 1:
+        when defined(logger_enabled): debug  "---=== Hello handleMainChannelIntTalkback!"
+        atomicInc(inbox.msg[])
 
-            of 256..int.high:
-                #when defined(logger_enabled): notice  "---=== Hello handleMainChannelIntTalkback! unpackIntMsg"
-                var msg = unpackIntMsg(inbox.msg[].uint)
-                when defined(logger_enabled): 
-                    notice "---=== handleMainChannelIntTalkback unpackIntMsg msg> ", msg
-                atomicInc(inbox.msg[])
+      of 256..int.high:
+        var msg = unpackIntMsg(inbox.msg[].uint)
+        when defined(logger_enabled): 
+          debug "---=== handleMainChannelIntTalkback unpackIntMsg msg> ", msg
+        atomicInc(inbox.msg[])
 
-            else:
-                when defined(logger_enabled): notice "---=== handleMainChannelIntTalkback> else"
-                app.trigger($ inbox.msg[])
-                atomicInc(inbox.msg[])
-    else: break
-    sleep(0)
+      else:
+        when defined(logger_enabled): debug "---=== handleMainChannelIntTalkback> else"
+        app.trigger($ inbox.msg[])
+        atomicInc(inbox.msg[])

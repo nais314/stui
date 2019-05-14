@@ -19,7 +19,7 @@ proc handleMainChannelIntChecked()= #! OVERWRITE THIS
                 inbox.msg.chan[].send(4)
 
             of int(mcicQuit): #"quit":
-                quit()
+                withLock app.termlock: quit()
                 #inbox.msg.chan.send(0)
             else:
                 when defined(logger_enabled): debug "::: handleMainChannelIntChecked> else"

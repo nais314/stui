@@ -1,7 +1,9 @@
 ## template for appbase library
 ## copy-paste, save-as, customize :-)
 
-import appbase, appbase/myappbasetypes, threadpool, tables, os
+import stui/appbase/appbase # this comes from pkg
+import appbase/myappbasetypes # this comes from users subdir
+import threadpool, tables, os
 ## on appbase/myappbasetypes: here, appbase is the subdirectory, not the pkg!
 
 when defined logger_enabled:

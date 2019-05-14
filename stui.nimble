@@ -8,7 +8,10 @@ srcDir        = "src"
 
 # Dependencies
 
-requires "nim >= 0.19.9"
+requires "nim >= 0.19.6"
 
 task test, "Runs the test suite":
   exec "nim c -r tests/stui_test1.nim"
+
+task testold, "Runs the test suite":
+  exec "nim c -r tests/stui_template.nim"

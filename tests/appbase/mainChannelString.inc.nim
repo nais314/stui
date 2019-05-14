@@ -9,6 +9,6 @@ proc handleMainChannelString()=
     of "hello":
         when defined(logger_enabled): notice  "   $$$ handleMainChannelString recived> "
     of "quit":
-        quit()
+        withLock app.termlock: quit()
     else:
         app.trigger(inbox.msg)

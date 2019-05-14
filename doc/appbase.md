@@ -1,7 +1,7 @@
-**APPBASE functions**
+# APPBASE
 
 Appbase is a core application boilerplate,
-with logging, inter-thread communication.
+with logging, inter-thread communication, and some support functions.
 
 the builded applications nim.cfg controlls wich components are enabled:
 ```
@@ -21,7 +21,7 @@ appbase.mainloop template runs timers, channelhandlers and eventloop
 stui_template.nim is derived from appbase template for stui
 main.inc.nim is your programs main file, wich will be included in the boilerplate
 
-**mainChannelJsonChecked aka Intercom**
+## mainChannelJsonChecked aka Intercom
 
 Its a Json channel. More precisely it is a table of Json Channels.  
 A thread may pick a name (int), and register its channel to a feed (int).  
@@ -93,7 +93,7 @@ wich then subscribes to the feed, and sends reply.
 ```
 
 
-**mainChannelIntTalkback**
+## mainChannelIntTalkback
 
 appbase has 'checked' or 'talkback' enabled channels for communication,
 so the thread can wait for operations to complete on variables, so
@@ -161,3 +161,4 @@ proc testIntTalkBack*(mainChannelIntTalkback: ptr McitChannel){.thread.}=
 
 ```
 
+## APPBASE functions

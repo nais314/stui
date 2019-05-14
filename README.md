@@ -8,7 +8,7 @@ This is my first big app in Nim - it covers pretty much anything i need (to lear
 **News: APPBASE is now built into STUI - or STUI is build on top of APPBASE wich brings InterCom - inter thread communications - to the table**  
   
 branches:
-* master: usable alpha, revised for **nim v0.19.9**, devel - *stable has no unicode.align == compile error; delete unicode. for nim 0.19.0 stable*  
+* master: usable alpha, revised for **nim v0.19.6** stable and **nim v0.19.9**, devel - *stable has no unicode.align == compile error; delete unicode. for nim 0.19.0 stable*  
   
 releases:
 * nim 0.18 version archived as release

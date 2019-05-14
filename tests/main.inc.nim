@@ -769,7 +769,6 @@ proc lg3sim(lg3Ptr: ptr LineGraph[float]) {.gcsafe.} =
         LineGraph(lg3Ptr[]).draw(false)
         sleep(1000)
 
-let lg3Ptr: ptr = addr lg3
 spawn lg3sim(addr lg3)
 #..........................
 

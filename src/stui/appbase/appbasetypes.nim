@@ -7,30 +7,27 @@ type
   EventRoot* = object of RootObj#dummy base
 
   TimedAction* = tuple[name:string,interval:float,action:proc():void,lastrun:float] # epochTime:float
-  
+
   AppBase* = ref object of RootObj
     ## AppBase:------------------------------
     ##   extend with your needed fields: MyApp* = ref object of AppBase
     threadId*:int
     listeners*: seq[tuple[name:string, actions: seq[proc():void]]]
     timers*: seq[TimedAction] #seq[tuple[name:string,interval:float,action:proc()]]
-
+    flags*: array[12, int]
+    quit*: proc(errorcode: int = QuitSuccess)
 
 #-------------------------------------------------------------------------------
-#TODO channel types on 32/64 bits: two or multi level int channels, like ipv4
-#TODO ptr passing channel with "lock&release" 
-#TODO   i2 = cast[ptr uint](addr(pi))[]
-#TODO  pi2 = cast[ptr int](i2)
 
 #! Base Channels
 when defined mainChannelLog_enabled:
   type LogChannel* = ref Channel[string]
-  var mainChannelLog = new LogChannel 
+  var mainChannelLog = new LogChannel
   proc getLogChannel*(): LogChannel = mainChannelLog #! <-- getter ----
 
 when defined mainChannelString_enabled:
   type McsChannel* = ref Channel[string]
-  var mainChannelString = new McsChannel 
+  var mainChannelString = new McsChannel
   proc getMcsChannel*(): McsChannel = mainChannelString #! <-- getter ----
 
 
@@ -41,7 +38,7 @@ when defined mainChannelInt_enabled:
 
 
 when defined mainChannelIntChecked_enabled:
-  type 
+  type
     McicChannel* = ref Channel[tuple[val:int,chan:ptr Channel[int]]]
   var mainChannelIntChecked = new McicChannel #Channel[tuple[val:int,chan:ptr Channel[int]]]
   proc getMcicChannel*(): McicChannel = mainChannelIntChecked #! <-- getter -----
@@ -74,7 +71,7 @@ when defined mainChannelJsonChecked_enabled:
     when NimPatch < 9:  %(cast[int](p))
     else : %(cast[uint](p))
 
-  
+
   proc `<--`*[T](i:var uint, p:var T) =
     ## box operator: convert pointer to uint
     ## just to hide that ugly cast ;)
@@ -93,7 +90,7 @@ when defined mainChannelJsonChecked_enabled:
   proc `-->`*[T](i:var uint, p:var T)=
     ## box operator: convert uint to pointer
     ## just to hide that ugly cast ;)
-    p = cast[T](i) 
+    p = cast[T](i)
 
 
   #!........................................
@@ -106,9 +103,9 @@ when defined mainChannelJsonChecked_enabled:
 
   var mainChannelJson = new ChannelJson
   proc getMcjChannel*():ChannelJson= mainChannelJson #! <-- getter -------------
-  
+
   var interCom = newTable[int, MainChannelJsonFeeds]()
-  proc getInterCom*():InterCom = 
+  proc getInterCom*():InterCom =
     ## returns the intercom:
     ## a table of Json Channels tables
     ##  MainChannelJsonFeeds* = TableRef[int, ChannelJson] # Thread id, Json
@@ -126,7 +123,7 @@ when defined mainChannelJsonChecked_enabled:
       feed[thId][].send(msg)
 
   proc sendTo*(feed: var MainChannelJsonFeeds, recip:int, msg:string)=
-    ## send msg to recip, who is subscribed to feed 
+    ## send msg to recip, who is subscribed to feed
     for thId, listener in feed:
       if thId == recip:
         open feed[thId][]
@@ -177,36 +174,6 @@ when defined mainChannelJsonChecked_enabled:
   proc subscribe*(feed: var MainChannelJsonFeeds, thId: int, chan: var ChannelJson)=
     ## this proc is used in channel handler to add channel to feed
     feed[thId]= chan
-    
-
-
-
-  #[ proc subscribe*(icom: var InterCom, thId: int, chan: var ChannelJson):int=
-    ## subscribe to main feed - 0
-    ## send a message on intercom with proper json msg
-    ## return error code from reply
-    var testJson = newJObject()
-    testJson.add("typ", newJInt(101)) #TODO 101 fixed - hard to overrride
-    testJson.add("from", newJInt(thId))
-    testJson.add("feed", newJInt(0))
-    testJson.add("chanPtr", %(addr chan))
-  
-    when defined debugInfo_enabled: debugEcho "subscribing to > ", testJson
-  
-    icom[0].sendTo(0, $testJson)
-    sleep(1)
-
-    while chan[].peek() == 0:
-      when defined debugInfo_enabled: debugEcho chan[].peek()
-      sleep(1)
-
-    var replyJ = chan[].recv()
-    when defined debugInfo_enabled: debugEcho thId, " > ", replyJ
-    var r = parseJson(replyJ)
-    
-    return r["r"].getInt() ]#
-
-
 
   proc subscribe*(icom: var InterCom, feed, thId: int, chan: var ChannelJson):int=
     ## subscribe to user-defined feed
@@ -218,9 +185,9 @@ when defined mainChannelJsonChecked_enabled:
     testJson.add("from", newJInt(thId))
     testJson.add("feed", newJInt(feed))
     testJson.add("chanPtr", %(addr chan))
-  
+
     when defined debugInfo_enabled: debugEcho "subscribing to > ", testJson
-  
+
     icom[0].sendTo(0, $testJson)
     sleep(1)
 
@@ -231,7 +198,7 @@ when defined mainChannelJsonChecked_enabled:
     var replyJ = chan[].recv()
     when defined debugInfo_enabled: debugEcho thId, " > ", replyJ
     var r = parseJson(replyJ)
-    
+
     return r["r"].getInt()
 
   proc subscribe*(icom: var InterCom, thId: int, chan: var ChannelJson):int=
@@ -244,8 +211,8 @@ when defined mainChannelJsonChecked_enabled:
 
 
 
-##[ 
-  var 
+##[
+  var
     i:int=64
     p:ptr int
     ui: uint

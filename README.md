@@ -19,7 +19,7 @@ releases:
 
 Status: usable alpha. missing: widgets, banners, splash; docs, cleanup  
   see: stui_test1.nim  
-  copy&use: template_simpleapp.nim  
+  copy&use: template_simpleapp.nim  *DEPRECATED, but should be usable
   tested on xfce4terminal, gnome-terminal  
 
 ![Screenshot_stui_test1.nim](doc/Screenshot_2018-10-03_15-23-40.png)

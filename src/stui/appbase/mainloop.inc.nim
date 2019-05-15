@@ -88,28 +88,7 @@ proc handleMainChannelInt()=
                     app.trigger($ inbox.msg)
         else: break
 #-------------------------------------------------------------------------------
-# Thread Json InterCom
-#   bChannel = Channel[string] -- ok,err,stb
-#   MsgFeed = table[thId, bChannel]
-#   TJIcom = Table[string, MsgFeed]
-#   TJIcom["name"].subscribe(tuple(thId, bChannel))
-#   TJIcom["name"].broadcast(typ:int,msg:string Json)
 
-#-------------------------------------------------------------------------------
-# FLAGS
-# array[5, int] :-)
-#    type
-#        Flags = enum
-#            guiFlag,
-#            debugFlag,
-#            maintFlag
-#    
-#    var
-#        rumba: array[Flags, int]
-#    
-#    rumba[maintFlag] = 5
-
-#-------------------------------------------------------------------------------
 
 
 #! var kmloopFlowVar = spawn kmLoop() #KMEvent

@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.201812"
+version       = "0.1.20190515"
 author        = "Istvan Nagy"
 description   = "Simplified Terminal UI for ANSI terminals"
 license       = "GPLv3"

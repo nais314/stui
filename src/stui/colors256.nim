@@ -269,7 +269,7 @@ type Color256* = enum
 
 
 
-var colorNames256* = [
+const colorNames256* = [
         ("Black" , 0),      #000000	rgb(0),0),0)	
         ("Maroon" , 1),     #800000	rgb(128),0),0)
         ("Green" , 2),      #008000	rgb(0),128),0)

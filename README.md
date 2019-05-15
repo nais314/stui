@@ -1,27 +1,32 @@
 # stui
 ### Simplified Terminal UI (Nim lang, ANSI terminal) 
 
-This is my first app in Nim - it covers pretty much anything i need to learn >:)
+This is my first big app in Nim - it covers pretty much anything i need (to learn) >:)
 
 **STUI is a drag&drop aware, responsive layout, themeable, ANSI terminal UI. (currently for linux terminals...)**  
-
+  
+**News: APPBASE is now built into STUI - or STUI is build on top of APPBASE wich brings InterCom - inter thread communications - to the table**  [more on appbase ...](doc/appbase.md)
+  
 branches:
-* master: usable alpha, revised for **nim v0.19.9**, devel - *stable has no unicode.align == compile error; delete unicode. for nim 0.19.0 stable*  
+* master: usable alpha, revised for **nim v0.19.6** stable and **nim v0.19.9**, devel - *stable has no unicode.align == compile error; delete unicode. for nim 0.19.0 stable*  
+* devel: work in progress
   
 releases:
 * nim 0.18 version archived as release
 
-(manjaro linux, visual stuido code [better comments])  
+(manjaro linux, visual studio code [better comments])  
   
 
 Status: usable alpha. missing: widgets, banners, splash; docs, cleanup  
   see: stui_test1.nim  
-  copy&use: template_simpleapp.nim  
+  copy&use: template_simpleapp.nim  *DEPRECATED, but should be usable
   tested on xfce4terminal, gnome-terminal  
 
 ![Screenshot_stui_test1.nim](doc/Screenshot_2018-10-03_15-23-40.png)
 
 Please help the development with your feedback. :)  
+
+
 
 **News: DoubleClick enabled, LineGraph controll first alpha release =)**
 
@@ -67,14 +72,30 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
         selectbox2.addEventListener("change", changeColorMode)
 
         proc changeColorMode(source:Controll)=
-        discard parseInt(sb2.value, source.app.colorMode)
-        source.app.draw()
+          discard parseInt(sb2.value, source.app.colorMode)
+          source.app.draw()
 
 
+**New Demo / test file is stui_template.nim** *app template, now with appbase*  
+**Old Demo / test file is stui_test1.nim**  
+use F10 or 2x ESC to Quit
 
-**Demo / test file is stui_test1.nim** - use F10 or 2x ESC to Quit
+    Default Keyboard Shortcuts:
+        F2: menu TODO
+        F5: refresh screen
+        F9: menu TODO
+        F10: quit app
 
-**App template: template_simpleapp.nim**
+        TAB: - add focus to next gui Controll; 
+             - commit changes to Controll (e.g.:TextArea)
+
+        ESC and ESC again: cancel editing, quit app
+
+        PgUP/PgDown: on Window -> change Page; on TextArea: "scroll"
+
+    Mouse:
+        Wheel "Scrolls": Window->Page; TextArea, LineGraph
+
 
 **Dependency: like Deja-Vu TTF - a font with large unicode character set & terminal, like xfce4 terminal**  
 ![nerd fonts](https://github.com/ryanoasis/nerd-fonts/wiki)  
@@ -94,33 +115,37 @@ It can be **themed** with parseCfg compatible files *(.TSS)* style sheets
 * _ui_linegraph (beta):_ a "bargraph", paging, scrolling works, RIGHT-CLICK TO MAXIMIZE! =) 
 *ok...maybe ui_linegraph is a little bit complicated, maybe some day, on demand i will fork a quick&dirty version from it*
 
-**Demo / test file is stui_test1.nim**
-
-    Default Keyboard Shortcuts:
-        F2: menu TODO
-        F5: refresh screen
-        F9: menu TODO
-        F10: quit app
-
-        TAB: - add focus to next gui Controll; 
-             - commit changes to Controll (e.g.:TextArea)
-
-        ESC and ESC again: cancel editing, quit app
-
-        PgUP/PgDown: on Window -> change Page; on TextArea: "scroll"
-
-    Mouse:
-        Wheel "Scrolls": Window->Page; TextArea, LineGraph
-
 ![Screenshot_2018-09-14_14-07-41](doc/Screenshot_2018-09-14_14-07-41.png)  
 ![FileSelect](doc/FileSelect_Screenshot_2018-10-20_13-35-40.png)  
 ![LineGraph1](doc/LineGraph1.png)  
-![LineGraph2](doc/LineGraph2.png)
+![LineGraph2](doc/LineGraph2.png)  
 ![Screenshot_2018-09-14_14-07-18](doc/Screenshot_2018-09-14_14-07-18.png)  
 
 
-  [on colors](doc/Colors.md)  
-  [on Controll](doc/Controlls.md)  
+[on colors ...](doc/Colors.md)  
+[on Controll ...](doc/Controlls.md)  
+
+
+**APPBASE functions**
+
+    the builded applications nim.cfg controlls wich components are enabled:
+
+        --define:inputEventLoop_enabled # main HID event loop
+        --define:mainChannelInt_enabled 
+        --define:mainChannelString_enabled
+        --define:mainChannelIntTalkback_enabled # sends ptr int, change int value to talk back
+        --define:mainChannelIntChecked_enabled # sends int and ptr Channel[int] to talk back
+        --define:mainChannelJsonChecked_enabled # aka InterCom
+        --define:timedActions_enabled
+
+    appbase/mainChannel... .inc.nim files are boilerplates for Channel handling
+    appbase/myappbasetypes is the glue, where stui connected to appbase
+    appbase.mainloop template runs timers, channelhandlers and eventloop
+    
+    stui_template.nim is derived from appbase template for stui
+    main.inc.nim is your programs main file, wich will be included in the boilerplate
+
+[more on appbase ...](doc/appbase.md)
 
 
 

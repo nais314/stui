@@ -24,14 +24,14 @@ type
         maxItems*:int
         values*: seq[tuple[name:string, value:T]] #name for visuals,detail,, like date, time
         maxValue*, minValue*: T # todo proc add
-        conditionalStyler*: proc (this: Dataset2D[T], val: T)
+        conditionalStyler*: proc (this: Dataset2D[T], val: T){.gcsafe.}
         lock*: Lock
 
 
 # todo? add time to values? or either time or name?
-proc dummy_conditionalStyler_F(this: Dataset2D[float], val: float) = discard
-proc dummy_conditionalStyler_I(this: Dataset2D[int], val: int) = discard
-proc dummy_conditionalStyler[T](this: Dataset2D[T], val: T) = discard
+#proc dummy_conditionalStyler_F(this: Dataset2D[float], val: float) = discard
+#proc dummy_conditionalStyler_I(this: Dataset2D[int], val: int) = discard
+proc dummy_conditionalStyler[T](this: Dataset2D[T], val: T){.gcsafe.} = discard
 
 
 proc `[]`*[T](dataset:Dataset2D[T], i: Natural): T =
@@ -123,7 +123,7 @@ proc loadStylesFromFile(this: LineGraph, filename: string) =
 ####      ########  ##     ## ##     ##  ###  ###
 
 
-proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false)=
+proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false){.gcsafe.}=
     ## offset is independent of zoom/scale
     ## but must be dividable by zoom/scale
 
@@ -619,7 +619,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
 ########
 
 
-proc draw*[T](this: LineGraph[T], updateOnly: bool = false) =
+proc draw*[T](this: LineGraph[T], updateOnly: bool = false){.gcsafe.} =
     if this.visible:
         acquire(this.app.termlock)
 

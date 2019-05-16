@@ -2,9 +2,9 @@
 include "controll.inc.nim"
 
 type Splash* = ref object of Controll
-  charmap*: seq[string]
-  colormap*: seq[int]
-  colorMode*: int
+  chars*: seq[string] ## the image, characters only
+  colors*: seq[int] ## the colors
+  colorMode*: int ## parsed from file
 
 
 
@@ -54,6 +54,9 @@ proc onDrop(this: Controll, event:KMEvent)= discard
 proc onKeyPress(this: Controll, event:KMEvent)= discard
 
 
+
+
+
 proc newSplash*(win:Window): Splash =
   result = new Splash
 
@@ -87,3 +90,7 @@ proc newSplash*(win:Window): Splash =
   result.drawit = drawit
   
   win.controlls.add(result) # typical finish line
+
+
+proc newSplash*(str: string): Splash =
+ result = new Splash

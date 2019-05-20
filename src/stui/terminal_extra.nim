@@ -94,7 +94,7 @@ proc resetTerminal*() {.inline.}=
 
 proc clearScreen*(){.inline.}=
     ## Erases the screen with the background colour and moves the cursor to home.
-    stdout.write "\e[2J"
+    stdout.write "\e[2J\e[H"
 
 proc cursorForward*(n:int=1){.inline.}=
     ## Move Cursor to the right with n characters

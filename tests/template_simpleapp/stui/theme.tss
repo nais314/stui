@@ -1,0 +1,107 @@
+#    proc setTextStyle*(style: StyleSheetRef, textStyleStr: string)=
+#        case textStyleStr:
+#            of "": discard
+#            of "styleBright", "styleBold": style.textStyle.incl(styleBright)
+#            of "styleDim": style.textStyle.incl(styleDim)
+#            of "styleUnknown", "styleItalic", "styleStandout": style.textStyle.incl(styleUnknown)
+#            of "styleUnderscore", "styleUnderline": style.textStyle.incl(styleUnderscore)
+#            of "styleBlink": style.textStyle.incl(styleBlink)
+#            of "styleReverse", "styleInverse": style.textStyle.incl(styleReverse)
+#            of "styleHidden": style.textStyle.incl(styleHidden)
+
+[window]
+bgColor16 = "bgBlue"
+bgColor256 = "MidnightBlue"
+bgColorRGB = "MidnightBlue"
+fgColor16 = "fgWhite"
+fgColor256 = "White"
+fgColorRGB = "White"
+border = "none"
+
+[dock]
+bgColor16 = "bgBlack"
+bgColor256 = "Grey3"
+bgColorRGB = "48,48,42"
+fgColor16 = "fgWhite"
+fgColor256 = "White"
+fgColorRGB = "White"
+border = "none"
+
+
+[input]
+bgColor16 = 47
+bgColor256 = 254
+bgColorRGB = "255,255,255"
+fgColor16 = 30
+fgColor256 = 0
+fgColorRGB = "black"
+#"0,0,135"
+#textStyle = "styleBright"
+border = "none"
+
+[input-focus]
+bgColor16 = 43
+bgColor256 = 222
+bgColorRGB = "255,215,95"
+fgColor16 = 30
+fgColor256 = 0
+fgColorRGB = "0,0,135"
+textStyle = "styleUnknown"
+border = "none"
+
+[input-drag]
+bgColor16 = 44
+bgColor256 = 128
+bgColorRGB = "175,0,215"
+fgColor16 = 30
+fgColor256 = 0
+fgColorRGB = "0,0,135"
+textStyle = "styleBlink"
+border = "none"
+
+[input-disabled]
+bgColor16 = 40
+bgColor256 = 245
+bgColorRGB = "100,100,100"
+fgColor16 = 37
+fgColor256 = 90
+fgColorRGB = "222,222,222"
+border = "none"
+
+
+
+[input-even]
+bgColor16 = 40
+bgColor256 = 237
+bgColorRGB = "gainsboro"
+fgColor16 = 30
+fgColor256 = 0
+fgColorRGB = "black"
+border = "none"
+
+[input-odd]
+bgColor16 = 40
+bgColor256 = 235
+bgColorRGB = "ghostwhite"
+fgColor16 = 30
+fgColor256 = 0
+fgColorRGB = "black"
+border = "none"
+
+[input-even_dark]
+bgColor16 = 37
+bgColor256 = 237
+bgColorRGB = "0,0,0"
+fgColor16 = 30
+fgColor256 = "white"
+fgColorRGB = "white"
+border = "none"
+
+[input-odd_dark]
+bgColor16 = 37
+bgColor256 = 235
+bgColorRGB = "25,25,25"
+fgColor16 = 30
+fgColor256 = "white"
+fgColorRGB = "white"
+border = "none"

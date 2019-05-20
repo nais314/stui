@@ -189,7 +189,7 @@ type
     onRelease*: proc(this_elem: Controll, event: KMEvent):void
     onScroll*: proc(this_elem: Controll, event: KMEvent):void
     onDrag*: proc(this_elem: Controll, event: KMEvent):void # set style
-    onDrop*: proc(this_elem: Controll, event: KMEvent):void
+    onDrop*: addQuitProcproc(this_elem: Controll, event: KMEvent):void
     onKeypress*: proc(this_elem: Controll, event: KMEvent):void
 
     focus*: proc(this_elem: Controll):void # set style, no redraw

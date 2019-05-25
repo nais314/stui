@@ -52,7 +52,7 @@ proc mouse_parser*(mstring: var string, c: var char): KMEvent {.inline.}=
         of 0,1,2:
             if c == 'M':
                 #clickM += 1
-                result.evType = "Click"
+                result.evType = KMEventKind.Click
                 if clickEpoch == 0:
                     clickEpoch = epochTime()
                     #echo " c " & $clickEpoch
@@ -60,23 +60,23 @@ proc mouse_parser*(mstring: var string, c: var char): KMEvent {.inline.}=
                     #echo "  " & $clickInterval
                     if clickInterval < 0.4 :
                         #echo "DoubleClick " & $clickInterval
-                        result.evType = "DoubleClick"
+                        result.evType = KMEventKind.DoubleClick
                         clickEpoch = 0
                     else:
                         clickEpoch = epochTime()
                     
             elif c == 'm' :
-                result.evType = "Release"
+                result.evType = KMEventKind.Release
                 #clickM2 += 1
                 if clickEpoch != 0 :#and clickM == clickM2:
                     if clickInterval > 1.3:
                         #echo "LOMGLCLICK  "  & $clickInterval
-                        result.evType = "LongClick"
+                        result.evType = KMEventKind.LongClick
                         clickEpoch = 0
 
             if mouse_state == 1:
                 mouse_state = 2 #drop
-                result.evType = "Drop"
+                result.evType = KMEventKind.Drop
             else:
                 mouse_state = 0 #reset
 
@@ -87,13 +87,13 @@ proc mouse_parser*(mstring: var string, c: var char): KMEvent {.inline.}=
                 #terminal.setForegroundColor(fgMagenta,true)
                 colors_extra.setForegroundColor(Color16(fgMagenta))
                 stdout.write("◉") # •
-            result.evType = "Drag"
+            result.evType = KMEventKind.Drag
             clickEpoch = 0
 
         of 65:
-            result.evType = "ScrollDown"
+            result.evType = KMEventKind.ScrollDown
         of 64:
-            result.evType = "ScrollUp"
+            result.evType = KMEventKind.ScrollUp
 
         else: discard
 
@@ -119,7 +119,7 @@ proc esc_parser(str:string): KMEvent {.inline.}=
     #echo "esc: ", str
     result = new KMEvent
     result.key = str
-    result.evType = "FnKey"
+    result.evType = KMEventKind.FnKey
 
 proc char_parser(str:string): KMEvent {.inline.}=
     if str.len == 1 and (ord(str[0]) < 32 or ord(str[0]) == 127): #1-32, 127 control char
@@ -128,13 +128,13 @@ proc char_parser(str:string): KMEvent {.inline.}=
         result = new KMEvent
         result.key = str
         result.ctrlKey = ord(str[0])
-        result.evType = "CtrlKey"
+        result.evType = KMEventKind.CtrlKey
         return result
     else:    
         #echo "char: ", str
         result = new KMEvent
         result.key = str
-        result.evType = "Char"
+        result.evType = KMEventKind.Char
         if mouse_state == 1:
             #echo "cancel drag op"
             mouse_state = 0
@@ -166,7 +166,7 @@ proc kmLoop*(): KMEvent  =
                 if c == '\e': # else CSI: [
                     #break tobreak
                     result=new KMEvent
-                    result.evType = "EXIT"
+                    result.evType = KMEventKind.Exit
                     return result
                 c = getch()  # CSI begins here
 

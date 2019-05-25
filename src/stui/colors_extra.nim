@@ -135,7 +135,7 @@ proc parseColor*(colorName: string): int = parseColor(colorName, getColorMode())
 
 # 16 colors 8 + bright...
 # "Later terminals added the ability to directly specify the "bright" colors with 90-97 and 100-107. "
-# but for me, only adding styleBright gives good results
+# - but for me, only adding styleBright gives good results
 proc setForegroundColor*(f: File, col: Color16) =
     f.write("\e[" & $int(col) & "m")
 

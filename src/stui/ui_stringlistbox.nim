@@ -208,7 +208,7 @@ proc onKeypress(this:Controll, event:KMEvent)=
     if not this.disabled:
         let slistbox = StringListBox(this)
 
-        if event.evType == "FnKey": #.....FnKey.....FnKey.....FnKey.....FnKey...
+        if event.evType == KMEventKind.FnKey: #.....FnKey.....FnKey.....FnKey.....FnKey...
             case event.key:
                 of KeyDown:
                     onKeyDown(slistbox)
@@ -224,7 +224,7 @@ proc onKeypress(this:Controll, event:KMEvent)=
 
                 else: discard
 
-        elif event.evType == "CtrlKey":
+        elif event.evType == KMEventKind.CtrlKey:
             case event.ctrlKey:
                 of 13: # ENTER, ctrl+M
                     if slistbox.options[slistbox.cursor].action != nil:
@@ -235,8 +235,8 @@ proc onKeypress(this:Controll, event:KMEvent)=
 
 proc onScroll(this:Controll, event:KMEvent)=
     case event.evType:
-        of "ScrollUp": StringListBox(this).onPgUp()
-        of "ScrollDown": StringListBox(this).onPgDown()
+        of KMEventKind.ScrollUp: StringListBox(this).onPgUp()
+        of KMEventKind.ScrollDown: StringListBox(this).onPgDown()
         else: discard
 
 

@@ -100,10 +100,10 @@ while true:
   #! PROCESS MESSAGE HERE -- case inputLoopEvent, of x: etc
 
   case inputLoopEvent.evType:
-    of "Click","Release","Drag","Drop", "ScrollUp","ScrollDown", "DoubleClick":
+    of KMEventKind.Click,KMEventKind.Release,KMEventKind.Drag,KMEventKind.Drop, KMEventKind.ScrollUp,KMEventKind.ScrollDown, KMEventKind.DoubleClick:
       app.mouseEventHandler(inputLoopEvent)
 
-    of "FnKey","CtrlKey", "Char": # vscode terminal middle mouse click triggers this too...
+    of KMEventKind.FnKey,KMEventKind.CtrlKey, KMEventKind.Char: # vscode terminal middle mouse click triggers this too...
       # KeyPgUp, KeyPgDown trigger controlls cb first then apps
       if inputLoopEvent.key in [KeyPgUp, KeyPgDown]:
         if app.activeControll != nil and app.activeControll.onKeypress != nil:
@@ -116,7 +116,7 @@ while true:
           if app.activeControll != nil and app.activeControll.onKeypress != nil:
             app.activeControll.onKeypress(app.activeControll, inputLoopEvent)
 
-    of "EXIT":
+    of KMEventKind.Exit:
       if app.activeControll != nil:
         try:
           if app.activeControll.cancel != nil:
@@ -126,7 +126,7 @@ while true:
           break # == quit
       else:
         break # == quit
-    else: discard
+    #else: discard
 
   ##! RESTART LOOP:
   inputLoopEventFlowVar = spawn kmLoop() #! REPLACE PROC WITH YOURS #2/2 <<<<<<<

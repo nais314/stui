@@ -150,13 +150,24 @@ type
 
 #............................
 
+  KMEventKind* {.pure.} = enum
+    Click, Release, 
+    LongClick,
+    Drag, Drop,
+    ScrollUp, ScrollDown,
+    DoubleClick,
+
+    FnKey,CtrlKey,Char,
+
+    Exit
+
   Event* = ref object of RootObj
 
   KMEvent* = ref object of Event
     btn*, x*, y*: int
     c*: char
     source*, target*: Controll
-    evType*: string # FnKey, CtrlKey, Char - Custom
+    evType*: KMEventKind # FnKey, CtrlKey, Char - Custom
 
     key*: string # esc sequence or Rune - or Custom
     ctrlKey*: int
@@ -221,9 +232,7 @@ type
     controlls*: seq[Controll]
     currentPage*: int
 
-    #label*: string
-
-    #backgroundColor
+    fullScreen*: bool
 
   Tile* = ref object of Controll
     windows*: seq[Window]
@@ -299,7 +308,8 @@ proc genId*(length: int = 5):string=
   ## may used for object unique id generation
   randomize()
   var
-    A = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','W','V','Z','Y']
+    A = ['A','B','C','D','E','F','G','H',
+         'I','J','K','L','M','N','O','P','Q','R','S','W','V','Z','Y']
 
   result = $rand(A)
   while result.len < length:
@@ -420,16 +430,34 @@ proc setColors*(colorMode:int, style:StyleSheet) =
       colors_extra.setForegroundColor(PackedRGB(style.fgColor[colorMode]))
     else: discard
 
-proc copyColorsFrom*(this, style: StyleSheetRef)=
-  this.fgColor = style.fgColor
-  this.bgColor = style.bgColor
+#...................................
+
 
 proc changeFGColor*(this: Controll, stylename: string, colors: StyleColor)=
   this.styles[stylename].fgColor = colors
 
 proc changeFGColor*(this: Controll, stylename: string, colorname: string) =
-  for iCM in 0..3:
+  # TODO: 8/16 colors test
+  for iCM in 0..1:    
+    this.styles[stylename].fgColor[iCM] = colors_extra.parseColor("fg" & colorname, iCM)
+  for iCM in 2..3:    
     this.styles[stylename].fgColor[iCM] = colors_extra.parseColor(colorname, iCM)
+
+
+proc changeBGColor*(this: Controll, stylename: string, colors: StyleColor)=
+  this.styles[stylename].bgColor = colors
+
+proc changeBGColor*(this: Controll, stylename: string, colorname: string) =
+  # TODO: 8/16 colors test
+  for iCM in 0..1:    
+    this.styles[stylename].bgColor[iCM] = colors_extra.parseColor("bg" & colorname, iCM)
+  for iCM in 2..3:    
+    this.styles[stylename].bgColor[iCM] = colors_extra.parseColor(colorname, iCM)
+
+
+proc copyColorsFrom*(this, style: StyleSheetRef)=
+  this.fgColor = style.fgColor
+  this.bgColor = style.bgColor
 
 proc swapFGBGColors*(style: StyleSheetRef)=
   var styleBuffer: StyleSheetRef = new StyleSheetRef
@@ -597,7 +625,7 @@ proc setPadding*(this:Controll,dir:string, size:int = 0)=
         style.padding.left = size
         style.padding.right = size
       else: discard
-
+#.......................
 
 proc setMargin*(this:Controll,dir:string, size:int = 0)=
   for style in this.styles.values:
@@ -622,6 +650,20 @@ proc setMargin*(this:Controll, args: varargs[string])=
   while i < args.len:
     this.setMargin(args[i], parseInt(args[i+1]) )
     i += 2
+#.......................
+
+proc setMargin*(controlls: var seq[Controll],dir:string, size:int = 0)=
+  for cont in controlls:
+    cont.setMargin(dir, size)
+
+proc setMargin*(controlls: var seq[Controll], args: varargs[string])=
+  var i:int
+  for cont in controlls:
+    i = 0
+    while i < args.len:
+      cont.setMargin(args[i], parseInt(args[i+1]) )
+      i += 2
+#.......................
 
 proc setMargin(style:StyleSheetRef,dir:string, size:int = 0)=
   case dir:
@@ -792,8 +834,8 @@ proc pgDown*(this:Window)=
 
 proc window_onScroll(this:Controll, event:KMEvent)=
   case event.evType:
-    of "ScrollUp": Window(this).pgUp()
-    of "ScrollDown": Window(this).pgDown()
+    of KMEventKind.ScrollUp: Window(this).pgUp()
+    of KMEventKind.ScrollDown: Window(this).pgDown()
     else: discard
 
 proc window_onClick(this:Controll, event:KMEvent)=
@@ -1052,6 +1094,7 @@ proc newApp*(appDir: string): App = # appDir for themes
 
 
 proc outerHeigth(this: Controll): int {.inline.} =
+  ## used by recalc
   if this.heigth_value > 0: # relative heigth used (percent)
 
     if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
@@ -1082,7 +1125,7 @@ proc outerHeigth(this: Controll): int {.inline.} =
       this.activeStyle.margin.top +
       this.activeStyle.margin.bottom
 
-  else:
+  else: # egsact heigth value used
     if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
       return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
     else: # no border
@@ -1136,7 +1179,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
 
   proc newColumn()=
-    xC = maxX + 1 # +1: next column, not the x2 of this controll!
+    xC = maxX + 1 # +1: next column, not the .x2 of this controll!
     availH = calcAvailH()
 
   #....................................
@@ -1191,7 +1234,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
 
         # if no room on bottom / and on side: ------------------------
-        #   x2 precalc to know if controll fits on page
+        #   .x2 precalc to know if controll fits on page
         #
         this.controlls[iC].x2 = xC +
           (this.controlls[iC].width - 1) +
@@ -1517,10 +1560,10 @@ proc draw*(this: Window) =
   # titlebar: ▲▼ »« ‹› × ̊ ⁰
   acquire(this.app.termlock)
   setColors(this.app, this.activeStyle[])
-  drawRect(this.x1, this.y1+1, this.x2, this.y2)
+  drawRect(this.x1, this.y1, this.x2, this.y2)
   release(this.app.termlock)
 
-  this.drawTitle()
+  if not this.fullScreen: this.drawTitle()
 
   if this.pages.len > 0 :
     #echo "draw W: DEB: " , this.currentPage , ", " , this.pages[0].controlls.len
@@ -1682,7 +1725,7 @@ proc parkCursor*(app:App){.inline.}=
   ## move cursor to "parking" position
   ## proc blur() uses it mostly
   withLock app.termlock:
-    terminal_extra.setCursorPos(app.activeWindow.x1 + 1, app.activeWindow.y1 + 2)
+    terminal_extra.setCursorPos(app.activeWindow.x1 + 1, app.activeWindow.y1)
     app.cursorPos.x = app.activeWindow.x1 + 1
     app.cursorPos.y = app.activeWindow.y1
 
@@ -1790,7 +1833,7 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
   result = false
   case event.evType:
 
-    of "FnKey":
+    of KMEventKind.FnKey:
       case event.key:
         of KeyPgDown:
           app.activeWindow.pgDown()
@@ -1815,7 +1858,7 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
                   app.listeners[i].actions[j]()
                 result = true
 
-    of "CtrlKey":
+    of KMEventKind.CtrlKey:
       case event.ctrlKey:
         of 9: # TAB
           # *HINT: pageBreak is not added to PAGE controlls :)
@@ -1849,12 +1892,12 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
   ## gets the controll by x,y coordinates and
   ## calls the controlls event handler proc
 
-  if event.evType == "Drop" :
+  if event.evType == KMEventKind.Drop :
     ## needed to remove "drag path" from screen
     app.draw()
 
   var eventTarget: Controll
-  if event.evType in ["Release","Drag", "ScrollDown","ScrollUp"]:
+  if event.evType in [KMEventKind.Release,KMEventKind.Drag, KMEventKind.ScrollDown,KMEventKind.ScrollUp]:
     ## getuielement fires blur and sets activecontroll if asked
     eventTarget = app.getUIElementAtPos(event.x,event.y, false)
   else:
@@ -1862,27 +1905,27 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
 
   if eventTarget != nil:
     event.target = eventTarget
-    if event.evType == "Click" :
+    if event.evType == KMEventKind.Click :
       if eventTarget.onClick != nil:
         eventTarget.onClick(eventTarget, event)
 
-    if event.evType == "Release" :
+    if event.evType == KMEventKind.Release :
       if not isNil(eventTarget.onRelease) :
         eventTarget.onRelease(eventTarget, event)
 
 
-    if event.evType == "DoubleClick" :
+    if event.evType == KMEventKind.DoubleClick :
       if not isNil(eventTarget.onDoubleClick) :
         eventTarget.onDoubleClick(eventTarget, event)
 
-    if event.evType == "Drag" and app.dragSource == nil #[ and app.activeControll != nil ]#:
+    if event.evType == KMEventKind.Drag and app.dragSource == nil #[ and app.activeControll != nil ]#:
       if app.activeControll != eventTarget: #! patch - if dragged controll is not the activecontroll
         app.activate(eventTarget)
 
       app.dragSource = app.activeControll
       if app.dragSource.onDrag != nil: app.dragSource.onDrag(eventTarget, event)
 
-    if event.evType == "Drop" :
+    if event.evType == KMEventKind.Drop :
       if app.dragSource != eventTarget and not app.dragSource.disabled and not eventTarget.disabled: # dont fire drop on itself OR disabled
         event.source = app.dragSource
         if eventTarget.onDrop != nil : eventTarget.onDrop(eventTarget, event)
@@ -1893,7 +1936,7 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
 
       app.dragSource = nil
 
-    if event.evType in ["ScrollDown", "ScrollUp"] :
+    if event.evType in [KMEventKind.ScrollDown, KMEventKind.ScrollUp] :
       if eventTarget.onScroll != nil : eventTarget.onScroll(eventTarget, event)
 
 
@@ -1940,12 +1983,12 @@ proc addEventListener*(app:App, evtname:string, fun:proc():void)=
   ## among many others, this can be used to
   ## add FunctionKey onclick events like F10 quit, F2 menu, etc...
   var exists = false
-  var newListener: tuple[name:string, actions: seq[proc():void]]
   for i in 0..app.listeners.high:
     if app.listeners[i].name == evtname:
       app.listeners[i].actions.add(fun)
       exists = true
   if not exists:
+    var newListener: tuple[name:string, actions: seq[proc():void]]
     newListener.name = evtname
     newListener.actions = @[]
     newListener.actions.add(fun)

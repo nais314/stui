@@ -7,6 +7,10 @@ import ui_textbox, ui_menu, ui_button
 from algorithm import sort
 import sequtils
 
+# TODO: value= etc
+# TODO: use os.splitPath instead own functions (?)
+# TODO: read/open to selected file
+
 ## on fileselect:
 ##    its displayed liker the selectbox,
 ##
@@ -18,6 +22,13 @@ import sequtils
 ##      cancel writes data back from TextBox preval
 ##
 ##    finally "change" event fires and variables gets finalized, screen updated
+
+##    ui_menu initialized with newInlineMenu
+##    .prevActiveControll = fileselect is the bond
+##    the overrided fsNodeLoader and unloader changes the filename, path .
+##    if the user changes the filename (new file), then proc commit
+##    detects it and copies filename to fs
+##    Fileselect "change" event glues .path & .filename to .val .
 
 
 # %userprofile%
@@ -127,7 +138,7 @@ proc draw*(this: FileSelect, updateOnly: bool = false) =
         terminal_extra.setCursorPos(this.leftX(),
                               this.bottomY())
 
-        let btnLen = 3
+        let btnLen = 1 # size of "⏏" or whatever image at the end 
 
         if this.text.runeLen > 0 :
             if this.text.runeLen < (this.width - btnLen):
@@ -307,7 +318,12 @@ proc childUnLoader(menu: Menu, menuNode: MenuNode) =
 
 
 proc commit(this_elem: Controll)=
-    ## path and filename are committed on the fly
+    ## if user changed filename
+    if TextBox(this_elem.win.controlls[2]).value != "" and
+      FileSelect(Menu(this_elem.win.controlls[1]).prevActiveControll).filename != TextBox(this_elem.win.controlls[2]).value:
+        FileSelect(Menu(this_elem.win.controlls[1]).prevActiveControll).filename = TextBox(this_elem.win.controlls[2]).value
+
+    ## path and filename are committed on the fly - except for new files
     ## trigger change for text recalc
     trigger(Menu(this_elem.win.controlls[1]).prevActiveControll, "change")
 
@@ -440,7 +456,7 @@ proc fileSelectOnChange*(this: Controll)= # …✔✖ ⚯ ⚮ ⚭ ⚬ 🂱
 
 proc onKeyPress(this: Controll, event:KMEvent)=
     if not this.disabled:
-        if event.evType == "CtrlKey":
+        if event.evType == KMEventKind.CtrlKey:
             case event.ctrlKey:
                 of 13:
                     this.onClick(this, event)

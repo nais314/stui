@@ -232,10 +232,10 @@ proc onPgDown(menu:Menu)=
 proc onScroll(this:Controll, event:KMEvent)= 
 
     case event.evType:
-        of "ScrollUp":
+        of KMEventKind.ScrollUp:
             onPgUp(Menu(this))
 
-        of "ScrollDown":
+        of KMEventKind.ScrollDown:
             onPgDown(Menu(this))
 
         else: discard
@@ -342,7 +342,7 @@ proc onKeypress(this:Controll, event:KMEvent)=
     if not this.disabled:
         #let menu = Menu(this)
 
-        if event.evType == "FnKey": #.....FnKey.....FnKey.....FnKey.....FnKey...
+        if event.evType == KMEventKind.FnKey: #.....FnKey.....FnKey.....FnKey.....FnKey...
             case event.key:
 
                 of KeyLeft:
@@ -417,7 +417,7 @@ proc onKeypress(this:Controll, event:KMEvent)=
 
                 else: discard
 
-        elif event.evType == "CtrlKey":
+        elif event.evType == KMEventKind.CtrlKey:
             case event.ctrlKey:
                 of 13: # ENTER, ctrl+M
                     onEnter(menu)

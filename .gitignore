@@ -1,1 +1,3 @@
 **/nimcache
+tests/template/stui_template
+tests/template_simpleapp/template_simpleapp

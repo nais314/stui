@@ -258,7 +258,7 @@ proc selectBoxOnChange*(this: Controll)= # …✔✖ ⚯ ⚮ ⚭ ⚬ 🂱
 
 proc onKeyPress(this: Controll, event:KMEvent)=
     if not this.disabled:
-        if event.evType == "CtrlKey":
+        if event.evType == KMEventKind.CtrlKey:
             case event.ctrlKey:
                 of 13:
                     this.onClick(this, event)

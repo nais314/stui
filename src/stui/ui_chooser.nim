@@ -121,7 +121,7 @@ proc commit(this:Controll)=
 
 proc onKeypress(this:Controll, event:KMEvent)=
     var chooser = Chooser(this)
-    if event.evType == "FnKey": #,"CtrlKey", "Char":
+    if event.evType == KMEventKind.FnKey: #,KMEventKind.CtrlKey, KMEventKind.Char:
         case event.key:
             of KeyUp:
                 if chooser.cursor > 0 :
@@ -135,14 +135,14 @@ proc onKeypress(this:Controll, event:KMEvent)=
 
             else: discard
 
-    if event.evType == "CtrlKey":
+    if event.evType == KMEventKind.CtrlKey:
         case event.ctrlKey:
             of 13: # ENTER, ctrl+M
                 #chooser.options[chooser.cursor].selected = true
                 commit(this)
             else: discard
 
-    if event.evType == "Char":
+    if event.evType == KMEventKind.Char:
         case event.key:
             of " ":
                 if chooser.multiSelect == false or chooser.cursor == 0:

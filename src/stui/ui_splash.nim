@@ -66,6 +66,13 @@ proc drawit(this: Controll, updateOnly: bool = false) =
 
 
 
+proc show*(this: Splash, timeout: int = 0)=
+  this.app.hideControlls()
+  this.draw()
+  if timeout > 0:
+    sleep(timeout)
+    this.app.redraw()
+
 
 proc focus(this: Controll)=
   this.prevStyle = this.activeStyle 
@@ -136,10 +143,7 @@ proc newSplash*(win:Window, str: string): Splash =
 
 
 
-
-proc parseEsc(splash:Splash, esc:string)=
-  discard
-
+#[ 
 proc parse*(splash:Splash, str:string)=
   ## to get information, the splash file or string needs to be parsed...
   ## it can be a simple string, or string with ansi escape sequences;
@@ -180,4 +184,4 @@ proc parse*(splash:Splash, str:string)=
 
     #END for line in lines(str)
 
-  splash.width = maxLineLen
+  splash.width = maxLineLen ]#

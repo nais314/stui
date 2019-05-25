@@ -89,7 +89,7 @@ proc onClick*(this: Controll, event:KMEvent) =
         this.app.activate(this)
         drawit(this)
         var c: char
-        if event.evType != "CtrlKey": # mouseClick flush Release event
+        if event.evType != KMEventKind.CtrlKey: # mouseClick flush Release event
             while c != 'm':
                 c = getch()
         # visual feedback:
@@ -106,7 +106,7 @@ proc onDrop(this: Controll, event:KMEvent)=discard
 proc onKeyPress(this: Controll, event:KMEvent)=
     # todo: focusFWD on KeyLeft ?
     if not this.disabled:
-        if event.evType == "CtrlKey":
+        if event.evType == KMEventKind.CtrlKey:
             case event.ctrlKey:
                 of 13:
                     this.onClick(this, event)

@@ -818,13 +818,13 @@ proc onDoubleClick(this_elem: Controll, event: KMEvent) =
 proc onScrollHelper[T](this:LineGraph[T], event:KMEvent)=
 
     case event.evType:
-        of "ScrollUp":
+        of KMEventKind.ScrollUp:
             if this.rightReading:
                 this.onPgDown()
             else:
                 this.onPgUp()
 
-        of "ScrollDown":
+        of KMEventKind.ScrollDown:
             if this.rightReading:
                 this.onPgUp()
             else:
@@ -847,7 +847,7 @@ proc onScroll(this_elem: Controll, event: KMEvent) =
 proc onKeyPressHelper[T](this: LineGraph[T], event: KMEvent)=
 
     if not this.disabled:
-        if event.evType == "FnKey":
+        if event.evType == KMEventKind.FnKey:
             case event.key:
                 of KeyRight: # right "[C"
                     discard
@@ -880,14 +880,14 @@ proc onKeyPressHelper[T](this: LineGraph[T], event: KMEvent)=
 
 
 
-        elif event.evType == "Char":
+        elif event.evType == KMEventKind.Char:
             #......Char......Char......Char......Char
             discard
 
 
 
 
-        elif event.evType == "CtrlKey": #.....CtrlKey.....CtrlKey.....CtrlKey
+        elif event.evType == KMEventKind.CtrlKey: #.....CtrlKey.....CtrlKey.....CtrlKey
             case event.ctrlKey:
                 of 13: # enter
                     discard
@@ -899,7 +899,7 @@ proc onKeyPressHelper[T](this: LineGraph[T], event: KMEvent)=
             #echo "ctrl"
 
     else: # if this.disabled:
-        if event.evType == "CtrlKey":
+        if event.evType == KMEventKind.CtrlKey:
             case event.ctrlKey:
                 of 3:
                     discard

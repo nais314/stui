@@ -16,6 +16,17 @@ if you use the standard 8/16 colors, its appereance will vary depending on the t
 "color modes are backward compatible": on 256 colors terminal you can use 16 color; on RGB you can use every method, even mixed =)  
 
 
+app.colorMode caches the initial color mode,
+so if not changed on the fly, calling getColorMode
+is not neccessary.
+
+
+setForegroundColor/setBackgroundColor are
+changing drawing color (...),
+changeForegroundColor/changeBackgroundColor are
+working on Controll.styles
+
+
 **Styles**
 
 to spare repeating setMargin("bottom", 1), modify app's styles before creating 

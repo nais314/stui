@@ -1,5 +1,5 @@
 #import stui, terminal, colors, colors_extra, unicode, tables, parseutils, locks
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 
 type FineProgressBar* = ref object of Controll
@@ -185,7 +185,7 @@ proc newFineProgressBar*(win:Window, label: string, width:int=20): FineProgressB
     result.disabled = false
 
     result.width = width
-    result.heigth = 2
+    result.height = 2
     result.styles = newTable[string, StyleSheetRef](8)
 
     var styleNormal: StyleSheetRef = new StyleSheetRef

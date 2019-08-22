@@ -1,5 +1,5 @@
 import uiext_maximize
-include "controll.inc.nim"
+include "controll_inc.nim"
 import math, typetraits
 
 # todo:
@@ -73,12 +73,12 @@ type LineGraph*[T] = ref object of MaximizableControll
 
     dataSet*: Dataset2D[T]
     floatPrecision*: int # number of decimal places for display
-    yLineHeigth*: float
+    yLineHeight*: float
 
 
-    graphHeigth*, graphWidth*: int # will be calculated
-    prevGraphHeigth*, prevGraphWidth*: int # speed up redraw
-    posGraphHeigth*, negGraphHeigth*: int # store to speed up redraw
+    graphHeight*, graphWidth*: int # will be calculated
+    prevGraphHeight*, prevGraphWidth*: int # speed up redraw
+    posGraphHeight*, negGraphHeight*: int # store to speed up redraw
 
     tickMarkRune* : string # = "├"
     tickLineRune* : string # ┈
@@ -132,25 +132,25 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
 
             if updateOnly == false:
 
-                this.prevGraphHeigth = this.graphHeigth #!
+                this.prevGraphHeight = this.graphHeight #!
 
                 # calc number of lines for positive and negative side
-                if this.graphHeigth == 1:
+                if this.graphHeight == 1:
                     discard #todo
                 else:
 
-                    this.yLineHeigth = (this.dataSet.maxValue.float + abs(this.dataSet.minValue.float)) / this.graphHeigth.float
+                    this.yLineHeight = (this.dataSet.maxValue.float + abs(this.dataSet.minValue.float)) / this.graphHeight.float
 
-                    if this.yLineHeigth == 0: break MAIN #todo
+                    if this.yLineHeight == 0: break MAIN #todo
 
-                    this.posGraphHeigth = int(ceil(this.dataSet.maxValue.float / this.yLineHeigth))
-                    this.negGraphHeigth = int(ceil(abs(this.dataSet.minValue).float / this.yLineHeigth))
+                    this.posGraphHeight = int(ceil(this.dataSet.maxValue.float / this.yLineHeight))
+                    this.negGraphHeight = int(ceil(abs(this.dataSet.minValue).float / this.yLineHeight))
 
                     # make sure we fit into the area...:
-                    while this.posGraphHeigth + this.negGraphHeigth > this.graphHeigth:
-                        this.yLineHeigth = this.yLineHeigth * 1.05 #? 1.05 ?
-                        this.posGraphHeigth = int(ceil(this.dataSet.maxValue.float / this.yLineHeigth))
-                        this.negGraphHeigth = int(ceil(abs(this.dataSet.minValue).float / this.yLineHeigth))
+                    while this.posGraphHeight + this.negGraphHeight > this.graphHeight:
+                        this.yLineHeight = this.yLineHeight * 1.05 #? 1.05 ?
+                        this.posGraphHeight = int(ceil(this.dataSet.maxValue.float / this.yLineHeight))
+                        this.negGraphHeight = int(ceil(abs(this.dataSet.minValue).float / this.yLineHeight))
 
 
 
@@ -164,7 +164,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
             #    # #    # #   #  #   #  #    # 
             #    # #    # #    # #    #  ####  
 
-            if this.graphHeigth == 1:
+            if this.graphHeight == 1:
                 ## no room for negative values.. or maybe there is... ╵│
                 discard #todo
             else:
@@ -182,7 +182,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                 this.prevGraphWidth  = this.graphWidth #!
 
 
-                var cline = (this.topY + 1) + this.posGraphHeigth#! line cursor - cline
+                var cline = (this.topY + 1) + this.posGraphHeight#! line cursor - cline
                                         
 
                                                 
@@ -194,10 +194,10 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                     else:
                         terminal_extra.setDimmed() # not working on RGB :[
                     #draw:
-                    for li in 1 .. this.posGraphHeigth :
+                    for li in 1 .. this.posGraphHeight :
                         cline -= 1
                         terminal_extra.setCursorPos(this.leftX, cline)
-                        stdout.write unicode.align((this.yLineHeigth * li.float).formatFloat(ffDecimal, this.floatPrecision),this.marklen)
+                        stdout.write unicode.align((this.yLineHeight * li.float).formatFloat(ffDecimal, this.floatPrecision),this.marklen)
                         stdout.write this.tickMarkRune
                         stdout.write this.tickLineRune * (this.width - this.marklen - 1)
 
@@ -209,11 +209,11 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                         terminal_extra.setReversed()
                         terminal_extra.setDimmed()
                     #draw:
-                    cline = (this.topY + 1) + this.posGraphHeigth - 1#!
-                    for li in 1..this.negGraphHeigth :
+                    cline = (this.topY + 1) + this.posGraphHeight - 1#!
+                    for li in 1..this.negGraphHeight :
                         cline += 1
                         terminal_extra.setCursorPos(this.leftX, cline)
-                        stdout.write unicode.align((0 - (this.yLineHeigth * li.float)).formatFloat(ffDecimal, this.floatPrecision), this.marklen)
+                        stdout.write unicode.align((0 - (this.yLineHeight * li.float)).formatFloat(ffDecimal, this.floatPrecision), this.marklen)
                         stdout.write this.tickMarkRune
                         stdout.write this.tickLineRune * (this.width - this.marklen - 1)
 
@@ -226,7 +226,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                         setColors(this.app, this.styles["mark:positive"])
                     #draw:
                     cline = (this.topY + 1) #!
-                    for li in 0..this.posGraphHeigth - 1:
+                    for li in 0..this.posGraphHeight - 1:
                         terminal_extra.setCursorPos(this.leftX, cline)
                         stdout.write this.tickLineRune * this.width
                         cline += 1
@@ -236,7 +236,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                     else:
                         terminal_extra.setReversed()
                     #draw:
-                    for li in 1..this.negGraphHeigth :
+                    for li in 1..this.negGraphHeight :
                         terminal_extra.setCursorPos(this.leftX, cline)
                         stdout.write this.tickLineRune * this.width
                         cline += 1
@@ -349,56 +349,56 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                     if cval != 0: # something to show
                         if cval > 0: # ------ POSITIVE VALUE -------
 
-                            cy = (this.topY ) + this.posGraphHeigth # y first line
+                            cy = (this.topY ) + this.posGraphHeight # y first line
 
-                            if cval.float < this.yLineHeigth / 2:
+                            if cval.float < this.yLineHeight / 2:
                                 terminal_extra.setCursorPos(cx, cy)
                                 stdout.write "_"
                             else:
 
-                                lineLen = int(cval.float / this.yLineHeigth)
+                                lineLen = int(cval.float / this.yLineHeight)
 
                                 for i in 1..lineLen:
                                     terminal_extra.setCursorPos(cx, cy)
                                     stdout.write(this.fullLineRune)
                                     cy -= 1
 
-                                #if lineLen.float * this.yLineHeigth < cval: # :)
-                                #[ if cval - lineLen.float * this.yLineHeigth >= this.yLineHeigth / 4 :
+                                #if lineLen.float * this.yLineHeight < cval: # :)
+                                #[ if cval - lineLen.float * this.yLineHeight >= this.yLineHeight / 4 :
                                     terminal_extra.setCursorPos(cx, cy)
                                     stdout.write(",") ]#
-                                if cval.float - lineLen.float * this.yLineHeigth >= this.yLineHeigth / 2 :
+                                if cval.float - lineLen.float * this.yLineHeight >= this.yLineHeight / 2 :
                                     terminal_extra.setCursorPos(cx, cy)
                                     stdout.write(this.halfLineRune)
 
 
                         elif cval < 0: # ------ NEGATIVE VALUE -------
 
-                            cy = (this.topY ) + this.posGraphHeigth + 1 # y first negative line
+                            cy = (this.topY ) + this.posGraphHeight + 1 # y first negative line
 
-                            if abs(cval.float) < this.yLineHeigth / 2:
+                            if abs(cval.float) < this.yLineHeight / 2:
                                 terminal_extra.setCursorPos(cx, cy - 1)
                                 stdout.write "_"
                             else:
 
-                                lineLen = int(abs(cval.float) / this.yLineHeigth)
+                                lineLen = int(abs(cval.float) / this.yLineHeight)
 
                                 for i in 1..lineLen:
                                     terminal_extra.setCursorPos(cx, cy)
                                     stdout.write(this.negativeFullLineRune)
                                     cy += 1
 
-                                #if lineLen.float * this.yLineHeigth < cval: # :)
-                                #[ if abs(cval + lineLen.float * this.yLineHeigth) >= this.yLineHeigth / 4 :
+                                #if lineLen.float * this.yLineHeight < cval: # :)
+                                #[ if abs(cval + lineLen.float * this.yLineHeight) >= this.yLineHeight / 4 :
                                     terminal_extra.setCursorPos(cx, cy)
                                     stdout.write("'") ]#
-                                if abs(cval.float + lineLen.float * this.yLineHeigth) >= this.yLineHeigth / 2 :
+                                if abs(cval.float + lineLen.float * this.yLineHeight) >= this.yLineHeight / 2 :
                                     terminal_extra.setCursorPos(cx, cy)
                                     stdout.write(this.negativeHalfLineRune)
 
 
                     else: # cval == 0
-                        cy = (this.topY ) + this.posGraphHeigth
+                        cy = (this.topY ) + this.posGraphHeight
                         terminal_extra.setCursorPos(cx, cy)
                         stdout.write "_"
 
@@ -462,7 +462,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                     #fill line
                     if this.width > 14: stdout.write " " * (this.width - 14)
 
-                else: this.scaleControllsY = this.topy + this.graphHeigth + 1
+                else: this.scaleControllsY = this.topy + this.graphHeight + 1
 
 
 
@@ -476,7 +476,7 @@ proc drawFromOffset_floatDataset[T](this: LineGraph[T], updateOnly: bool = false
                 # #    # #    # #    # ##  ##    #    # #        #   #    # # #      #    #
                 #  ####  #    #  ####  #    #    #####  ######   #   #    # # ######  ####
 
-                if this.showDetail and this.heigth > 4:
+                if this.showDetail and this.height > 4:
                     setColors(this.app, this.activeStyle[])
 
                     terminal_extra.setUnderline()
@@ -646,16 +646,16 @@ proc draw*[T](this: LineGraph[T], updateOnly: bool = false){.gcsafe.} =
             drawRect(this.leftX(), this.topY() + 1 , this.rightX(), this.bottomY())
 
             # if window resized:
-            if this.heigth > 0:
+            if this.height > 0:
                 if not this.isMaximized:
-                    this.graphHeigth = this.heigth - 1 #label
+                    this.graphHeight = this.height - 1 #label
                 else:
-                    this.graphHeigth = this.win.heigth - 1 #this.heigth + 1
+                    this.graphHeight = this.win.height - 1 #this.height + 1
                     this.y1 = this.win.y1
                     
-                if this.showScale and (this.graphHeigth > 1) and this.heigth > 4: this.graphHeigth -= 1
-                if this.showDetail and (this.graphHeigth > 4) and this.scale == 1 and this.heigth > 4: this.graphHeigth -= 2
-                elif this.showDetail and (this.graphHeigth > 4) and this.heigth > 4: this.graphHeigth -= 4
+                if this.showScale and (this.graphHeight > 1) and this.height > 4: this.graphHeight -= 1
+                if this.showDetail and (this.graphHeight > 4) and this.scale == 1 and this.height > 4: this.graphHeight -= 2
+                elif this.showDetail and (this.graphHeight > 4) and this.height > 4: this.graphHeight -= 4
 
         #setColors(this.app, this.activeStyle[])
 
@@ -925,7 +925,7 @@ proc onKeyPress(this_elem: Controll, event: KMEvent)=
 
 proc newLineGraph*[T]( win: Window,
                     label:string,
-                    width:int=20, heigth:int=20,
+                    width:int=20, height:int=20,
                     showMarks:bool=true,
                     showScale:bool= true,
                     showDetail:bool= true,
@@ -961,7 +961,7 @@ proc newLineGraph*[T]( win: Window,
     result.visible = false
     result.disabled = false
     result.width = width
-    result.heigth = heigth
+    result.height = height
     result.showMarks = showMarks
     result.showScale = showScale
     result.showDetail = showDetail
@@ -1002,11 +1002,11 @@ proc newLineGraph*[T]( win: Window,
 
     result.dataSet.maxItems = maxItems
 
-    result.heigth = heigth
-    if heigth > 0:
-        result.graphHeigth = heigth
-        if showScale and (result.graphHeigth > 1): result.graphHeigth -= 1
-        if showDetail and (result.graphHeigth > 4): result.graphHeigth -= 4
+    result.height = height
+    if height > 0:
+        result.graphHeight = height
+        if showScale and (result.graphHeight > 1): result.graphHeight -= 1
+        if showDetail and (result.graphHeight > 4): result.graphHeight -= 4
 
     win.controlls.add(result)
 
@@ -1015,7 +1015,7 @@ proc newLineGraph*[T]( win: Window,
 ### RELATIVE W ###
 proc newLineGraph*[T]( win: Window,
     label:string,
-    width:string, heigth:int=20,
+    width:string, height:int=20,
     showMarks:bool=true,
     showScale:bool= true,
     showDetail:bool= true,
@@ -1034,7 +1034,7 @@ proc newLineGraph*[T]( win: Window,
 
     result = newLineGraph[T]( win,
         label,
-        width = 0, heigth,
+        width = 0, height,
         showMarks,
         showScale,
         showDetail,
@@ -1060,7 +1060,7 @@ proc newLineGraph*[T]( win: Window,
 ### RELATIVE W,H ###
 proc newLineGraph*[T]( win: Window,
     label:string,
-    width:string, heigth:string,
+    width:string, height:string,
     showMarks:bool=true,
     showScale:bool= true,
     showDetail:bool= true,
@@ -1079,7 +1079,7 @@ proc newLineGraph*[T]( win: Window,
 
     result = newLineGraph[T]( win,
         label,
-        width = 0, heigth = 0,
+        width = 0, height = 0,
         showMarks, showScale, showDetail,
         dataType,
         floatPrecision,
@@ -1092,5 +1092,5 @@ proc newLineGraph*[T]( win: Window,
         )
 
     discard width.parseInt(result.width_value)
-    discard heigth.parseInt(result.heigth_value)
+    discard height.parseInt(result.height_value)
 

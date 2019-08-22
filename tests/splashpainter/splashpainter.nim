@@ -2,13 +2,14 @@
 ## copy-paste, save-as, customize :-)
 
 import stui/appbase/appbase # this comes from pkg
+import stui/appbase/appbasetypes
 import appbase/myappbasetypes # this comes from users subdir
 import threadpool, tables, os
 ## on appbase/myappbasetypes: here, appbase is the subdirectory, not the pkg!
 
 when defined logger_enabled:
   #! it declares a logger - override it as needed <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  include "appbase/logger.inc.nim"
+  include "appbase/inc/logger.nim"
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #! ADD imports HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -16,7 +17,8 @@ when defined logger_enabled:
 import stui, terminal, colors, threadpool, os, ospaths, tables, locks, parsecfg
 
 import stui/[colors_extra, terminal_extra, kmloop]
-import stui/[ui_textbox, ui_button, ui_textarea, ui_stringlistbox]
+import stui/[ui_textbox, ui_button, ui_textarea]
+import stui/colors/ui_colorpicker256
 
 import strformat, unicode, strutils, parseutils, random, times
 
@@ -70,18 +72,18 @@ app.timers.add(rT)
 #!  appbase.mainloop calls Channels handlers see appbase folder for templates
 #!  SIMPLE InterCom - thread to main communication:
 
-when defined mainChannelString_enabled: include "appbase/mainChannelString.inc.nim"
+when defined mainChannelString_enabled: include "appbase/inc/mainChannelString.nim"
 #-------------------------------------------------------------------------------
-when defined mainChannelInt_enabled: include "appbase/mainChannelInt.inc.nim"
+when defined mainChannelInt_enabled: include "appbase/inc/mainChannelInt.nim"
 #-------------------------------------------------------------------------------
-when defined mainChannelIntChecked_enabled: include "appbase/mainChannelIntChecked.inc.nim"
+when defined mainChannelIntChecked_enabled: include "appbase/inc/mainChannelIntChecked.nim"
 #-------------------------------------------------------------------------------
-when defined mainChannelIntTalkback_enabled: include "appbase/mainChannelIntTalkback.inc.nim"
+when defined mainChannelIntTalkback_enabled: include "appbase/inc/mainChannelIntTalkback.nim"
 #-------------------------------------------------------------------------------
 #!  INTERCOM - inter-thread capable communication:
 when defined mainChannelJsonChecked_enabled: 
   import json
-  include "appbase/mainChannelJson.inc.nim"
+  include "appbase/inc/mainChannelJson.nim"
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -142,11 +144,14 @@ app.mainLoop:
   #! PROCESS MESSAGE HERE -- case inputLoopEvent, of x: etc
 
   case inputLoopEvent.evType:
-    of KMEventKind.Click,KMEventKind.Release,KMEventKind.Drag,KMEventKind.Drop, KMEventKind.ScrollUp,KMEventKind.ScrollDown, KMEventKind.DoubleClick:
-      app.mouseEventHandler(inputLoopEvent)
+    of KMEventKind.Click,KMEventKind.Release,KMEventKind.DoubleClick,
+      KMEventKind.Drag,KMEventKind.Drop, #KMEventKind.InnerDrag is auto generated from drag
+      KMEventKind.ScrollUp,KMEventKind.ScrollDown:
+        app.mouseEventHandler(inputLoopEvent)
 
-    of KMEventKind.FnKey,KMEventKind.CtrlKey, KMEventKind.Char: # vscode terminal middle mouse click triggers this too...
+    of KMEventKind.FnKey,KMEventKind.CtrlKey, KMEventKind.Char:
       # KeyPgUp, KeyPgDown trigger controlls cb first then apps
+      #   vscode terminal middle mouse click triggers this too...
       if inputLoopEvent.key in [KeyPgUp, KeyPgDown]:
         if app.activeControll != nil and app.activeControll.onKeypress != nil:
           app.activeControll.onKeypress(app.activeControll, inputLoopEvent)

@@ -126,6 +126,7 @@ while true:
           break # == quit
       else:
         break # == quit
+    of LongClick, InnerDrag: discard
     #else: discard
 
   ##! RESTART LOOP:

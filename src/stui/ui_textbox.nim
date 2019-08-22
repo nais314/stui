@@ -1,5 +1,5 @@
 #import stui, terminal, colors, colors_extra, unicode, tables, locks
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 type TextBox* = ref object of Controll
   #label*:string
@@ -305,12 +305,12 @@ proc onKeyPress(this: Controll, event: KMEvent)=
 
 
             
-########    #  # ###### #  # 
-########    ##   # #    #  # 
+########    #    # ###### #  # 
+########    ##   # #      #  # 
 ########    # #  # #####  #  # 
-########    #  # # #    # ## # 
-########    #   ## #    ##  ## 
-########    #  # ###### #  # 
+########    #  # # #     # ## # 
+########    #   ## #     ##  ## 
+########    #    # ###### #  # 
             
 proc newTextBox*(win:Window, label: string, width:int=20, maxlength:int=20): TextBox =
   result = new TextBox
@@ -322,7 +322,7 @@ proc newTextBox*(win:Window, label: string, width:int=20, maxlength:int=20): Tex
   result.visible = false
   result.disabled = false
   result.width = width
-  result.heigth = 2
+  result.height = 2
   result.styles = newTable[string, StyleSheetRef](8)
 
   var styleNormal: StyleSheetRef = new StyleSheetRef

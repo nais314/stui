@@ -8,12 +8,12 @@ import threadpool, tables, os
 
 when defined logger_enabled:
   #! it declares a logger - override it as needed <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  include "appbase/logger.inc.nim"
+  include "appbase/inc/logger.nim"
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #! ADD imports HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-import stui, terminal, colors, threadpool, os, ospaths, tables, locks, parsecfg
+import stui, terminal, colors, threadpool, os, tables, locks, parsecfg
 
 import stui/[colors_extra, terminal_extra, kmloop]
 import stui/[ui_textbox, ui_button, ui_textarea, ui_stringlistbox]
@@ -70,18 +70,18 @@ app.timers.add(rT)
 #!  appbase.mainloop calls Channels handlers see appbase folder for templates
 #!  SIMPLE InterCom - thread to main communication:
 
-when defined mainChannelString_enabled: include "appbase/mainChannelString.inc.nim"
+when defined mainChannelString_enabled: include "appbase/inc/mainChannelString.nim"
 #-------------------------------------------------------------------------------
-when defined mainChannelInt_enabled: include "appbase/mainChannelInt.inc.nim"
+when defined mainChannelInt_enabled: include "appbase/inc/mainChannelInt.nim"
 #-------------------------------------------------------------------------------
-when defined mainChannelIntChecked_enabled: include "appbase/mainChannelIntChecked.inc.nim"
+when defined mainChannelIntChecked_enabled: include "appbase/inc/mainChannelIntChecked.nim"
 #-------------------------------------------------------------------------------
-when defined mainChannelIntTalkback_enabled: include "appbase/mainChannelIntTalkback.inc.nim"
+when defined mainChannelIntTalkback_enabled: include "appbase/inc/mainChannelIntTalkback.nim"
 #-------------------------------------------------------------------------------
 #!  INTERCOM - inter-thread capable communication:
 when defined mainChannelJsonChecked_enabled: 
   import json
-  include "appbase/mainChannelJson.inc.nim"
+  include "appbase/inc/mainChannelJson.nim"
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

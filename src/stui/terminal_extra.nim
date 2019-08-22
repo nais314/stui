@@ -74,6 +74,9 @@ proc enableCanon*()=
     discard fd.tcsetattr(TCSANOW, cur.addr)
 
 
+proc setBright*(){.inline.}=
+    stdout.write "\e[1m"
+
 proc setReversed*(){.inline.}=
     stdout.write "\e[7m"
 

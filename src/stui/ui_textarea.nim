@@ -1,7 +1,7 @@
 #TODO: if label == "" : dont draw label
 #TODO: scrollable uiext (min w/h == 5char)
 #import stui, terminal, colors, colors_extra, unicode, tables, locks, parseutils
-include "controll.inc.nim"
+include "controll_inc.nim"
 type LineMetadata = seq[ tuple[line, width: int]]
 
 type TextArea* = ref object of Controll
@@ -10,7 +10,7 @@ type TextArea* = ref object of Controll
   preval*:string # undo
 
   #width*:int   # of Controll
-  #heigth*:int  # of Controll
+  #height*:int  # of Controll
   
   offset*:int # num-lines scrolled down
   cursor_pos*:int # current Rune pos
@@ -313,9 +313,9 @@ proc cursorDown(ta:TextArea){.inline.}=
       ta.draw(true)
 
 proc onPgDown(ta:TextArea)=
-  if ta.offset < (ta.lineMetadata.high - (ta.heigth - 1) + 1):
-    for i in countdown((ta.heigth - 1), 1): #dont go pass the end
-      if ta.offset + i <= (ta.lineMetadata.high - (ta.heigth - 1) + 1):
+  if ta.offset < (ta.lineMetadata.high - (ta.height - 1) + 1):
+    for i in countdown((ta.height - 1), 1): #dont go pass the end
+      if ta.offset + i <= (ta.lineMetadata.high - (ta.height - 1) + 1):
         ta.offset += i
         ta.currentLine += i
         # calc cursor_pos
@@ -335,7 +335,7 @@ proc onPgDown(ta:TextArea)=
 
 proc onPgUp(ta:TextArea)=
   if ta.offset > 0:
-    for i in countdown(ta.heigth, 1): #ta.heigth..1:
+    for i in countdown(ta.height, 1): #ta.height..1:
       if ta.offset - i >= 0:
         ta.offset -= i
         ta.currentLine -= i
@@ -412,12 +412,12 @@ proc onKeyPress(this: Controll, event: KMEvent)=
 
 
         of "[F": #End
-          if ta.lineMetadata.high > (ta.heigth - 1): # -1 label
-            ta.offset = ta.lineMetadata.high - (ta.heigth - 1) + 1 # -1 label, +1 next row
+          if ta.lineMetadata.high > (ta.height - 1): # -1 label
+            ta.offset = ta.lineMetadata.high - (ta.height - 1) + 1 # -1 label, +1 next row
           ta.cursor_pos = ta.val.runeLen()
           ta.currentLine = ta.lineMetadata.high
           this.app.cursorPos.x = ta.leftX() + ta.lineMetadata[ta.lineMetadata.high].width
-          this.app.cursorPos.y = if ta.lineMetadata.high > (ta.heigth - 1) : # if val < textarea
+          this.app.cursorPos.y = if ta.lineMetadata.high > (ta.height - 1) : # if val < textarea
             ta.bottomY() else : ta.topY() + ta.lineMetadata.high + 1 #+1 label
 
           ta.draw(true)
@@ -514,7 +514,7 @@ proc onScroll(this:Controll, event:KMEvent)=
 
 # todo : new adds value
             
-proc newTextArea*(win:Window, label: string, width:int=20, heigth:int=20): TextArea =
+proc newTextArea*(win:Window, label: string, width:int=20, height:int=20): TextArea =
   result = new TextArea
   result.label=label
   result.lineMetadata = @[]
@@ -527,7 +527,7 @@ proc newTextArea*(win:Window, label: string, width:int=20, heigth:int=20): TextA
   result.disabled = false
 
   result.width = width
-  result.heigth = heigth
+  result.height = height
   
   result.styles = newTable[string, StyleSheetRef](8)
 
@@ -566,19 +566,19 @@ proc newTextArea*(win:Window, label: string, width:int=20, heigth:int=20): TextA
   win.controlls.add(result)
   
 
-proc newTextArea*(win:Window, label: string, width:string, heigth:int=20): TextArea =
-  result = newTextArea(win, label, width=0, heigth)
+proc newTextArea*(win:Window, label: string, width:string, height:int=20): TextArea =
+  result = newTextArea(win, label, width=0, height)
   discard width.parseInt(result.width_value)
 
-proc newTextArea*(win:Window, label: string, width:string, heigth:string): TextArea =
+proc newTextArea*(win:Window, label: string, width:string, height:string): TextArea =
   result = newTextArea(win, label)
   discard width.parseInt(result.width_value)
-  discard heigth.parseInt(result.heigth_value)
+  discard height.parseInt(result.height_value)
 
 
 # TODO make border optional
-proc newStaticTextArea*(win:Window, label: string, width:int=20, heigth:int=5): TextArea =
-  result = newTextArea(win, label, width, heigth)
+proc newStaticTextArea*(win:Window, label: string, width:int=20, height:int=5): TextArea =
+  result = newTextArea(win, label, width, height)
   
   var styleNormal: StyleSheetRef = new StyleSheetRef
   styleNormal.deepcopy win.styles["window"]
@@ -594,10 +594,10 @@ proc newStaticTextArea*(win:Window, label: string, width:int=20, heigth:int=5): 
   result.newLineRune = ""
 
 
-proc newStaticTextArea*(win:Window, label: string, width:string, heigth:string): TextArea =
+proc newStaticTextArea*(win:Window, label: string, width:string, height:string): TextArea =
   result = newTextArea(win, label)
   discard width.parseInt(result.width_value)
-  discard heigth.parseInt(result.heigth_value)
+  discard height.parseInt(result.height_value)
     
   var styleNormal: StyleSheetRef = new StyleSheetRef
   styleNormal.deepcopy win.styles["window"]

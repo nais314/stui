@@ -1,4 +1,4 @@
-include "controll.inc.nim"
+include "controll_inc.nim"
 #import stui, terminal, colors, colors_extra, unicode, tables, locks
 #import strutils, parseutils
 import ui_chooser
@@ -207,7 +207,7 @@ proc selectBoxOnClick(this:Controll, event:KMEvent)=
         win.x2 = parentWin.x2
         win.y2 = parentWin.y2
         win.width = parentWin.width # win.x2 - win.x1
-        win.heigth = win.y2 - win.y1
+        win.height = win.y2 - win.y1
         win.styles["window"].bgColor[2]=235
         win.styles["window"].bgColor[3] = int(packRGB(38,38,38))
         win.label = sb.label
@@ -276,7 +276,7 @@ proc newSelectBox*(win:Window, label: string, multiSelect:bool=false, width:int=
     result.visible = false
     result.disabled = false
     #result.width = width
-    result.heigth = 2
+    result.height = 2
     result.styles = newTable[string, StyleSheetRef](8)
 #[     result.styles.add("input",win.app.styles["input"])
     result.activeStyle = result.styles["input"] ]#

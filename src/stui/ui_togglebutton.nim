@@ -1,5 +1,4 @@
-#import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, locks
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 type ToggleButton* = ref object of Controll
     ## no border or padding style
@@ -45,7 +44,7 @@ proc toggle*(this:ToggleButton)=
 
 proc setPaddingV*(this:ToggleButton, padding:int)=
     this.paddingV = padding
-    this.heigth = 2 + (padding * 2)
+    this.height = 2 + (padding * 2)
 
 proc setPaddingH*(this:ToggleButton, padding:int)=
     this.paddingH = padding
@@ -167,7 +166,7 @@ proc onKeyPress(this: Controll, event:KMEvent)=
 proc newToggleButton*(win:Window, label, onValue, offValue: string, paddingH: int = 0, paddingV:int = 0, toggled:bool = false): ToggleButton =
     result = new ToggleButton
     result.label=label
-    result.heigth = 2 + (paddingV * 2)
+    result.height = 2 + (paddingV * 2)
     result.width = label.runeLen() + (paddingH * 2) # padding
     result.visible = false
     result.disabled = false
@@ -220,4 +219,4 @@ proc newToggleButton*(win:Window, label, onValue, offValue: string, paddingH: in
 proc newToggleButton*(win:Window, label, onValue, offValue: string, width:string, paddingV:int = 0): ToggleButton =
     result = newToggleButton(win, label, onValue, offValue, 0, paddingV)
     discard width.parseInt(result.width_value)
-    #discard heigth.parseInt(result.heigth_value)
+    #discard height.parseInt(result.height_value)

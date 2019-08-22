@@ -1,5 +1,5 @@
 #import stui, terminal, colors, colors_extra, unicode
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 type
     Chooser* = ref object of Controll
@@ -86,8 +86,8 @@ method draw*(this: Chooser, updateOnly:bool=false){.base.}=
 proc drawit(this: Controll, updateOnly:bool=false) =
     draw(Chooser(this),updateOnly)
 
-proc `heigth`*(this:Chooser):int=
-    this.win.heigth - 1
+proc `height`*(this:Chooser):int=
+    this.win.height - 1
 
 
 

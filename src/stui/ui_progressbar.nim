@@ -1,4 +1,4 @@
-include "controll.inc.nim"
+include "controll_inc.nim"
 #import stui, terminal, colors, colors_extra, unicode, tables, parseutils, locks
 
 type ProgressBar* = ref object of Controll
@@ -177,7 +177,7 @@ proc newProgressBar*(win:Window, label: string, width:int=20, showValue: bool = 
     result.disabled = false
 
     result.width = width
-    result.heigth = 2
+    result.height = 2
     result.styles = newStyleSheets() #newTable[string, StyleSheetRef](8)
 
     var styleNormal: StyleSheetRef = new StyleSheetRef

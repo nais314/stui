@@ -670,7 +670,7 @@ import stui/ui_linegraph
 
 let lg1 = newLineGraph[float]( win = app.activeWindow,
                         label = "LineGraph 1",
-                        width = 23, heigth = 20,
+                        width = 23, height = 20,
                         showMarks = true,
                         showScale = true, 
                         showDetail = true, 
@@ -712,7 +712,7 @@ lg1.styles.add("graph:selected", styleSheetRef_fromConfig(lineGraphTss,"graph-se
 
 let lg2 = newLineGraph[int]( win = app.activeWindow,
                         label = "LineGraph 2",
-                        width = "25", heigth = 10,
+                        width = "25", height = 10,
                         showMarks = true,
                         showScale = true, 
                         showDetail = true, 
@@ -738,7 +738,7 @@ let lg3MaxItems = 100
 
 var lg3 = newLineGraph[float]( win = app.activeWindow,
         label = "LineGraph 3",
-        width = "50", heigth = "50",
+        width = "50", height = "50",
         showMarks = true,
         showScale = true, 
         showDetail = true, 

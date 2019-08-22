@@ -1,4 +1,4 @@
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 
 type
@@ -73,12 +73,12 @@ proc recalc(this:Controll)=
     this.y2 = this.app.availRect.y2
 
     #[ this.width = this.x2 - this.x1 #+ 1
-    this.heigth = this.y2 - this.y1 #+ 1 ]#
+    this.height = this.y2 - this.y1 #+ 1 ]#
 
     this.width = this.rightX - this.leftX - 
         this.activeStyle.padding.left - this.activeStyle.padding.right + 1
 
-    this.heigth = this.bottomY - this.topY -
+    this.height = this.bottomY - this.topY -
         this.activeStyle.padding.top - this.activeStyle.padding.bottom + 1
 
 
@@ -207,24 +207,24 @@ proc blur(this: Controll) =
 
 proc onPgUp(menu:Menu)=
     if menu.currentNode.offset > 0:
-        if menu.currentNode.offset > menu.heigth:
-            menu.currentNode.offset -= menu.heigth
-            menu.currentNode.currentChild = menu.currentNode.offset #-= menu.heigth
+        if menu.currentNode.offset > menu.height:
+            menu.currentNode.offset -= menu.height
+            menu.currentNode.currentChild = menu.currentNode.offset #-= menu.height
         else:
             menu.currentNode.offset = 0
             menu.currentNode.currentChild = 0
         menu.draw(true)
 
 proc onPgDown(menu:Menu)=
-    if menu.currentNode.offset < menu.currentNode.childs.high - menu.heigth + 1:
-        if menu.currentNode.offset + menu.heigth < menu.currentNode.childs.high - menu.heigth + 1:
-            menu.currentNode.offset += menu.heigth
-            menu.currentNode.currentChild = menu.currentNode.offset #+= menu.heigth
+    if menu.currentNode.offset < menu.currentNode.childs.high - menu.height + 1:
+        if menu.currentNode.offset + menu.height < menu.currentNode.childs.high - menu.height + 1:
+            menu.currentNode.offset += menu.height
+            menu.currentNode.currentChild = menu.currentNode.offset #+= menu.height
         else:
-            menu.currentNode.offset = menu.currentNode.childs.high - menu.heigth + 1
-            menu.currentNode.currentChild = menu.currentNode.childs.high - menu.heigth + 1
+            menu.currentNode.offset = menu.currentNode.childs.high - menu.height + 1
+            menu.currentNode.currentChild = menu.currentNode.childs.high - menu.height + 1
     else: 
-        menu.currentNode.offset = menu.currentNode.childs.high - menu.heigth + 1
+        menu.currentNode.offset = menu.currentNode.childs.high - menu.height + 1
         menu.currentNode.currentChild = menu.currentNode.childs.high
 
     menu.draw(true)
@@ -394,11 +394,11 @@ proc onKeypress(this:Controll, event:KMEvent)=
                         menu.draw(true)
 
                 of KeyEnd:
-                    if menu.currentNode.childs.high > (menu.heigth): # -1 label
-                        menu.currentNode.offset = menu.currentNode.childs.high - (menu.heigth) + 1 # +1 next row
+                    if menu.currentNode.childs.high > (menu.height): # -1 label
+                        menu.currentNode.offset = menu.currentNode.childs.high - (menu.height) + 1 # +1 next row
                     menu.currentNode.currentChild = menu.currentNode.childs.high
 
-                    this.app.cursorPos.y = if menu.currentNode.childs.high > (menu.heigth) : 
+                    this.app.cursorPos.y = if menu.currentNode.childs.high > (menu.height) : 
                         menu.bottomY() else : menu.topY() + menu.currentNode.childs.high + 1 #+1 label
 
                     menu.draw(true)
@@ -494,7 +494,7 @@ proc newMenu*(app:App, label:string="Menu"): Menu =
     result.prevWorkSpace = nil #...
     result.visible = true
     #result.width = 10
-    #result.heigth = 10
+    #result.height = 10
 
     result.workSpace = result.app.newWorkSpace(result.label)
     discard result.workSpace.newTile("100%")
@@ -568,7 +568,7 @@ proc newMenu*(app:App, label:string="Menu"): Menu =
 
 
 
-proc newInlineMenu*(win:Window, label:string="Menu", width:int=20, heigth:int=20): Menu =
+proc newInlineMenu*(win:Window, label:string="Menu", width:int=20, height:int=20): Menu =
    ## it modifies newMenu for inline, controll style use
    ## it is for app menus
    result = new Menu
@@ -582,7 +582,7 @@ proc newInlineMenu*(win:Window, label:string="Menu", width:int=20, heigth:int=20
    result.visible = true
    
    result.width = width
-   result.heigth = heigth
+   result.height = height
 
 
    result.styles = newStyleSheets()
@@ -635,5 +635,5 @@ proc newInlineMenu*(win:Window, label:string="Menu", width:int=20, heigth:int=20
    #result = newMenu(win.app, label)
    result.recalc = nil # disable recalc fun - you may replace recalc wit your own
    result.width = width #todo #????    
-   result.heigth = heigth #todo #????
+   result.height = height #todo #????
    win.controlls.add(result)

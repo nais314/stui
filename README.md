@@ -7,6 +7,8 @@ This is my first big app in Nim - it covers pretty much anything i need (to lear
   
 **News: APPBASE is now built into STUI - or STUI is build on top of APPBASE wich brings InterCom - inter thread communications - to the table**  [more on appbase ...](doc/appbase.md)
   
+    *For Nim 0.20.0 to compile it, Nim should be rekoched with `koch boot -d:danger` in your Nim install directory*  
+  
 branches:
 * master: usable alpha, revised for **nim v0.19.6** stable and **nim v0.19.9**, devel - *stable has no unicode.align == compile error; delete unicode. for nim 0.19.0 stable*  
 * devel: work in progress
@@ -27,7 +29,7 @@ Status: usable alpha. missing: widgets, banners, splash; docs, cleanup
 Please help the development with your feedback. :)  
 
 
-
+**News: HSL color tools added for RGB/256/16 color conversions; splash module added**
 **News: DoubleClick enabled, LineGraph controll first alpha release =)**
 
 **Future changes: enable Style inheritance; testing for isNil may replaced with dummy procs for GC safety; MaximizableControlls (doing); .nimble fixxes**
@@ -41,8 +43,8 @@ covering each other fully - only titlebar visible ("breadcrumbs like")
 Windows cannot be moved, etc.
 
 Controlls layout is automatically computed - from top to bottom, left to right.
-Controlls can have relative or exact width / heigth
-or manually if Controll.recalc() is added then it sets x1,x2,y1,y2,width,heigth.
+Controlls can have relative or exact width / height
+or manually if Controll.recalc() is added then it sets x1,x2,y1,y2,width,height.
 
 Terminal resize is watched in every 2 secs - on resize layout recalculated.
 

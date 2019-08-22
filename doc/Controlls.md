@@ -23,7 +23,7 @@ activeStyle: from the controlls styles the currently active one - for draw
     layout automatcally calculated, see stui.nim recalc procs  
     you may override it with adding recalc proc to the Controll  
       
-    recalc can use fixed width/heigth, or percent based width/heigth, depending on constructor (fixed uses int 100, relative uses string params "100")
+    recalc can use fixed width/height, or percent based width/height, depending on constructor (fixed uses int 100, relative uses string params "100")
 
 
 **Event flow, automatic KM events: (Keyboard & Mouse)**  

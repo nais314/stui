@@ -32,7 +32,7 @@ when isMainModule:
   x: scale
   selected: x
 
-  width, heigth
+  width, height
   yTicks: min, max/(barH * 8)   ,max
 
   val / (max/(barH * 8)) = 35 -> 35/8 = 4 r3 -> ████▃
@@ -260,7 +260,7 @@ when isMainModule:
       [label              ]
       [value              ]
 
-  val: (max / (barHeigth * 2)): unit
+  val: (max / (barHeight * 2)): unit
       val / unit -> █
       (val mod unit) < unit -> ▀_
       (val mod unit) < unit -> ▄_
@@ -593,7 +593,7 @@ when isMainModule:
     calc avg or valu
     setColor if current
 
-    calc y marks from heigth, maxValue, minValue.
+    calc y marks from height, maxValue, minValue.
 
     ??? negative marks, baseline? avg line/mark?
     negative even/odd styles

@@ -1,5 +1,4 @@
-#import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, locks
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 type Button* = ref object of Controll
     ## no border or padding style
@@ -13,7 +12,7 @@ type Button* = ref object of Controll
 
 proc setPaddingV*(this:Button, padding:int)=
     this.paddingV = padding
-    this.heigth = 1 + (padding * 2)
+    this.height = 1 + (padding * 2)
 
 proc setPaddingH*(this:Button, padding:int)=
     this.paddingH = padding
@@ -94,7 +93,7 @@ proc onClick*(this: Controll, event:KMEvent) =
                 c = getch()
         # visual feedback:
         sleep(100)
-        this.blur(this)
+        if this.blur != nil: this.blur(this)
         #this.app.activate(this.win)
         drawit(this)
         trigger(this,"click")
@@ -117,7 +116,7 @@ proc onKeyPress(this: Controll, event:KMEvent)=
 proc newButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 0 ): Button =
     result = new Button
     result.label=label
-    result.heigth = 1 + (paddingV * 2) 
+    result.height = 1 + (paddingV * 2) 
     result.width = label.runeLen() + (paddingH * 2) # padding
     result.visible = false
     result.disabled = false
@@ -161,4 +160,4 @@ proc newButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 0 )
 proc newButton*(win:Window, label: string, width:string, paddingV:int = 0): Button =
     result = newButton(win, label, 0, paddingV)
     discard width.parseInt(result.width_value)
-    #discard heigth.parseInt(result.heigth_value)
+    #discard height.parseInt(result.height_value)

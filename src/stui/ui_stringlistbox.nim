@@ -1,4 +1,4 @@
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 type
     StringListBox_Options* = seq[ tuple[name:string, action:proc():void]  ]
@@ -168,9 +168,9 @@ proc onKeyDown(this: StringListBox) =
         this.draw()
 
 proc onPgUp(this: StringListBox) =
-    if this.offset > this.heigth - 1:
-        this.offset -= (this.heigth - 1)
-        this.cursor -= (this.heigth - 1)
+    if this.offset > this.height - 1:
+        this.offset -= (this.height - 1)
+        this.cursor -= (this.height - 1)
     else:
         this.offset = 0
         this.cursor = 0
@@ -178,17 +178,17 @@ proc onPgUp(this: StringListBox) =
 
 
 proc onPgDown(this: StringListBox) =
-    if this.options.len > this.heigth:
-        if this.offset + (this.heigth - 1) < this.options.len - (this.heigth - 1):
+    if this.options.len > this.height:
+        if this.offset + (this.height - 1) < this.options.len - (this.height - 1):
             # jump a page down
-            this.offset += (this.heigth - 1)
+            this.offset += (this.height - 1)
             this.cursor = this.offset
         else:
-            if this.offset == this.options.len - (this.heigth - 1):
+            if this.offset == this.options.len - (this.height - 1):
                 this.cursor = this.options.high
                 this.app.cursorPos.y = this.bottomY
             else:
-                this.offset = this.options.len - (this.heigth - 1)
+                this.offset = this.options.len - (this.height - 1)
                 this.cursor = this.offset
         this.draw(true)
 
@@ -199,7 +199,7 @@ proc onHome(this: StringListBox)=
     this.draw(true)
 
 proc onEnd(this: StringListBox)=
-    this.offset = this.options.len - (this.heigth - 1)
+    this.offset = this.options.len - (this.height - 1)
     this.cursor = this.options.high
     this.draw(true)  
 
@@ -249,14 +249,14 @@ proc onScroll(this:Controll, event:KMEvent)=
 ########        #   ## #      ##  ##
 ########        #    # ###### #    #
 
-proc newStringListBox*(win:Window, label: string, width:int=20, heigth:int=20): StringListBox =
+proc newStringListBox*(win:Window, label: string, width:int=20, height:int=20): StringListBox =
     result = new StringListBox
     result.disabled = false
 
     result.label = label
 
     result.width = width
-    result.heigth = heigth
+    result.height = height
 
     result.options = @[]
 
@@ -313,7 +313,7 @@ proc newStringListBox*(win:Window, label: string, width:int=20, heigth:int=20): 
     win.controlls.add(result)
 
 
-proc newStringListBox*(win:Window, label: string, width:string, heigth:string): StringListBox =
+proc newStringListBox*(win:Window, label: string, width:string, height:string): StringListBox =
     result = newStringListBox(win, label)
     discard width.parseInt(result.width_value)
-    discard heigth.parseInt(result.heigth_value)
+    discard height.parseInt(result.height_value)

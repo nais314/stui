@@ -1,5 +1,4 @@
-#import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, locks
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 type ShdButton* = ref object of Controll
     ## no border or padding style
@@ -13,7 +12,7 @@ type ShdButton* = ref object of Controll
 
 proc setPaddingV*(this:ShdButton, padding:int)=
     this.paddingV = padding
-    this.heigth = 2 + (padding * 2)
+    this.height = 2 + (padding * 2)
 
 proc setPaddingH*(this:ShdButton, padding:int)=
     this.paddingH = padding
@@ -74,8 +73,8 @@ proc draw*(this: ShdButton, updateOnly: bool = false)=
         cLine = this.topY
         terminal_extra.setCursorPos(this.rightX + 1, cLine )
         stdout.write("▖")
-        if this.heigth > 2:
-            for iY in 1..this.heigth - 2:
+        if this.height > 2:
+            for iY in 1..this.height - 2:
                 cLine += 1
                 terminal_extra.setCursorPos(this.rightX + 1, cLine )
                 stdout.write("▌")
@@ -119,8 +118,8 @@ proc onClick*(this: Controll, event:KMEvent) =
             stdout.write("▄" * (this.width - 1))
             stdout.write("▖")
 
-            if this.heigth > 2:
-                for iY in 1..this.heigth - 2:
+            if this.height > 2:
+                for iY in 1..this.height - 2:
                     cLine += 1
                     terminal_extra.setCursorPos(this.leftX, cLine )
                     stdout.write("▐")
@@ -161,7 +160,7 @@ proc onKeyPress(this: Controll, event:KMEvent)=
 proc newShdButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 0 ): ShdButton =
     result = new ShdButton
     result.label=label
-    result.heigth = 2 + (paddingV * 2)
+    result.height = 2 + (paddingV * 2)
     result.width = label.runeLen() + (paddingH * 2) # padding
     result.visible = false
     result.disabled = false
@@ -205,4 +204,4 @@ proc newShdButton*(win:Window, label: string, paddingH: int = 0, paddingV:int = 
 proc newShdButton*(win:Window, label: string, width:string, paddingV:int = 0): ShdButton =
     result = newShdButton(win, label, 0, paddingV)
     discard width.parseInt(result.width_value)
-    #discard heigth.parseInt(result.heigth_value)
+    #discard height.parseInt(result.height_value)

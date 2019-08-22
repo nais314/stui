@@ -1,5 +1,4 @@
-#import stui, terminal, colors, colors_extra, colors256, unicode, tables, os, locks
-include "controll.inc.nim"
+include "controll_inc.nim"
 
 type
   SplashKind* = enum
@@ -15,7 +14,7 @@ type
       frames*: seq[seq[string]] ## frames, lines (i) 66milsec sleep for 15fps
       header*: seq[int] 
       ## header first line: `\e\x01 ..;..;.. \e[2K`
-      ## width, heigth,
+      ## width, height,
     of skANS:
       content*: string
     #lines*: seq[string] ## the image, characters only
@@ -150,7 +149,7 @@ proc parse*(splash:Splash, str:string)=
   ## or even an animation - a multi page ansi text.
   ## because of the escape sequences, line width is unknown, and 
   ## to center splash on screen, width needed.
-  ## (heigth comes from num lines)
+  ## (height comes from num lines)
   var
     parsingEsc: bool = false # state
     esc: string

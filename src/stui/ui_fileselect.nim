@@ -1,4 +1,4 @@
-include "controll.inc.nim"
+include "controll_inc.nim"
 #import stui, terminal, colors, colors_extra, unicode, tables, locks
 #import strutils, parseutils
 #import ui_chooser
@@ -198,7 +198,7 @@ proc fileMenuRecalc(this:Controll)=
 
     this.width = this.rightX - this.leftX + 1
 
-    this.heigth = this.bottomY - this.topY + 1
+    this.height = this.bottomY - this.topY + 1
 
     #echo "fileMenuRecalc\nfileMenuRecalc2\nfileMenuRecalc3\nfileMenuRecalc4\nfileMenuRecalc5"
 
@@ -382,7 +382,7 @@ proc onClick(this:Controll, event:KMEvent)=
             win.x2 = parentWin.x2
             win.y2 = parentWin.y2
             win.width = parentWin.width # win.x2 - win.x1
-            win.heigth = win.y2 - win.y1
+            win.height = win.y2 - win.y1
 
 
             var styleNormal: StyleSheetRef = new StyleSheetRef
@@ -399,7 +399,7 @@ proc onClick(this:Controll, event:KMEvent)=
             pathTB.preval = fs.path
 
             #var fileMenu : Menu
-            var fileMenu = win.newInlineMenu( label = "Menu", width = win.width, heigth = (win.heigth - 8))
+            var fileMenu = win.newInlineMenu( label = "Menu", width = win.width, height = (win.height - 8))
             fileMenu.recalc = fileMenuRecalc
             fileMenu.childLoader = ui_fileselect.childLoader
             fileMenu.childUnLoader = ui_fileselect.childUnLoader
@@ -473,7 +473,7 @@ proc newFileSelect*(win:Window, label: string, width:int=20): FileSelect =
     result.visible = false
     result.disabled = false
     #result.width = width
-    result.heigth = 2
+    result.height = 2
     result.styles = newTable[string, StyleSheetRef](8)
 #[     result.styles.add("input",win.app.styles["input"])
     result.activeStyle = result.styles["input"] ]#

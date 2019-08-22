@@ -35,7 +35,8 @@
 ]#
 
 
-import unicode, terminal, colors, stui/[colors256, colors_extra, terminal_extra]
+import unicode, terminal, colors, stui/[colors_extra, terminal_extra]
+import stui/colors/colors256
 import os, osproc, locks, threadpool
 import parseutils, parsecfg, strutils, strformat, unicode
 import tables
@@ -153,7 +154,7 @@ type
   KMEventKind* {.pure.} = enum
     Click, Release, 
     LongClick,
-    Drag, Drop,
+    Drag, InnerDrag, Drop,
     ScrollUp, ScrollDown,
     DoubleClick,
 
@@ -184,12 +185,12 @@ type
 
   Controll* = ref object of TTUI
     label*:string # displayed above controll
-    x1*,y1*,x2*,y2*, width*,heigth*:int # incl margins & borders!
+    x1*,y1*,x2*,y2*, width*,height*:int # incl margins & borders!
 
     width_unit*: string # used (by Tile) to store width unit: %, auto, ch(aracter)
     width_value*: int # used (by Tile) for responsive width calc
-    #heigth_unit*: string #? heigth unit is percent.
-    heigth_value*: int # stores % value in int 0-100
+    #height_unit*: string #? height unit is percent.
+    height_value*: int # stores % value in int 0-100
     recalc*: proc(this_elem: Controll):void # if not nil called by Window.recalc()
 
     visible*: bool # if `value=` fires draw(), decide if not to draw - Window.draw()
@@ -200,8 +201,11 @@ type
     onRelease*: proc(this_elem: Controll, event: KMEvent):void
     onScroll*: proc(this_elem: Controll, event: KMEvent):void
     onDrag*: proc(this_elem: Controll, event: KMEvent):void # set style
+    onInnerDrag*: proc(this_elem: Controll, event: KMEvent):void # nedded for painting =)
     onDrop*: proc(this_elem: Controll, event: KMEvent):void
     onKeypress*: proc(this_elem: Controll, event: KMEvent):void
+
+    onRecalc*: proc(this:Controll)
 
     focus*: proc(this_elem: Controll):void # set style, no redraw
     blur*: proc(this_elem: Controll):void # set style, no redraw, trigger("change")
@@ -311,7 +315,7 @@ proc genId*(length: int = 5):string=
     A = ['A','B','C','D','E','F','G','H',
          'I','J','K','L','M','N','O','P','Q','R','S','W','V','Z','Y']
 
-  result = $rand(A)
+  result = $sample(A)
   while result.len < length:
     result &= $rand(9)
 
@@ -344,6 +348,41 @@ proc is_odd*(x:int): bool = return if (x and 1) == 1: true else: false
 
 template is_even*(x:int): bool =
   return not is_odd(x)
+
+
+proc getMin*[T](args: varargs[T]):T=
+  result = T.high
+  for arg in args:
+    if arg < result:
+      result = arg
+
+proc getMax*[T](args: varargs[T]):T=
+  result = 0
+  for arg in args:
+    if arg > result:
+      result = arg
+
+
+proc `div`*(x,y:float):float=
+  var i:int=1
+  while y * i.float < x:
+    i += 1
+  return i.float - 1
+
+
+iterator countUp*(x,y,step:float):float=
+  var r = x
+  while r + step < y:
+    yield r
+    r += step
+
+iterator countDown*(x,y,step:float):float=
+  var r = x
+  while r - step > y:
+    yield r
+    r -= step
+  
+
 
 #---------------------------------------------
 ###        ######  ######## ##    ## ##       ########
@@ -454,6 +493,13 @@ proc changeBGColor*(this: Controll, stylename: string, colorname: string) =
   for iCM in 2..3:    
     this.styles[stylename].bgColor[iCM] = colors_extra.parseColor(colorname, iCM)
 
+#[ # not sure if i need so much procs for convinience
+proc changeBGColor*(this:StyleSheetRef, colorname: string)=
+  for iCM in 0..1:    
+    this.bgColor[iCM] = colors_extra.parseColor("bg" & colorname, iCM)
+  for iCM in 2..3:    
+    this.bgColor[iCM] = colors_extra.parseColor(colorname, iCM)
+ ]#
 
 proc copyColorsFrom*(this, style: StyleSheetRef)=
   this.fgColor = style.fgColor
@@ -504,6 +550,10 @@ proc toggleBlink*(this:Controll, styleName:string="input")=
     this.styles[styleName].textStyle.excl(styleBlink)
   else:
     this.styles[styleName].textStyle.incl(styleBlink)
+
+
+proc setActiveStyle*(this:Controll, stylename:string)=
+  this.activeStyle = this.styles[stylename]
 
 #---------------------------------------------
 
@@ -908,6 +958,7 @@ proc setActiveWorkSpace*(app: App, id:string)=
 
 
 proc parseSizeStr*(width:string): tuple[width_unit:string,width_value:int]=
+  ## relative width parser for controlls
   var
     width_unit:string
     width_value:int
@@ -923,7 +974,8 @@ proc parseSizeStr*(width:string): tuple[width_unit:string,width_value:int]=
   result.width_unit = width_unit
   result.width_value = width_value
 
-
+template parseSizeStr*(this:Controll, width:string)=
+  (this.width_unit, this.width_value) = parseSizeStr(width)
 
 
 
@@ -1093,43 +1145,49 @@ proc newApp*(appDir: string): App = # appDir for themes
 
 
 
-proc outerHeigth(this: Controll): int {.inline.} =
+proc outerHeight(this: Controll): int {.inline.} =
   ## used by recalc
-  if this.heigth_value > 0: # relative heigth used (percent)
+  if this.height_value > 0: # relative height used (percent)
 
     if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
-      if this.heigth_value == 100:
-        this.heigth = this.win.heigth - 1 -
+      if this.height_value == 100:
+        this.height = this.win.height - 1 - # titlebar
           this.win.activeStyle.padding.top -
           this.win.activeStyle.padding.bottom -
           this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2 # 2->border
       else:
-        this.heigth = int(((this.win.heigth - 1 -
+        this.height = int(((this.win.height - 1 - # titlebar
           this.win.activeStyle.padding.top -
-          this.win.activeStyle.padding.bottom).float / 100.0) * this.heigth_value.float) -
+          this.win.activeStyle.padding.bottom).float / 100.0) * this.height_value.float) -
           this.activeStyle.margin.top - this.activeStyle.margin.bottom - 2 # 2->border
 
     else: # no border
-      if this.heigth_value == 100:
-        this.heigth = this.win.heigth - 1 -
+      if this.height_value == 100:
+        this.height = this.win.height - 1 - # titlebar
           this.win.activeStyle.padding.top -
           this.win.activeStyle.padding.bottom -
           this.activeStyle.margin.top - this.activeStyle.margin.bottom
       else:
-        this.heigth = int(((this.win.heigth - 1 -
+        this.height = int(((this.win.height - 1 - # titlebar
           this.win.activeStyle.padding.top -
-          this.win.activeStyle.padding.bottom).float / 100.0) * this.heigth_value.float) -
+          this.win.activeStyle.padding.bottom).float / 100.0) * this.height_value.float) -
           this.activeStyle.margin.top - this.activeStyle.margin.bottom
 
-    return this.heigth +
-      this.activeStyle.margin.top +
-      this.activeStyle.margin.bottom
+    if this.win.fullScreen:
+      this.height += 1 # no titlebar
+      return this.height +
+        this.activeStyle.margin.top +
+        this.activeStyle.margin.bottom
+    else:
+      return this.height +
+        this.activeStyle.margin.top +
+        this.activeStyle.margin.bottom
 
-  else: # egsact heigth value used
+  else: # egsact height value used
     if this.activeStyle.border != "none" and this.activeStyle.border != "": # has border
-      return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
+      return this.height + this.activeStyle.margin.top + this.activeStyle.margin.bottom + 2
     else: # no border
-      return this.heigth + this.activeStyle.margin.top + this.activeStyle.margin.bottom
+      return this.height + this.activeStyle.margin.top + this.activeStyle.margin.bottom
 
 proc borderWidth*(this: Controll): int {.inline.} =
   return if this.activeStyle.border == "none" or this.activeStyle.border == "" : 0 else: 1
@@ -1139,15 +1197,18 @@ proc borderWidth*(this: Controll): int {.inline.} =
 proc recalc*(this: Window, tile: Tile, layer: int) =
 
   this.x1 = tile.x1 #see: proc recalc*(this: WorkSpace, availRect: Rect) =
-  this.y1 = tile.y1 + layer
+  if not this.fullScreen: 
+    this.y1 = tile.y1 + layer
+  else:
+    this.y1 = 0
   this.x2 = tile.x2
   this.y2 = tile.y2
   this.width = tile.width
-  this.heigth = this.y2-this.y1
+  this.height = this.y2-this.y1
 
 
   var
-    availH = this.heigth - this.activeStyle.padding.top
+    availH = this.height - this.activeStyle.padding.top
     #iPage: int = 0 # for pages
     # for multiple columns
     xC: int = this.x1 + this.activeStyle.padding.left
@@ -1164,10 +1225,10 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
     # others change maxX - the starter column
     #TODO maxAvailH
     if maxAvailH == 0:
-      result = this.heigth - this.activeStyle.padding.top -
+      result = this.height - this.activeStyle.padding.top -
         this.activeStyle.padding.bottom
     else:
-      result = maxAvailH #this.heigth - this.activeStyle.padding.top - (maxAvailH - this.y1)
+      result = maxAvailH #this.height - this.activeStyle.padding.top - (maxAvailH - this.y1)
 
   proc newPage()=
     page =  this.newPage()
@@ -1208,10 +1269,10 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
         this.controlls[iC].tabStop = tabStop
         page.controlls.add(this.controlls[iC])
         tabStop += 1
-        availH -= this.controlls[iC].outerHeigth() #?????? can be useful -;)
-      else: # if values for width, heigth added - by int or percentage:
+        availH -= this.controlls[iC].outerHeight() #?????? can be useful -;)
+      else: # if values for width, height added - by int or percentage:
         # if relative width used:
-        if this.controlls[iC].width_value != 0: # 0 by default == look for heigth prop
+        if this.controlls[iC].width_value != 0: # 0 by default == look for height prop
           # 100% width, maybe not needed but...:
           if this.controlls[iC].width_value == 100:
             this.controlls[iC].width = (this.width) -
@@ -1229,8 +1290,8 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
               this.controlls[iC].borderWidth() * 2)
 
 
-        ###### heigth and width should be calculated at this point #####
-        ###### see: outerHeigth
+        ###### height and width should be calculated at this point #####
+        ###### see: outerHeight
 
 
         # if no room on bottom / and on side: ------------------------
@@ -1242,7 +1303,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
           this.controlls[iC].activeStyle.margin.left +
           this.controlls[iC].activeStyle.margin.right #!X2
 
-        if this.controlls[iC].outerHeigth() >= availH or this.controlls[iC].x2 > this.x2:
+        if this.controlls[iC].outerHeight() >= availH or this.controlls[iC].x2 > this.x2:
           # if room on the right: new column
           if maxX + 1 + this.controlls[iC].width +
             this.controlls[iC].activeStyle.margin.left +
@@ -1254,7 +1315,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
             availH = calcAvailH()
           else: # new page
             newPage()
-            #[ echo "NEWPAGE: ", this.controlls[iC].outerHeigth(), " vs ", $(availH )
+            #[ echo "NEWPAGE: ", this.controlls[iC].outerHeight(), " vs ", $(availH )
             discard stdin.readLine() ]#
 
             this.controlls[iC].x2 = xC + (this.controlls[iC].width - 1) +
@@ -1263,13 +1324,12 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
               this.controlls[iC].activeStyle.margin.right #!X2
 
             # todo: rethink error MSG
-            if this.controlls[iC].outerHeigth() > availH or this.controlls[iC].x2 > this.x2:
-              echo "ERR Controll cannot be placed on screen! PRESS ENTER! ", this.controlls[iC].outerHeigth(), " vs ", $(availH + 1)
+            if this.controlls[iC].outerHeight() > availH or this.controlls[iC].x2 > this.x2:
+              echo "ERR Controll cannot be placed on screen! PRESS ENTER! ", this.controlls[iC].outerHeight(), " vs ", $(availH + 1)
               #discard stdin.readLine()
               continue
         #...............................................................
-
-
+        
 
         this.controlls[iC].tabStop = tabStop
         page.controlls.add(this.controlls[iC])
@@ -1278,14 +1338,18 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
 
         this.controlls[iC].x1 = xC #! xC may changed by newColumn->x2 recalc!!!
 
-        #this.controlls[iC].y1 = this.y1 + (this.heigth - availH) + this.controlls[iC].activeStyle.margin.top + 1
-        this.controlls[iC].y1 =  this.y1 + (this.heigth - availH) + 1
+        #this.controlls[iC].y1 = this.y1 + (this.height - availH) + this.controlls[iC].activeStyle.margin.top + 1
+        this.controlls[iC].y1 =  this.y1 + (this.height - availH) + 1
 
         this.controlls[iC].x2 = this.controlls[iC].x1 + (this.controlls[iC].width - 1) + (this.controlls[iC].borderWidth() * 2) + this.controlls[iC].activeStyle.margin.left + this.controlls[iC].activeStyle.margin.right #!X2
 
-        this.controlls[iC].y2 = this.controlls[iC].y1 + (this.controlls[iC].heigth - 1) + (this.controlls[iC].borderWidth() * 2) + this.controlls[iC].activeStyle.margin.top + this.controlls[iC].activeStyle.margin.bottom
+        this.controlls[iC].y2 = this.controlls[iC].y1 + (this.controlls[iC].height - 1) + (this.controlls[iC].borderWidth() * 2) + this.controlls[iC].activeStyle.margin.top + this.controlls[iC].activeStyle.margin.bottom
 
-        availH -= this.controlls[iC].outerHeigth()
+
+        if this.controlls[iC].onRecalc != nil: this.controlls[iC].onRecalc(this.controlls[iC])
+
+
+        availH -= this.controlls[iC].outerHeight()
 
         if this.controlls[iC].width_value == 100: maxAvailH = availH
 
@@ -1296,7 +1360,7 @@ proc recalc*(this: Window, tile: Tile, layer: int) =
           this.controlls[iC].activeStyle.margin.right and
           this.controlls[iC].width_value != 100:
 
-          maxX =  this.controlls[iC].x1 +
+          maxX = this.controlls[iC].x1 +
             (this.controlls[iC].width - 1) +
             (this.controlls[iC].borderWidth() * 2) +
             this.controlls[iC].activeStyle.margin.left +
@@ -1347,7 +1411,7 @@ proc recalc*(this: WorkSpace, availRect: Rect) =
     this.tiles[iT].y2 = availRect.y2
 
     # calc Windows
-    #? relative Heigths?
+    #? relative Heights?
     if this.tiles[iT].windows.len > 0:
       for iW in 0..this.tiles[iT].windows.high:
         recalc(this.tiles[iT].windows[iW], this.tiles[iT], iW)
@@ -1553,7 +1617,7 @@ proc drawTitle*(this: Window) =
     release(this.app.termlock)
 
 
-method draw*(this: Controll) {.base.} =
+proc draw*(this: Controll)=
   discard
 
 proc draw*(this: Window) =
@@ -1577,7 +1641,7 @@ proc draw*(this: Window) =
 
 
 
-method draw*(this: Tile) =
+proc draw*(this: Tile) =
   if this.windows.len > 0 :
     this.windows[this.windows.high].draw()
 
@@ -1871,6 +1935,14 @@ proc appOnKeypress*(app:App, event: KMEvent):bool=
 
         else: discard
 
+    of KMEventKind.Char:#! new feature test!
+      if app.listeners.len > 0:
+        for i in 0..app.listeners.high:
+          if app.listeners[i].name == event.key:
+            for j in 0..app.listeners[i].actions.high:
+              app.listeners[i].actions[j]()
+            result = true
+
     else: discard
 
 #------------------------------------------------------------------------
@@ -1905,6 +1977,7 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
 
   if eventTarget != nil:
     event.target = eventTarget
+
     if event.evType == KMEventKind.Click :
       if eventTarget.onClick != nil:
         eventTarget.onClick(eventTarget, event)
@@ -1924,6 +1997,13 @@ proc mouseEventHandler*(app: App, event: KMEvent):void =
 
       app.dragSource = app.activeControll
       if app.dragSource.onDrag != nil: app.dragSource.onDrag(eventTarget, event)
+
+    elif event.evType == KMEventKind.Drag and 
+      app.activeControll == eventTarget and
+      eventTarget.onInnerDrag != nil:
+        event.evType = KMEventKind.InnerDrag
+        eventTarget.onClick(eventTarget, event)
+        #echo "TEST"
 
     if event.evType == KMEventKind.Drop :
       if app.dragSource != eventTarget and not app.dragSource.disabled and not eventTarget.disabled: # dont fire drop on itself OR disabled

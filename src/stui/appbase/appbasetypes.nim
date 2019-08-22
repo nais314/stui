@@ -157,8 +157,10 @@ when defined mainChannelJsonChecked_enabled:
     ## Retrieves the  int value as pointer  of a `JInt JsonNode`.
     ##
     ## Returns ``default`` if ``n`` is not a ``JInt``, or if ``n`` is nil.
-    if n.isNil or n.kind != JInt: return nil
-    else: return cast[ptr ChannelJson](cast[uint](n.num))[]
+    if n.isNil or n.kind != JInt: 
+      return nil
+    else: 
+      return cast[ptr ChannelJson](cast[uint](n.num))[]
 
 
 

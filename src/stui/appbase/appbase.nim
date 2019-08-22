@@ -73,7 +73,6 @@ template mainLoop*[T](app:T, eventhandler: untyped)=
 
         when defined timedActions_enabled: app.runTimers()
 
-
         when defined mainChannelLog_enabled: handleLogChannel()
         when defined mainChannelInt_enabled: handleMainChannelInt()
 

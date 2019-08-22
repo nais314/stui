@@ -1,4 +1,4 @@
-import terminal, colors, "../colors256", strutils
+import terminal, colors, stui/colors/colors256, strutils
 
 var 
     c256: Color256
